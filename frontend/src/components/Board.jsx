@@ -129,9 +129,6 @@ function Board(props) {
       {props.token ? (
         <>
           <div className="container mx-auto flex justify-between my-5 px-2">
-            <div className="flex items-center">
-              <h5 className="text-gray-700 font-semibold">My board</h5>
-            </div>
             <div className="flex justify-center">
               <AddColumn board={board} setBoard={setBoard} />
             </div>

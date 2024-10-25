@@ -44,7 +44,7 @@ function Column(props) {
               className="text-gray-600"
               onClick={() => deleteColumn(props.column.id, props.index)}
             >
-              Delete
+              Удалить
             </span>
           </div>
           <div className="h-full">

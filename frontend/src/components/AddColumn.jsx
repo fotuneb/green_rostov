@@ -39,7 +39,7 @@ function AddColumn(props) {
     <div className="text-sm text-gray-600">
       {showNewColumnButton ? (
         <button onClick={() => setShowNewColumnButton(false)}>
-          New column
+          Добавить столбец
         </button>
       ) : (
         <input

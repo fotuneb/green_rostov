@@ -48,7 +48,7 @@ function AddTask(props) {
           className="px-2 py-1"
           onClick={() => setShowNewTaskButton(false)}
         >
-          New task
+          Создать карточку
         </button>
       ) : (
         <input

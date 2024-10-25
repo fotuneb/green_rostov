@@ -44,7 +44,7 @@ function Task(props) {
                 deleteTask(props.columnId, props.index, props.task.id)
               }
             >
-              Delete
+              Удалить
             </span>
           </div>
         </div>

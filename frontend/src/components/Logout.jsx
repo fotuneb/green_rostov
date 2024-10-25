@@ -15,7 +15,7 @@ function Logout(props) {
       onClick={logoutUser}
       className="whitespace-nowrap text-base text-gray-500 hover:text-gray-900"
     >
-      Log out
+      Выйти
     </button>
   );
 }
