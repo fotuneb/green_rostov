@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.column-width {
+  min-width: 320px;
+  width: 320px;
+}

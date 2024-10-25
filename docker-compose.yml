@@ -1,0 +1,58 @@
+services:
+  database:
+    image: postgres
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: Password1
+    ports:
+      - 5432:5432
+
+  server:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    environment:
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: Password1
+      POSTGRES_HOST: database
+      POSTGRES_PORT: 5432
+      POSTGRES_DBNAME: postgres
+      JWT_SECRET: myjwtsecret
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+    volumes:
+      - ./backend:/app/api
+
+  client:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    command: npm run-script start
+    tty: true
+    environment:
+      WEB_API_URL: http://server:8000
+    ports:
+      - 3000:3000
+    depends_on:
+      - server
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
+
+  nginx:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - server
+      - client
+    ports:
+      - 8080:80
+
+volumes:
+  pgdata:
