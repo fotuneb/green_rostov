@@ -1,0 +1,12 @@
+.board-column {
+    background-color: rgb(238, 229, 229);
+    padding: 1em;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    width: 35vmin;
+}
+
+.board-column-header {
+    display: flex;
+    justify-content: space-between;
+}

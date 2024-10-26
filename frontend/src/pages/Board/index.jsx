@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
+import "./board.css"
 
-import Column from "./Column";
-import AddColumn from "./AddColumn";
+import Column from "../../components/Column"
+import AddColumn from "../../components/AddColumn";
 
 function Board(props) {
   const initialData = { tasks: {}, columns: {}, columnOrder: [] };
@@ -125,17 +126,9 @@ function Board(props) {
   }
 
   return (
-    <>
+    <div className="board board-columns font-inter">
       {props.token ? (
         <>
-          <div className="container mx-auto flex justify-between my-5 px-2">
-            <div className="flex items-center">
-              <h5 className="text-gray-700 font-semibold">My board</h5>
-            </div>
-            <div className="flex justify-center">
-              <AddColumn board={board} setBoard={setBoard} />
-            </div>
-          </div>
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable
               droppableId="all-columns"
@@ -144,7 +137,7 @@ function Board(props) {
             >
               {(provided) => (
                 <div
-                  className="flex justify-center"
+                  className="board-columns"
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
@@ -169,12 +162,17 @@ function Board(props) {
               )}
             </Droppable>
           </DragDropContext>
+          <div className="container mx-auto flex justify-between my-5 px-2">
+            <div className="flex justify-center">
+              <AddColumn board={board} setBoard={setBoard} />
+            </div>
+          </div>
         </>
       ) : (
         <Navigate to="/login" />
       )}
-    </>
-  );
+    </div>
+  )
 }
 
 export default Board;

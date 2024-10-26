@@ -44,7 +44,7 @@ async def create_user(user_in: UserIn):
 
 @router.post("/token")
 async def generate_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = await authenticate_user(form_data.fullname, form_data.username, form_data.password)
+    user = await authenticate_user(form_data.username, form_data.password)
 
     if not user:
         raise HTTPException(

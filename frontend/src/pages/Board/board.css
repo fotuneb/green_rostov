@@ -1,0 +1,9 @@
+.board {
+    margin: 1em;
+}
+
+.board-columns {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}

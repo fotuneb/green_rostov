@@ -1,7 +1,9 @@
 import React from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
-import Task from "./Task";
-import AddTask from "./AddTask";
+import { LuTrash2 } from "react-icons/lu"
+import Task from "../Task";
+import AddTask from "../AddTask";
+import "./column.css"
 
 function Column(props) {
   function deleteColumn(columnId, index) {
@@ -29,22 +31,23 @@ function Column(props) {
     <Draggable draggableId={props.column.id} index={props.index}>
       {(provided) => (
         <div
-          className="bg-gray-100 rounded-lg px-3 py-3 column-width rounded mx-2"
+          className="board-column"
           {...provided.draggableProps}
           ref={provided.innerRef}
         >
           <div
-            className="flex justify-between tracking-wide text-sm"
+            className="board-column-header"
             {...provided.dragHandleProps}
           >
-            <span className="text-gray-700 font-semibold">
-              {props.column.title} ({props.tasks.length})
+            <span className="font-semibold">
+              {props.column.title}
             </span>
+
             <span
               className="text-gray-600"
               onClick={() => deleteColumn(props.column.id, props.index)}
             >
-              Delete
+              <LuTrash2 />
             </span>
           </div>
           <div className="h-full">

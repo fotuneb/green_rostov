@@ -13,9 +13,9 @@ function Logout(props) {
   return (
     <button
       onClick={logoutUser}
-      className="whitespace-nowrap text-base text-gray-500 hover:text-gray-900"
+      className="nav-button"
     >
-      Log out
+      Выйти
     </button>
   );
 }

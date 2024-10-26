@@ -1,8 +1,22 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+body {
+  background-color: #f3f4f6;
+  /* Светлый фон страницы */
+}
 
 .column-width {
   min-width: 320px;
   width: 320px;
+}
+
+.font-inter {
+  font-family: "Inter", sans-serif;
+  text-decoration: none;
+}
+
+.font-semibold {
+  font-weight: 700;
+}
+
+.font-regular {
+  font-weight: normal;
 }

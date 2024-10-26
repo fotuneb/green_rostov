@@ -1,5 +1,8 @@
 import React from "react";
 import { Draggable } from "react-beautiful-dnd";
+import { LuText } from "react-icons/lu"
+import { Modal } from "../TaskModal"
+import "./task.css"
 
 function Task(props) {
   function deleteTask(columnId, index, taskId) {
@@ -23,31 +26,35 @@ function Task(props) {
     });
   }
 
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+
   return (
     <Draggable draggableId={props.task.id} index={props.index}>
       {(provided) => (
-        <div
-          className="bg-white shadow rounded mt-4 px-3 pt-3 pb-5 border border-white"
+        <button
+          onClick={openModal}
+          className="task"
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
         >
-          <div className="flex justify-between">
-            <p className="text-gray-700 font-semibold tracking-wide text-sm">
-              {props.task.content}
-            </p>
-          </div>
-          <div className="flex mt-4 justify-between items-center">
+          <p className="font-regular task-pad">
+            {props.task.content}
+          </p>
+          <Modal isOpen={isModalOpen} onClose={closeModal} />
+          <div className="task-pad">
             <span
-              className="text-sm text-gray-600"
               onClick={() =>
                 deleteTask(props.columnId, props.index, props.task.id)
               }
             >
-              Delete
+              <LuText />
             </span>
           </div>
-        </div>
+        </button>
       )}
     </Draggable>
   );
