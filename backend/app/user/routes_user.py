@@ -18,7 +18,7 @@ async def change_role(user_id: int, new_role: str, admin_user: UserModel = Depen
     return {"msg": "Role updated successfully"}
 
 @admin_router.post("/change-fullname/{user_id}")
-async def change_role(user_id: int, new_fullname: str, admin_user: UserModel = Depends(get_admin_user)):
+async def change_fullname(user_id: int, new_fullname: str, admin_user: UserModel = Depends(get_admin_user)):
     user = await UserModel.get(id=user_id)
     if not re.fullmatch(r"[A-Za-zА-Яа-яёЁ\s\-]+", new_fullname):
         raise ValueError("Fullname должен содержать только буквы, пробелы и дефисы.")
@@ -27,7 +27,7 @@ async def change_role(user_id: int, new_fullname: str, admin_user: UserModel = D
     return {"msg": "Role updated successfully"}
 
 @admin_router.post("/change-password/{user_id}")
-async def change_role(user_id: int, new_password: str, admin_user: UserModel = Depends(get_admin_user)):
+async def change_password(user_id: int, new_password: str, admin_user: UserModel = Depends(get_admin_user)):
     user = await UserModel.get(id=user_id)
     if len(new_password) > 20:
             raise ValueError("Пароль должен быть не длиннее 20 символов.")
