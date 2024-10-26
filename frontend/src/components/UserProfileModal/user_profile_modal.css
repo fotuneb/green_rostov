@@ -1,0 +1,16 @@
+.user-profile-modal {
+    width: auto;
+}
+
+.user-profile-label {
+    margin-bottom: 0.2em;
+}
+
+.user-profile-save {
+    width: 100%;
+    padding: 1em;
+    background-color: rgb(0, 133, 255);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}

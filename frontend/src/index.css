@@ -1,5 +1,6 @@
 body {
   background-color: #f3f4f6;
+  margin: 0;
   /* Светлый фон страницы */
 }
 
@@ -19,4 +20,8 @@ body {
 
 .font-regular {
   font-weight: normal;
+}
+
+.text-center {
+  text-align: center;
 }
