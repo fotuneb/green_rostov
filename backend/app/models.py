@@ -5,7 +5,7 @@ from tortoise.models import Model
 #import re
 
 
-class UserModel(Model):
+class UserModel(Model):     # not done on David
     id = fields.IntField(pk=True)
     fullname = fields.CharField(null = False, max_length=50)
     login = fields.CharField(null=False, max_length=20, unique=True)

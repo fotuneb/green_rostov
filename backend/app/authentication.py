@@ -29,7 +29,7 @@ async def get_current_user(token: str = Depends(oath2_scheme)):
         payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
         user = await UserModel.get(id=payload.get("id"))
 
-    except Exception:
+    except Exception:           # ошибка при авторизации при неправильных данных, нужен вывод о неправильности входных данных
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid login or password",
