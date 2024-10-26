@@ -5,8 +5,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from app.config import settings
-from app.models_user import UserModel
-from app.schemas import User
+from app.user.models_user import UserModel
+from app.user.schemas_user import User
 
 oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 

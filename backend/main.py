@@ -3,13 +3,15 @@ from tortoise.contrib.fastapi import register_tortoise
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routes import router
+from app.user.routes_user import router1
+from app.task.routes import router
 
 
 def create_app() -> FastAPI:
     application = FastAPI(docs_url="/api/docs", openapi_url="/api/openapi.json")
 
     application.include_router(router, prefix="/api")
+    application.include_router(router1, prefix="/api")
     application.add_middleware(
         CORSMiddleware,
         allow_origins=['*'],
@@ -29,7 +31,7 @@ def create_app() -> FastAPI:
     register_tortoise(
         application,
         db_url=postgres_url,
-        modules={"models": ["app.models_user"]},
+        modules={"models": ["app.user.models_user", "app.task.models"]},
         generate_schemas=True,
         add_exception_handlers=True,
     )
