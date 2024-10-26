@@ -5,6 +5,7 @@ import Navbar from "../Navbar";
 import Register from "../../pages/Register";
 import Login from "../../pages/Login";
 import Index from "../../pages/Index";
+import Admin from "../../pages/Admin";
 
 function getToken() {
   return localStorage.getItem("token");
