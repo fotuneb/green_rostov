@@ -36,3 +36,11 @@ async def get_current_user(token: str = Depends(oath2_scheme)):
         )
 
     return await User.from_tortoise_orm(user)
+
+async def get_admin_user(current_user: UserModel = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Admin privileges required."
+        )
+    return current_user
