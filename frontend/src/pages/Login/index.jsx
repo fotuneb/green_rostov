@@ -26,7 +26,7 @@ const Login = (props) => {
     searchParams.append("username", email);
     searchParams.append("password", password);
 
-    const response = await fetch("http://localhost:8000/api/token", {
+    const response = await fetch(process.env.REACT_APP_PUBLIC_URL + "/api/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
