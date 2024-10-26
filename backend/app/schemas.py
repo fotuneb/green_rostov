@@ -1,14 +1,16 @@
 from pydantic import BaseModel, EmailStr
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from app.models import UserModel
 
 
-class Task(BaseModel):      # +- done on Arman
-    id: str
+class Task(BaseModel):
+    id: int
+    title: str
     index: int
     content: str
     responsible: str
+    author: str
+    # column_id: fields.IntField
     
 
 
@@ -31,12 +33,3 @@ class Board(BaseModel):         # done
     columns: Columns
     columnOrder: list[str]
 
-
-class UserIn(BaseModel):
-    fullname: str
-    login: str
-    password1: str
-    
-
-
-User = pydantic_model_creator(UserModel, name="User")
