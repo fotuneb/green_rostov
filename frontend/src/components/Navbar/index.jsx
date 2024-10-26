@@ -32,6 +32,9 @@ function Navbar(props) {
             <Link to="/board">
               <button className="nav-button">Моя доска</button>
             </Link>
+            <Link to="/admin">
+              <button className="nav-button">Админка</button>
+            </Link>
             <button onClick={openModal} className="nav-button">Профиль</button>
             <span className="h-8 w-px mx-6 bg-gray-200" aria-hidden="true" />
             <Logout setToken={props.setToken} />
