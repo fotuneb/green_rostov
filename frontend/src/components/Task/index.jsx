@@ -36,7 +36,7 @@ function Task(props) {
       <Modal isOpen={isModalOpen} task={props.task} onClose={closeModal} />
       <Draggable draggableId={props.task.id} index={props.index}>
         {(provided) => (
-          <button
+          <div
             onClick={openModal}
             className="task"
             {...provided.draggableProps}
@@ -55,7 +55,7 @@ function Task(props) {
                 <LuText />
               </span>
             </div>
-          </button>
+          </div>
         )}
       </Draggable>
     </>
