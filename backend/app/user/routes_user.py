@@ -4,7 +4,6 @@ from passlib.hash import bcrypt
 import re
 from app.user.authentication import authenticate_user, create_token, get_current_user, get_admin_user
 from app.user.models_user import UserModel
-from app.task.schemas import Board, Task
 from app.user.schemas_user import User, UserIn
 
 router1 = APIRouter()
@@ -93,4 +92,4 @@ async def generate_token(form_data: OAuth2PasswordRequestForm = Depends()):
             detail = "Invalid email or password",
         )
 
-    return {"access_token": await create_token(user)}
+    return {"access_token": await create_token(user), "id": user.id}

@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from tortoise.contrib.pydantic import pydantic_model_creator
+from app.task.models import Column
 
 class Task(BaseModel):
     id: str
@@ -11,16 +13,11 @@ class Tasks(BaseModel):
 
 
 class Column(BaseModel):
-    id: str
     title: str
+    index: int
     tasks: Tasks
-    taskIds: list[str]
 
 
 class Columns(BaseModel):
     __root__: dict[str, Column]
 
-
-class Board(BaseModel):        
-    columns: Columns
-    columnOrder: list[str]

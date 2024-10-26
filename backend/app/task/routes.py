@@ -1,44 +1,288 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
-from passlib.hash import bcrypt
-import re
-from app.user.authentication import authenticate_user, create_token, get_current_user
+from starlette.status import HTTP_400_BAD_REQUEST
+from tortoise.transactions import in_transaction
+from tortoise.exceptions import DoesNotExist
+
 from app.user.models_user import UserModel
-from app.task.schemas import Board, Task
-from app.user.schemas_user import User, UserIn
+from app.task.models import Column, Task, Comments
+# from app.task.schemas import Task
+
+from pydantic import BaseModel
 
 router = APIRouter()
 
 
-@router.get("/board")
-async def get_board(user: User = Depends(get_current_user)): # type: ignore    # done
-    user = await UserModel.get(id=user.id)
 
-    return {"board": user.board}
+# возвращается id  и index
+@router.put("/api/column")
+async def create_column(request: str):
+    columns_exist = await Column.exists()
+    if columns_exist:
+        max_index_record = await Column.all().order_by("-index").values("index")
+        max_index = max_index_record[0]["index"] if max_index_record else 0
+        new_index = max_index + 1 # Увеличиваем индекс на 1
+    else:
+        # Если колонок нет, устанавливаем индекс в 0
+        new_index = 0
 
+    # Создайте новый столбец
+    column = await Column.create(title = request, index=new_index)
 
-@router.put("/board")
-async def save_board(board: Board, user: User = Depends(get_current_user)): # type: ignore     # done
-    user = await UserModel.get(id=user.id)
-    user.board = board.json()
-    await user.save()
-
-    return {"message": "success"}
-
-@router.get("/Task/{task_id}")
-async def get_task(task_id: str, user: User = Depends(get_current_user)): # type: ignore
-    for column in board.columns.root.values(): # type: ignore
-        if task_id in column.tasks.root:
-            return {"task": column.tasks.root[task_id]}
-    
-    raise HTTPException(status_code=status.HTTP_404_BAD_REQUEST, detail="Задача не найдена")
+    return {"id": column.id, 
+            "index": column.index,
+            "title": column.title
+    }
 
 
-@router.post("/task")
-async def save_task(task: Task, user: User = Depends(get_current_user)): # type: ignore
-    user = await UserModel.get(id=user.id)
-    user.task = task.json()
-    await user.save()
+# возвращается HTTP STATUS 200 OK в случае успеха
+@router.delete("/api/column/{id}")
+async def delete_column(id: int):
+    try:
+        column = await Column.get(id=id)
+        await column.delete()
+        return {"id": id}
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Column not found")
 
-    # тут че то надо сделать
-    return {"message": "success"}
+
+
+# возвращается ok 200
+@router.post("/api/column/rename/{new_title}")
+async def rename_column(id: int, new_title: str):
+    try:
+        column = await Column.get(id=id)
+        column.title = new_title
+        await column.save()
+        return {"title": column.title}
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Column not found")
+
+
+
+# [+] realisation drag-n-drop for column
+
+# возвращается status ok 200
+# @router.post("/api/column/move")
+@router.put("/api/columns/{column_id}/move")
+async def move_column(column_id: int, new_index: int):
+    async with in_transaction() as conn:
+        # Получаем колонку, которую необходимо переместить
+        column = await Column.get_or_none(id=column_id)
+        if not column:
+            raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Column not found")
+
+        old_index = column.index
+
+        if old_index < new_index:
+            # Перемещение вниз: уменьшаем индексы между старым и новым положением
+            columns_to_shift = await Column.filter(index__gt=old_index, index__lte=new_index)
+            for c in columns_to_shift:
+                c.index -= 1
+                await c.save(using_db=conn)
+        elif old_index > new_index:
+            # Перемещение вверх: увеличиваем индексы между новым и старым положением
+            columns_to_shift = await Column.filter(index__gte=new_index, index__lt=old_index)
+            for c in columns_to_shift:
+                c.index += 1
+                await c.save(using_db=conn)
+
+        # Обновляем индекс колонки
+        column.index = new_index
+        await column.save(using_db=conn)
+
+    return {"success": True, "new_index": new_index}
+
+
+
+
+
+# вывод всех задач      / добавить названия и тд
+@router.get("/api/task")
+async def get_tasks():
+    tasks = await Task.all()
+    return tasks
+
+# вывод всех колонок    / добавить названия и тд
+@router.get("/api/column")
+async def get_columns():
+    column = await Column.all()
+    return column
+
+
+
+
+# [+] создание task'a
+
+# возвращается id и индекс; содерджимое (description) изначально пусто
+@router.put("/api/task")
+async def create_task(title: str, id_column: int, id_user: int):
+    tasks_exist = await Task.exists()
+    if tasks_exist:
+        # Если колонки существуют, находим максимальный индекс
+        max_index_record = await Task.all().order_by("-index").values("index")
+        max_index = max_index_record[0]["index"] if max_index_record else 0
+        new_index = max_index + 1  # Увеличиваем индекс на 1
+    else:
+        # Если колонок нет, устанавливаем индекс в 0
+        new_index = 0
+
+    current_column = await Column.get(id=id_column)
+    # if not current_column:
+
+
+    task = await Task.create(
+        index = new_index,
+        title = title,
+        description = "",
+        author_id = id_user,
+        assignee_id = id_user,
+        column = current_column
+    )
+
+    return {
+        "id": task.id,  
+        "index": task.index,
+        "description": task.description,
+        "author": task.author_id,
+        "assignee": task.assignee_id, 
+        "column": task.column_id
+    }
+
+
+
+# возвращается ok 200
+@router.delete("/api/task/{id}")
+async def delete_task(id: int):
+    try:
+        task = await Task.get(id=id)
+        await task.delete()
+        return {"id": id}
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+
+
+
+# POST /api/task/rename - переименовать (передаю id и новое название, жду 200)
+# возвращается ok 200
+@router.post("/api/task/rename/{new_title}")
+async def rename_task(id: int, new_title: str):
+    try:
+        task = await Task.get(id=id)
+        task.title = new_title
+        await task.save()
+        return {"title": task.title}
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+
+
+# POST /api/task/change_contents - изменить содержимое (как выше, но текст)
+# возвращается ok 200
+@router.post("/api/task/change_contents/{new_title}")
+async def change_task_content(id: int, desc: str):
+    try:
+        task = await Task.get(id=id)
+        task.description = desc
+        await task.save()
+        return {"description": task.description}
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="description not found")
+
+
+# POST /api/task/change_responsible - изменить ответственного (передается id пользователя, ожидаю 200)
+# ожидаю 200
+@router.post("/api/task/change_responsible/{id}")
+async def change_responsible(id: int, id_user: int):
+    try:
+        task = await Task.get(id=id)
+        task.assignee_id = id_user
+        await task.save()
+        return {"msg": "assignee updated successully"}
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+
+
+
+# POST /api/task/move - поменять порядок (передаю id, столбец и индекс, в котором должна находиться таска, жду 200)
+@router.put("/api/tasks/{task_id}/move")
+async def move_task(task_id: int, new_column_id: int, new_index: int):
+    async with in_transaction() as conn:
+        # Получаем задачу, которую необходимо переместить
+        task = await Task.get_or_none(id=task_id)
+        if not task:
+            raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+
+        old_column_id = task.column_id
+        old_index = task.index
+
+        # Если перемещение происходит внутри той же колонки
+        if old_column_id == new_column_id:
+            if old_index < new_index:           # !!!
+                # Перемещение вниз: увеличиваем индексы между старым и новым положением
+                tasks_to_shift = await Task.filter(column_id=new_column_id, index__gt=old_index, index__lte=new_index)
+                for t in tasks_to_shift:
+                    t.index -= 1
+                    await t.save(using_db=conn)
+            elif old_index > new_index:
+                # Перемещение вверх: уменьшаем индексы между новым и старым положением
+                tasks_to_shift = await Task.filter(column_id=new_column_id, index__gte=new_index, index__lt=old_index)
+                for t in tasks_to_shift:
+                    t.index += 1
+                    await t.save(using_db=conn)
+
+        else:
+            # Перемещение в другую колонку
+            tasks_to_shift_old = await Task.filter(column_id=old_column_id, index__gt=old_index)
+            for t in tasks_to_shift_old:
+                t.index -= 1
+                await t.save(using_db=conn)
+
+            tasks_to_shift_new = await Task.filter(column_id=new_column_id, index__gte=new_index)
+            for t in tasks_to_shift_new:
+                t.index += 1
+                await t.save(using_db=conn)
+
+            task.column_id = new_column_id
+
+        # Обновляем индекс задачи
+        task.index = new_index
+        await task.save(using_db=conn)
+
+    return {"success": True}
+
+
+
+# POST /api/task/comments/ создать (передается text, user_id, task_id, возвращается id коммента)
+@router.post("/api/task/comments")
+async def create_comment(text: str, id_user: int, id_task: int):
+    comment = await Comments.create(
+        author_id = id_user,
+        text = text,
+        task_id = id_task
+    )
+    return {"id": comment.id,
+            "author_id": comment.author_id,
+            "create_date": comment.create_date,
+            "text": comment.text,
+            "task_id": comment.task_id
+    }
+
+
+# возвращается ok 200
+@router.delete("/api/task/comments/{id}")
+async def delete_comment(id: int):
+    try:
+        comment = await Comments.get(id=id)
+        await comment.delete()
+        return {"id": id}
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
+
+
+
+
+# вывод всех комментов    / добавить названия и тд
+@router.get("/api/task/comments")
+async def get_comments_from_user(user_id: int):
+    task_instance = await Task.get(id=user_id)
+    comms_from_user = await task_instance.comments.all()
+    return comms_from_user
