@@ -27,7 +27,7 @@ class Columns(BaseModel):
     __root__: dict[str, Column]
 
 
-class Board(BaseModel):         # done
+class Board(BaseModel):        
     columns: Columns
     columnOrder: list[str]
 

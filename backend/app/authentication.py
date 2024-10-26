@@ -16,8 +16,8 @@ async def create_token(user: UserModel) -> str:
     return jwt.encode(user_obj.dict(), settings.jwt_secret)
 
 
-async def authenticate_user(fullname: str, login: str, password: str) -> Union[User, bool]: # type: ignore
-    user = await UserModel.get_or_none(fullname=fullname, login=login)
+async def authenticate_user(login: str, password: str) -> Union[User, bool]: # type: ignore
+    user = await UserModel.get_or_none(login=login)
     if not user or not user.verify_password(password):
         return False
 

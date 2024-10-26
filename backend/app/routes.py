@@ -28,7 +28,7 @@ async def save_board(board: Board, user: User = Depends(get_current_user)): # ty
 @router.post("/users")
 async def create_user(user_in: UserIn):
     
-    if not re.fullmatch(r'^[A-Za-z\s-]+$', user_in.fullname):
+    if not re.fullmatch(r"[A-Za-zА-Яа-яёЁ\s\-]+", user_in.fullname):
             raise ValueError("Fullname должен содержать только буквы, пробелы и дефисы.")
     if len(user_in.password1) > 20:
             raise ValueError("Пароль должен быть не длиннее 20 символов.")
@@ -63,8 +63,8 @@ async def generate_token(form_data: OAuth2PasswordRequestForm = Depends()):
 
    
 @router.get("/Task/{task_id}")
-async def get_task(task_id: str, user: User = Depends(get_current_user)):
-    for column in board.columns.root.values():
+async def get_task(task_id: str, user: User = Depends(get_current_user)): # type: ignore
+    for column in board.columns.root.values(): # type: ignore
         if task_id in column.tasks.root:
             return {"task": column.tasks.root[task_id]}
     
