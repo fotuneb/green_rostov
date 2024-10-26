@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./add_column.css"
 
 function AddColumn(props) {
   const [showNewColumnButton, setShowNewColumnButton] = useState(true);
@@ -36,9 +37,9 @@ function AddColumn(props) {
   }
 
   return (
-    <div className="text-sm text-gray-600">
+    <>
       {showNewColumnButton ? (
-        <button onClick={() => setShowNewColumnButton(false)}>
+        <button className="add-column font-inter font-semibold" onClick={() => setShowNewColumnButton(false)}>
           Добавить столбец
         </button>
       ) : (
@@ -52,7 +53,7 @@ function AddColumn(props) {
           onBlur={() => setShowNewColumnButton(true)}
         />
       )}
-    </div>
+    </>
   );
 }
 

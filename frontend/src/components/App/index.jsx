@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Board from "./Board";
-import Navbar from "./Navbar";
-import Register from "./Register";
-import Login from "./Login";
-import Index from "./Index";
+import Board from "../../pages/Board";
+import Navbar from "../Navbar";
+import Register from "../../pages/Register";
+import Login from "../../pages/Login";
+import Index from "../../pages/Index";
 
 function getToken() {
   return localStorage.getItem("token");

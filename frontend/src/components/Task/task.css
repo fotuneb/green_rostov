@@ -1,0 +1,10 @@
+.task {
+    background-color: rgb(220, 211, 211);
+    border-radius: 4px;
+    text-align: justify;
+    margin: 1em 0;
+}
+
+.task-pad {
+    padding: 0.5em;
+}

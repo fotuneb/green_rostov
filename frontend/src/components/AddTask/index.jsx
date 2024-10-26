@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { LuPlus } from "react-icons/lu"
+import "./add_task.css"
 
 function AddTask(props) {
   const [showNewTaskButton, setShowNewTaskButton] = useState(true);
@@ -42,13 +44,14 @@ function AddTask(props) {
   }
 
   return (
-    <div className="mt-3 text-sm text-gray-600">
+    <>
       {showNewTaskButton ? (
         <button
-          className="px-2 py-1"
+          className="add-task font-inter font-semibold"
           onClick={() => setShowNewTaskButton(false)}
         >
-          Создать карточку
+          <LuPlus />
+          Добавить задачу
         </button>
       ) : (
         <input
@@ -61,7 +64,7 @@ function AddTask(props) {
           onBlur={() => setShowNewTaskButton(true)}
         />
       )}
-    </div>
+    </>
   );
 }
 
