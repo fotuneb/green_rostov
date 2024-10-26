@@ -39,7 +39,7 @@ function Board(props) {
   async function saveBoard() {
     const ws = "http://localhost:8000";
 
-    await fetch(ws + "/api/board", {
+    await fetch(ws + "/api/board", {    /* 422 ошибка */ 
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

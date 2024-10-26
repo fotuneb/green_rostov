@@ -4,9 +4,12 @@ from tortoise.contrib.pydantic import pydantic_model_creator
 from app.models import UserModel
 
 
-class Task(BaseModel):
+class Task(BaseModel):      # +- done on Arman
     id: str
+    index: int
     content: str
+    responsible: str
+    
 
 
 class Tasks(BaseModel):
@@ -16,6 +19,7 @@ class Tasks(BaseModel):
 class Column(BaseModel):
     id: str
     title: str
+    tasks: Tasks
     taskIds: list[str]
 
 
@@ -23,8 +27,7 @@ class Columns(BaseModel):
     __root__: dict[str, Column]
 
 
-class Board(BaseModel):
-    tasks: Tasks
+class Board(BaseModel):         # done
     columns: Columns
     columnOrder: list[str]
 

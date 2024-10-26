@@ -20,7 +20,8 @@ function AddTask(props) {
     const newTaskIds = Array.from(column.taskIds);
     newTaskIds.push(newTaskId);
 
-    const newTask = {
+    
+    const newTask = {  /* need to change, create body where will be content and responsible */
       id: newTaskId,
       content: content,
     };
