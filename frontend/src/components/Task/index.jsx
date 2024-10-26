@@ -1,4 +1,4 @@
-import React from "react";
+import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { LuText } from "react-icons/lu"
 import { Modal } from "../TaskModal"
@@ -32,31 +32,34 @@ function Task(props) {
   const closeModal = () => setModalOpen(false);
 
   return (
-    <Draggable draggableId={props.task.id} index={props.index}>
-      {(provided) => (
-        <button
-          onClick={openModal}
-          className="task"
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
-        >
-          <p className="font-regular task-pad">
-            {props.task.content}
-          </p>
-          <Modal isOpen={isModalOpen} onClose={closeModal} />
-          <div className="task-pad">
-            <span
-              onClick={() =>
-                deleteTask(props.columnId, props.index, props.task.id)
-              }
-            >
-              <LuText />
-            </span>
-          </div>
-        </button>
-      )}
-    </Draggable>
+    <>
+      <Modal isOpen={isModalOpen} task={props.task} onClose={closeModal} />
+      <Draggable draggableId={props.task.id} index={props.index}>
+        {(provided) => (
+          <button
+            onClick={openModal}
+            className="task"
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+          >
+            <p className="font-regular task-pad">
+              {props.task.content}
+            </p>
+            <div className="task-pad">
+              <span
+                onClick={() =>
+                  deleteTask(props.columnId, props.index, props.task.id)
+                }
+              >
+                <LuText />
+              </span>
+            </div>
+          </button>
+        )}
+      </Draggable>
+    </>
+
   );
 }
 

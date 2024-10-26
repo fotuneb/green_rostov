@@ -1,8 +1,3 @@
-.app {
-    text-align: center;
-    margin-top: 50px;
-}
-
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -16,12 +11,17 @@
 }
 
 .modal-content {
+    display: flex;
+    width: 80vw;
+    /* Ограничение ширины до 50% от высоты экрана */
+    height: 80%;
+    /* Максимальная высота модального окна */
+    overflow: auto;
+    /* Прокрутка для модального окна */
     background: white;
     border-radius: 8px;
-    width: 500px;
-    max-width: 90%;
     padding: 20px;
-    display: flex;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .modal-main {
@@ -41,5 +41,13 @@
 }
 
 .modal-actions li {
+    display: flex;
+    flex-direction: column;
     margin: 10px 0;
+}
+
+.quill {
+    overflow: auto;
+    height: auto;
+    /* Прокрутка внутри редактора */
 }
