@@ -29,7 +29,7 @@ def create_app() -> FastAPI:
     register_tortoise(
         application,
         db_url=postgres_url,
-        modules={"models": ["app.models"]},
+        modules={"models": ["app.models_user"]},
         generate_schemas=True,
         add_exception_handlers=True,
     )

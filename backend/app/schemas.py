@@ -25,3 +25,14 @@ class Columns(BaseModel):
 class Board(BaseModel):        
     columns: Columns
     columnOrder: list[str]
+
+from app.models_user import UserModel
+
+class UserIn(BaseModel):
+    fullname: str
+    login: str
+    password1: str
+    
+
+
+User = pydantic_model_creator(UserModel, name="User")

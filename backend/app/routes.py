@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from passlib.hash import bcrypt
 import re
 from app.authentication import authenticate_user, create_token, get_current_user
-from backend.app.models_user import UserModel
+from app.models_user import UserModel
 from app.schemas import Board, User, UserIn, Task
 
 router = APIRouter()
@@ -72,16 +72,12 @@ async def get_task(task_id: str, user: User = Depends(get_current_user)): # type
 
 
 @router.post("/task")
-async def save_task(task: Task, user: User = Depends(get_current_user)):
+async def save_task(task: Task, user: User = Depends(get_current_user)): # type: ignore
     user = await UserModel.get(id=user.id)
     user.task = task.json()
     await user.save()
 
     # тут че то надо сделать
     return {"message": "success"}
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST, detail= "".join(map(str, task)) + ", " + str(user)         # 422
-    )
 
 
-# обращение к task'ам get & put, задавать значения position относительно тасков 
