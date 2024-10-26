@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from passlib.hash import bcrypt
 import re
 from app.authentication import authenticate_user, create_token, get_current_user
-from app.models import UserModel
+from backend.app.models_user import UserModel
 from app.schemas import Board, User, UserIn, Task
 
 router = APIRouter()
