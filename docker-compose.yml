@@ -14,13 +14,7 @@ services:
       context: backend
       dockerfile: Dockerfile
     command: uvicorn main:app --host 0.0.0.0 --port 8000
-    environment:
-      POSTGRES_USERNAME: postgres
-      POSTGRES_PASSWORD: Password1
-      POSTGRES_HOST: database
-      POSTGRES_PORT: 5432
-      POSTGRES_DBNAME: postgres
-      JWT_SECRET: myjwtsecret
+    env_file: .env
     ports:
       - 8000:8000
     depends_on:
@@ -33,9 +27,8 @@ services:
       context: frontend
       dockerfile: Dockerfile
     command: npm run-script start
+    env_file: .env
     tty: true
-    environment:
-      WEB_API_URL: http://server:8000
     ports:
       - 3000:3000
     depends_on:
