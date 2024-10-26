@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ManageUserModal } from "../../components/ManageUserModal"
 import './admin.css'; // Импорт стилей
 
 const fetchUsers = async () => {
@@ -21,14 +22,15 @@ const Admin = () => {
         getUsers();
     }, []);
 
-    const handleEdit = (userId) => {
-        // Логика редактирования пользователя
-        console.log(`Редактирование пользователя с ID: ${userId}`);
-    };
+    const [isModalOpen, setModalOpen] = useState(false);
+
+    const openModal = () => setModalOpen(true);
+    const closeModal = () => setModalOpen(false);
 
     return (
-        <div className="admin-container">
-            <h1>Страница Администрирования</h1>
+        <div className="admin-container font-inter">
+            <ManageUserModal isOpen={isModalOpen} onClose={closeModal} />
+            <h1>Страница администрирования</h1>
             <table className="user-table">
                 <thead>
                     <tr>
@@ -43,7 +45,7 @@ const Admin = () => {
                             <td>{user.fullName}</td>
                             <td>{user.username}</td>
                             <td>
-                                <button onClick={() => handleEdit(user.id)}>Редактировать</button>
+                                <button className="admin-button" onClick={openModal}>Редактировать</button>
                             </td>
                         </tr>
                     ))}

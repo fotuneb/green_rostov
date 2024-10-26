@@ -29,7 +29,7 @@ h1 {
     background-color: #f1f1f1;
 }
 
-button {
+.admin-button {
     padding: 5px 10px;
     background-color: #4CAF50;
     color: white;
@@ -38,6 +38,6 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+.admin-button:hover {
     background-color: #45a049;
 }
