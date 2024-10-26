@@ -11,9 +11,9 @@ from app.user.routes_user import admin_router
 def create_app() -> FastAPI:
     application = FastAPI(docs_url="/api/docs", openapi_url="/api/openapi.json")
 
-    application.include_router(router, prefix="/api")
-    application.include_router(router1, prefix="/api")
-    application.include_router(admin_router, prefix="/api")
+    application.include_router(router, prefix="")
+    application.include_router(router1, prefix="")
+    application.include_router(admin_router, prefix="")
     application.add_middleware(
         CORSMiddleware,
         allow_origins=['*'],
