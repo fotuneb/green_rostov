@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ManageUserModal } from "../../components/ManageUserModal"
-import './admin.css'; // Импорт стилей
+import './admin.css';
 
 const fetchUsers = async () => {
     const ws = process.env.REACT_APP_PUBLIC_URL
@@ -20,7 +20,7 @@ const fetchUsers = async () => {
     return data
 }
 
-const Admin = () => {
+const Admin = ({ token }) => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState({});
 
@@ -42,7 +42,7 @@ const Admin = () => {
 
     return (
         <div className="admin-container font-inter">
-            <ManageUserModal isOpen={isModalOpen} selectedUser={selectedUser} onClose={closeModal} />
+            <ManageUserModal isOpen={isModalOpen} selectedUser={selectedUser} token={token} onClose={closeModal} />
             <h1>Страница администрирования</h1>
             <table className="user-table">
                 <thead>

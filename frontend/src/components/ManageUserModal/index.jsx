@@ -1,24 +1,54 @@
 
 import React, { useState } from 'react';
-import "./manage_user_modal.css"
+import "./manage_user_modal.css";
 
-const EditProfile = () => {
-    const [role, setRole] = useState('Гость');
+const ws = process.env.REACT_APP_PUBLIC_URL;
 
-    const [userInfo, setUserInfo] = useState({
-        name: '',
-        about: '',
+const updateFullname = async (token, userId, fullname) => {
+    const response = await fetch(ws + "/api/change-fullname/" + userId + '?new_fullname=' + fullname, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
     });
+
+    return await response.json()
+}
+
+const updateRole = async (token, userId, role) => {
+    const response = await fetch(ws + "/api/change-role/" + userId + '?new_role=' + role, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+    });
+
+    return await response.json()
+}
+
+const updatePassword = async (token, userId, password) => {
+    const response = await fetch(ws + "/api/change-password/" + userId + '?new_password=' + password, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        }
+    });
+
+    return await response.json();
+}
+
+const EditProfile = ({ user, token }) => {
+    const [role, setRole] = useState(user.role);
+    const [userFullname, setUserFullname] = useState(user.fullname);
+    const [curError, setCurError] = useState('');
+
     const [passwords, setPasswords] = useState({
-        currentPassword: '',
         newPassword: '',
         confirmPassword: '',
     });
-
-    const handleUserInfoChange = (e) => {
-        const { name, value } = e.target;
-        setUserInfo((prev) => ({ ...prev, [name]: value }));
-    };
 
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
@@ -27,9 +57,27 @@ const EditProfile = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Логика отправки данных на сервер
-        console.log('Информация пользователя:', userInfo);
-        console.log('Пароли:', passwords);
+
+        if (user.fullname !== userFullname) {
+            updateFullname(token, user.id, userFullname);
+        }
+
+        if (user.role !== role) {
+            updateRole(token, user.id, role);
+        }
+
+        const { newPassword, confirmPassword } = passwords
+        console.log(newPassword, confirmPassword)
+        if (newPassword == '') {
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            return setCurError('Пароли не совпадают!');
+        }
+
+        setCurError('');
+        updatePassword(token, user.id, newPassword);
     };
 
     return (
@@ -40,8 +88,8 @@ const EditProfile = () => {
                     <input
                         type="text"
                         name="name"
-                        value={userInfo.name}
-                        onChange={handleUserInfoChange}
+                        value={userFullname}
+                        onChange={(e) => setUserFullname(e.target.value)}
                         required
                     />
                 </div>
@@ -52,8 +100,8 @@ const EditProfile = () => {
                         value={role}
                         onChange={(e) => setRole(e.target.value)}
                     >
-                        <option value="Гость">Гость</option>
-                        <option value="Редактор">Редактор</option>
+                        <option value="guest">Гость</option>
+                        <option value="manager">Редактор</option>
                     </select>
                 </div>
                 <div className="input-group">
@@ -65,7 +113,6 @@ const EditProfile = () => {
                         name="newPassword"
                         value={passwords.newPassword}
                         onChange={handlePasswordChange}
-                        required
                     />
                 </div>
                 <div className="input-group">
@@ -77,9 +124,9 @@ const EditProfile = () => {
                         name="confirmPassword"
                         value={passwords.confirmPassword}
                         onChange={handlePasswordChange}
-                        required
                     />
                 </div>
+                {curError && <p style={{ color: 'red' }}>{curError}</p>}
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
             </form>
         </div>
@@ -87,13 +134,13 @@ const EditProfile = () => {
 };
 
 
-export const ManageUserModal = ({ isOpen, onClose }) => {
+export const ManageUserModal = ({ isOpen, onClose, selectedUser, token }) => {
     if (!isOpen) return null;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content manage-user-modal" onClick={(e) => e.stopPropagation()}>
-                <EditProfile />
+                <EditProfile user={selectedUser} token={token} />
             </div>
         </div>
     );
