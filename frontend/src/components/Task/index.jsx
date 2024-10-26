@@ -1,6 +1,7 @@
 import React from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { LuText } from "react-icons/lu"
+import { Modal } from "../TaskModal"
 import "./task.css"
 
 function Task(props) {
@@ -25,10 +26,16 @@ function Task(props) {
     });
   }
 
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+
   return (
     <Draggable draggableId={props.task.id} index={props.index}>
       {(provided) => (
-        <div class
+        <button
+          onClick={openModal}
           className="task"
           {...provided.draggableProps}
           {...provided.dragHandleProps}
@@ -37,6 +44,7 @@ function Task(props) {
           <p className="font-regular task-pad">
             {props.task.content}
           </p>
+          <Modal isOpen={isModalOpen} onClose={closeModal} />
           <div className="task-pad">
             <span
               onClick={() =>
@@ -46,7 +54,7 @@ function Task(props) {
               <LuText />
             </span>
           </div>
-        </div>
+        </button>
       )}
     </Draggable>
   );

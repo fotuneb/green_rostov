@@ -47,11 +47,10 @@ const Login = (props) => {
         <h2 className="login-title">Вход</h2>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
-            <label htmlFor="email">Почта</label>
+            <label htmlFor="username">Логин</label>
             <input
-              id="email"
-              name="email"
-              type="email"
+              id="username"
+              name="username"
               required
               onChange={(event) => setEmail(event.target.value)}
             />

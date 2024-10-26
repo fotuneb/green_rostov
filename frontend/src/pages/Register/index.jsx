@@ -3,29 +3,37 @@ import { Link, useNavigate } from "react-router-dom";
 import './register.css'; // Импортируем стили
 
 function Register(props) {
-  const [email, setEmail] = useState('');
+  const [fullname, setFullname] = useState('');
+  const [username, setUsername] = useState('');
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
   const navigate = useNavigate();
+  const [error, setError] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      if (password1 !== password2) {
+        return setError('Пароли не совпадают!');
+      }
+
+      setError('');
+
       const data = await createUser();
       const access_token = data["access_token"];
       props.setToken(access_token);
       localStorage.setItem("token", access_token);
       navigate("/board");
     } catch (error) {
-      console.error("Registration failed:", error);
+      setError(error)
     }
   };
 
   const createUser = async () => {
     const formData = {
-      email: email,
+      fullname: fullname,
+      login: username,
       password1: password1,
-      password2: password2,
     };
 
     const response = await fetch("http://localhost:8000/api/users", {
@@ -45,20 +53,27 @@ function Register(props) {
         <h2 className="register-title">Регистрация</h2>
         <form onSubmit={handleSubmit}>
           <div className="input-group">
-            <label htmlFor="email-address">Адрес эл. почты</label>
+            <label htmlFor="fullname">ФИО</label>
             <input
-              id="email-address"
-              name="email"
-              type="email"
+              id="fullname"
+              name="fullname"
               required
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => setFullname(event.target.value)}
             />
           </div>
           <div className="input-group">
-            <label htmlFor="password1">Пароль</label>
+            <label htmlFor="username">Логин</label>
             <input
-              id="password1"
-              name="password1"
+              id="username"
+              name="username"
+              onChange={(event) => setUsername(event.target.value)}
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="password">Пароль</label>
+            <input
+              id="password"
+              name="password"
               type="password"
               onChange={(event) => setPassword1(event.target.value)}
             />
@@ -77,6 +92,7 @@ function Register(props) {
             <div className="login-link">
               Уже есть аккаунт? <Link to="/login">Войти</Link>
             </div>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <button type="submit" className="register-button">Зарегистрироваться</button>
           </div>
         </form>
