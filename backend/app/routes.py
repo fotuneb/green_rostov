@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from passlib.hash import bcrypt
-
+import re
 from app.authentication import authenticate_user, create_token, get_current_user
 from app.models import UserModel
 from app.schemas import Board, User, UserIn
@@ -28,10 +28,14 @@ async def save_board(board: Board, user: User = Depends(get_current_user)): # ty
 @router.post("/users")
 async def create_user(user_in: UserIn):
     
-
+    if not re.fullmatch(r'^[A-Za-z\s-]+$', user_in.fullname):
+            raise ValueError("Fullname должен содержать только буквы, пробелы и дефисы.")
+    if len(user_in.password1) > 20:
+            raise ValueError("Пароль должен быть не длиннее 20 символов.")
     user = await UserModel.create(
-        fullname = user_in.fullname, email=user_in.login, password=bcrypt.hash(user_in.password1)
+        fullname = user_in.fullname, login=user_in.login, password=bcrypt.hash(user_in.password1)
     )
+    
 
     return {"access_token": await create_token(user)}
 

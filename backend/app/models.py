@@ -8,8 +8,8 @@ from tortoise.models import Model
 class UserModel(Model):
     id = fields.IntField(pk=True)
     fullname = fields.CharField(null = False, max_length=50)
-    email = fields.CharField(null=False, max_length=255, unique=True)
-    password = fields.CharField(max_length=255)
+    login = fields.CharField(null=False, max_length=20, unique=True)
+    password = fields.CharField(max_length=60)
     board = fields.JSONField(default={"tasks": {}, "columns": {}, "columnOrder": []})
 
     def verify_password(self, password):
