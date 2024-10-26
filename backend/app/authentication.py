@@ -16,9 +16,8 @@ async def create_token(user: UserModel) -> str:
     return jwt.encode(user_obj.dict(), settings.jwt_secret)
 
 
-async def authenticate_user(email: str, password: str) -> Union[User, bool]:
-    user = await UserModel.get(email=email)
-
+async def authenticate_user(fullname: str, login: str, password: str) -> Union[User, bool]: # type: ignore
+    user = await UserModel.get_or_none(fullname=fullname, login=login)
     if not user or not user.verify_password(password):
         return False
 
@@ -33,7 +32,7 @@ async def get_current_user(token: str = Depends(oath2_scheme)):
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
+            detail="Invalid login or password",
         )
 
     return await User.from_tortoise_orm(user)

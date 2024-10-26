@@ -30,9 +30,10 @@ class Board(BaseModel):
 
 
 class UserIn(BaseModel):
-    email: EmailStr
+    fullname: str
+    login: str
     password1: str
-    password2: str
+    
 
 
 User = pydantic_model_creator(UserModel, name="User")
