@@ -1,12 +1,15 @@
 from passlib.hash import bcrypt
 from tortoise import fields
 from tortoise.models import Model
+#from tortoise.exceptions import ValidationError
+#import re
 
 
 class UserModel(Model):
     id = fields.IntField(pk=True)
-    email = fields.CharField(null=False, max_length=255, unique=True)
-    password = fields.CharField(max_length=255)
+    fullname = fields.CharField(null = False, max_length=50)
+    login = fields.CharField(null=False, max_length=20, unique=True)
+    password = fields.CharField(max_length=60)
     board = fields.JSONField(default={"tasks": {}, "columns": {}, "columnOrder": []})
 
     def verify_password(self, password):
