@@ -24,7 +24,9 @@ function Board(props) {
   }, [board]);
 
   async function fetchBoard() {
-    const response = await fetch("http://127.0.0.1:8000/api/board", {
+    const ws = "http://localhost:8000";
+
+    const response = await fetch(ws + "/api/board", {
       headers: {
         Authorization: "Bearer " + props.token,
       },
@@ -36,9 +38,9 @@ function Board(props) {
   }
 
   async function saveBoard() {
-    const ws = "http://server:8000";
+    const ws = "http://localhost:8000";
 
-    await fetch(ws + "/api/board", {    /* 422 ошибка */
+    await fetch(ws + "/api/board", {    /* 422 ошибка */ 
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

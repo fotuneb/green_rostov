@@ -36,7 +36,7 @@ function Register(props) {
       password1: password1,
     };
 
-    const response = await fetch("http://localhost/api/users", {
+    const response = await fetch("http://localhost:8000/api/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -92,7 +92,7 @@ function Register(props) {
             <div className="login-link">
               Уже есть аккаунт? <Link to="/login">Войти</Link>
             </div>
-            {error && <p style={{ color: 'red' }}>{'ошибка'}</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <button type="submit" className="register-button">Зарегистрироваться</button>
           </div>
         </form>
