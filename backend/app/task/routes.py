@@ -280,7 +280,7 @@ async def move_task(task_id: int, new_column_id: int, new_index: int):
     
 
 # POST /api/task/comments/ создать (передается text, user_id, task_id, возвращается id коммента)
-@router.post("/api/task/comments")
+@router.post("/api/comments")
 async def create_comment(text: str, id_user: int, id_task: int):
     # проверка на существование задачи
     task = await Task.get_or_none(id=id_task)
@@ -309,7 +309,7 @@ async def create_comment(text: str, id_user: int, id_task: int):
 
 
 # возвращается ok 200
-@router.delete("/api/task/comments/{id}")
+@router.delete("/api/comments/{id}")
 async def delete_comment(id: int):
     try:
         comment = await Comments.get(id=id)
@@ -319,22 +319,27 @@ async def delete_comment(id: int):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
 
 
-
-
-# вывод всех комментов по задаче        # !!!!!
-@router.get("/api/task/comments")
-async def get_comments_using_task_id(task_id: int):
+@router.get("/api/comments")
+async def get_comments(task_id: int):
     try:
-        comms = await Comments.all().order_by("-task_id")
-        task_instance = await Task.get_or_none(id=task_id)
-        # comms_from_task = await task_instance.comments.all()
-        return comms_from_task
+        # Извлекаем комментарии, связанные с задачей
+        comments = await Comments.filter(task_id=task_id).prefetch_related("author")
+        
+        # Проверяем, найдены ли комментарии
+        if not comments:
+            raise HTTPException(status_code=404, detail="Comments not found")
+
+        # Возвращаем список комментариев
+        return comments
+
     except DoesNotExist:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+        raise HTTPException(status_code=404, detail="Task not found")
 
 
 
-# генерация файла       # !!!
+
+
+# генерация эксель файла
 @router.get("/export/board")
 async def export_board_to_excel():
     # Получаем все колонки с задачами
