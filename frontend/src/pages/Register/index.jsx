@@ -23,6 +23,8 @@ function Register(props) {
       const access_token = data["access_token"];
       props.setToken(access_token);
       localStorage.setItem("token", access_token);
+      localStorage.setItem("user_id", data.id)
+      localStorage.setItem("role", data.role);
       navigate("/board");
     } catch (error) {
       setError(error)
