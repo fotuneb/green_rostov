@@ -53,6 +53,7 @@ function Column(props) {
                       task={task}
                       columnId={task.column_id}
                       index={task.index}
+                      onTaskDeleted={props.onUpdateNeeded}
                     />
                   ))}
 

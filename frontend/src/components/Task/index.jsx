@@ -10,9 +10,14 @@ function Task(props) {
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
+  const onRemove = () => {
+    closeModal();
+    props.onTaskDeleted()
+  }
+
   return (
     <>
-      <Modal isOpen={isModalOpen} task={props.task} onClose={closeModal} />
+      <Modal isOpen={isModalOpen} task={props.task} onClose={closeModal} onRemove={onRemove} />
       <Draggable draggableId={props.task.id} index={props.index}>
         {(provided) => (
           <div

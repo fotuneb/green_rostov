@@ -5,7 +5,7 @@ import './task_modal.css';
 
 const ws = process.env.REACT_APP_PUBLIC_URL
 
-export const Modal = ({ isOpen, onClose, task }) => {
+export const Modal = ({ isOpen, onClose, task, onRemove }) => {
     const [taskData, setTaskData] = useState(task);
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(taskData.title);
@@ -58,6 +58,17 @@ export const Modal = ({ isOpen, onClose, task }) => {
             setIsEditing(false);
         }
     };
+
+    const deleteTask = () => {
+        fetch(`${ws}/api/task/${taskData.id}`, {
+            method: "DELETE",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then((res) => {
+            res.json().then(onRemove)
+        })
+    }
 
     const handleOptionChange = (field, value) => {
         setSelectedOptions((prev) => ({ ...prev, [field]: value }));
@@ -121,6 +132,9 @@ export const Modal = ({ isOpen, onClose, task }) => {
                                 <option value="Завершено">Завершено</option>
                                 <option value="Отложено">Отложено</option>
                             </select>
+                        </li>
+                        <li>
+                            <button className="quill-update-contents font-inter" onClick={deleteTask}>Удалить</button>
                         </li>
                     </ul>
                 </div>
