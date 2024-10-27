@@ -53,6 +53,7 @@ function Task(props) {
                 }
               >
                 <LuText />
+                {props.task.assigneeName}
               </span>
             </div>
           </div>

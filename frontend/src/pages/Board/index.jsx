@@ -22,6 +22,9 @@ function Board({ token }) {
     const tasksReq = await fetch(ws + '/api/task');
     const tasks = await tasksReq.json();
 
+    const usersReq = await fetch(ws + '/api/get_users');
+    const users = await usersReq.json();
+
     let idxToCol = {};
     for (let column of columns) {
       column.tasks = [];
@@ -29,8 +32,15 @@ function Board({ token }) {
       idxToCol[column.id] = column;
     }
 
+    let userIdToName = {}
+    for (const user of users) {
+      userIdToName[user.id] = user.fullname;
+    }
+
     for (let task of tasks) {
-      task.id = task.id + ''
+      task.id = task.id + '';
+      task.assigneeName = userIdToName[task.assignee_id];
+      task.authorName = userIdToName[task.author_id];
       let columnData = idxToCol[task.column_id];
       if (!columnData) {
         continue;
