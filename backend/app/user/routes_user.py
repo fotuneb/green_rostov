@@ -92,4 +92,4 @@ async def generate_token(form_data: OAuth2PasswordRequestForm = Depends()):
             detail = "Invalid email or password",
         )
 
-    return {"access_token": await create_token(user), "id": user.id}
+    return {"access_token": await create_token(user), "id": user.id, "role": user.role}
