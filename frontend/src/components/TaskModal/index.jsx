@@ -1,22 +1,45 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
 
+const ws = process.env.REACT_APP_PUBLIC_URL
+
 export const Modal = ({ isOpen, onClose, task }) => {
+    const [taskData, setTaskData] = useState(task);
     const [isEditing, setIsEditing] = useState(false);
-    const [title, setTitle] = useState(task.content);
-    const [description, setDescription] = useState('');
+    const [title, setTitle] = useState(taskData.title);
+    const [description, setDescription] = useState(taskData.description);
     const [selectedOptions, setSelectedOptions] = useState({
         author: '',
         executor: '',
         status: '',
     });
+
     const quillRef = useRef(null); // Ссылка на редактор
+
+    const getTaskDetail = async () => {
+        const det = await fetch(`${ws}/api/task/${task.id}`)
+        return await det.json();
+    }
+
+    useEffect(() => {
+        if (!isOpen) return null;
+        getTaskDetail().then((data) => { setTaskData(data) });
+    }, [isOpen]);
+
+    const updateTitle = () => {
+        fetch(`${ws}/api/task/rename/${taskData.id}?new_title=${title}`, {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        });
+    }
 
     const handleTitleChange = (e) => {
         if (e.key === 'Enter') {
-            console.log('Новое значение заголовка:', title);
+            updateTitle()
             setIsEditing(false);
         }
     };
@@ -35,7 +58,7 @@ export const Modal = ({ isOpen, onClose, task }) => {
                     {isEditing ? (
                         <input
                             type="text"
-                            value={title}
+                            defaultValue={taskData.title}
                             onChange={(e) => setTitle(e.target.value)}
                             onKeyDown={handleTitleChange}
                             onBlur={() => setIsEditing(false)}
