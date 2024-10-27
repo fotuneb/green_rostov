@@ -16,13 +16,19 @@ function Board({ token }) {
   }, []);
 
   async function fetchBoard() {
-    const columnReq = await fetch(ws + '/api/column');
+    const headers = {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
+
+    const headersArg = { headers }
+
+    const columnReq = await fetch(ws + '/api/columns', headersArg);
     let columns = await columnReq.json();
 
-    const tasksReq = await fetch(ws + '/api/task');
+    const tasksReq = await fetch(ws + '/api/tasks', headersArg);
     const tasks = await tasksReq.json();
 
-    const usersReq = await fetch(ws + '/api/get_users');
+    const usersReq = await fetch(ws + '/api/get_users', headersArg);
     const users = await usersReq.json();
 
     let idxToCol = {};

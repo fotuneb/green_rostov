@@ -17,8 +17,11 @@ function AddColumn(props) {
   }
 
   async function addColumn(title) {
-    fetch(ws + '/api/column/?request=' + title, {
+    fetch(ws + '/api/column/?title=' + title, {
       method: "PUT",
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
     }).then((req) => {
       req.json().then(props.onColumnAdded)
     })
