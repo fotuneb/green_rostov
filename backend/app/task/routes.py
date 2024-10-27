@@ -1,3 +1,6 @@
+import openpyxl
+from openpyxl import Workbook
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from tortoise.transactions import in_transaction
@@ -6,7 +9,7 @@ from app.user.authentication import get_current_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments
 # from app.task.schemas import Task
-
+import pandas
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -326,3 +329,40 @@ async def get_comments_using_task_id(task_id: int):
 
     comms_from_task = await task_instance.comments.all()
     return comms_from_task
+
+
+
+# генерация файла
+@router.get("/export/board")
+async def export_board_to_excel():
+    # Получаем все колонки с задачами
+    columns = await Column.all().prefetch_related('column')
+
+    # Создаем новый Excel-файл
+    workbook = Workbook()
+    workbook.remove(workbook.active)  # Удаляем стандартный пустой лист
+    
+    for column in columns:
+        # Создаем лист для каждой колонки
+        worksheet = workbook.create_sheet(title=column.title[:30])  # Ограничиваем название до 30 символов
+        worksheet.append(["ID", "Название задачи", "Описание", "Автор", "Назначенный пользователь", "Дата создания", "Дата обновления"])
+
+        # Добавляем задачи на лист
+        tasks = await Task.filter(column=column.id).prefetch_related("author", "assignee")
+        for task in tasks:
+            worksheet.append([
+                task.id,
+                task.title,
+                task.description,
+                task.author.fullname if task.author else "Не указано",
+                task.assignee.fullname if task.assignee else "Не назначен",
+                task.created_at.strftime("%Y-%m-%d %H:%M:%S") if task.created_at else "Нет данных",
+                task.updated_at.strftime("%Y-%m-%d %H:%M:%S") if task.updated_at else "Нет данных"
+            ])
+
+    # Сохраняем файл
+    filename = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+    filepath = f"/mnt/data/{filename}"  # Используйте временный путь для сохранения файла
+
+    workbook.save(filepath)
+    return FileResponse(filepath, filename=filename, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
