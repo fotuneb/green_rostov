@@ -102,8 +102,9 @@ async def move_column(column_id: int, new_index: int):
 # вывод всех задач
 @router.get("/api/tasks")
 async def get_tasks():
-    tasks = await Task.all().values("id", "index", "author", "assignee", "column")
+    tasks = await Task.all().values("id", "index", "author_id", "assignee_id", "column_id")
     return tasks
+    
 
 @router.get("/api/task/{task_id}")
 async def get_task_using_id(task_id: int):
