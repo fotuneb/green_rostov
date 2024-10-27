@@ -44,6 +44,8 @@ function Column(props) {
     return true;
   })
 
+  const hasRights = localStorage.getItem('role') != 'guest';
+
   return (
     <Draggable draggableId={props.column.id} index={props.index}>
       {(provided) => (
@@ -60,12 +62,13 @@ function Column(props) {
               {props.column.title}
             </span>
 
-            <span
+            {hasRights && <span
               className="text-gray-600"
               onClick={() => deleteColumn(props.column.id, props.index)}
             >
               <LuTrash2 />
-            </span>
+            </span>}
+
           </div>
           <div className="h-full">
             <Droppable
@@ -90,11 +93,12 @@ function Column(props) {
                 </div>
               )}
             </Droppable>
-            <AddTask
+            {hasRights && <AddTask
               board={props.board}
               columnId={props.column.id}
               onTaskAdded={props.onUpdateNeeded}
-            />
+            />}
+
           </div>
         </div>
       )}

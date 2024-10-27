@@ -19,6 +19,8 @@ function Board({ token }) {
     filterText: '',
   });
 
+  const hasRights = localStorage.getItem('role') != 'guest';
+
   useEffect(() => {
     fetchBoard().then((data) => { setBoard(data) });
   }, []);
@@ -142,7 +144,7 @@ function Board({ token }) {
             </DragDropContext>
             <div className="container mx-auto flex justify-between my-5 px-2">
               <div className="flex justify-center">
-                <AddColumn board={board} onColumnAdded={updateBoard} />
+                {hasRights && <AddColumn board={board} onColumnAdded={updateBoard} />}
               </div>
             </div>
           </>

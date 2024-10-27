@@ -17,6 +17,9 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         status: '',
     });
 
+    const hasRights = localStorage.getItem('role') != 'guest';
+
+
     const quillRef = useRef(null); // Ссылка на редактор
 
     const getTaskDetail = async () => {
@@ -127,12 +130,12 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     <ReactQuill
                         ref={quillRef}
                         value={description}
+                        readOnly={!hasRights}
                         onChange={setDescription}
                         modules={Modal.modules}
                         formats={Modal.formats}
                     />
-
-                    <button className="quill-update-contents font-inter" onClick={updateDescription}>Обновить</button>
+                    {hasRights && <button className="quill-update-contents font-inter" onClick={updateDescription}>Обновить</button>}
                 </div>
                 <div className="modal-actions">
                     <ul>
@@ -172,9 +175,10 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                                 })}
                             </select>
                         </li>
-                        <li>
+                        {hasRights && <li>
                             <button className="quill-update-contents font-inter" onClick={deleteTask}>Удалить</button>
-                        </li>
+                        </li>}
+
                     </ul>
                 </div>
             </div>
