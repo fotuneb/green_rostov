@@ -1,4 +1,8 @@
+import openpyxl
+from openpyxl import Workbook
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import FileResponse
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from tortoise.transactions import in_transaction
 from tortoise.exceptions import DoesNotExist
@@ -6,7 +10,7 @@ from app.user.authentication import get_current_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments
 # from app.task.schemas import Task
-
+import pandas
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -275,7 +279,7 @@ async def move_task(task_id: int, new_column_id: int, new_index: int):
     
 
 # POST /api/task/comments/ создать (передается text, user_id, task_id, возвращается id коммента)
-@router.post("/api/task/comments")
+@router.post("/api/comments")
 async def create_comment(text: str, id_user: int, id_task: int):
     # проверка на существование задачи
     task = await Task.get_or_none(id=id_task)
@@ -304,7 +308,7 @@ async def create_comment(text: str, id_user: int, id_task: int):
 
 
 # возвращается ok 200
-@router.delete("/api/task/comments/{id}")
+@router.delete("/api/comments/{id}")
 async def delete_comment(id: int):
     try:
         comment = await Comments.get(id=id)
@@ -314,14 +318,57 @@ async def delete_comment(id: int):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
 
 
+@router.get("/api/comments")
+async def get_comments(task_id: int):
+    try:
+        # Извлекаем комментарии, связанные с задачей
+        comments = await Comments.filter(task_id=task_id).prefetch_related("author")
+        
+        # Проверяем, найдены ли комментарии
+        if not comments:
+            raise HTTPException(status_code=404, detail="Comments not found")
+
+        # Возвращаем список комментариев
+        return comments
+
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Task not found")
 
 
-# вывод всех комментов по задаче
-@router.get("/api/task/comments")
-async def get_comments_using_task_id(task_id: int):
-    task_instance = await Task.get_or_none(id=task_id)
-    # if not task_instance:     # !
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
-    comms_from_task = await task_instance.comments.all()
-    return comms_from_task
+
+
+# генерация эксель файла
+@router.get("/export/board")
+async def export_board_to_excel():
+    # Получаем все колонки с задачами
+    columns = await Column.all().prefetch_related('column')
+
+    # Создаем новый Excel-файл
+    workbook = Workbook()
+    workbook.remove(workbook.active)  # Удаляем стандартный пустой лист
+    
+    for column in columns:
+        # Создаем лист для каждой колонки
+        worksheet = workbook.create_sheet(title=column.title[:30])  # Ограничиваем название до 30 символов
+        worksheet.append(["ID", "Название задачи", "Описание", "Автор", "Назначенный пользователь", "Дата создания", "Дата обновления"])
+
+        # Добавляем задачи на лист
+        tasks = await Task.filter(column=column.id).prefetch_related("author", "assignee")
+        for task in tasks:
+            worksheet.append([
+                task.id,
+                task.title,
+                task.description,
+                task.author.fullname if task.author else "Не указано",
+                task.assignee.fullname if task.assignee else "Не назначен",
+                task.created_at.strftime("%Y-%m-%d %H:%M:%S") if task.created_at else "Нет данных",
+                task.updated_at.strftime("%Y-%m-%d %H:%M:%S") if task.updated_at else "Нет данных"
+            ])
+
+    # Сохраняем файл
+    #filename = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+    filepath = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+
+    workbook.save(filepath)
+    return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
