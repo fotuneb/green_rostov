@@ -5,27 +5,6 @@ import { Modal } from "../TaskModal"
 import "./task.css"
 
 function Task(props) {
-  function deleteTask(columnId, index, taskId) {
-    const column = props.board.columns[columnId];
-    const newTaskIds = Array.from(column.taskIds);
-    newTaskIds.splice(index, 1);
-
-    const tasks = props.board.tasks;
-    const { [taskId]: oldTask, ...newTasks } = tasks;
-
-    props.setBoard({
-      ...props.board,
-      columns: {
-        ...props.board.columns,
-        [columnId]: {
-          ...column,
-          taskIds: newTaskIds,
-        },
-      },
-      tasks: newTasks,
-    });
-  }
-
   const [isModalOpen, setModalOpen] = useState(false);
 
   const openModal = () => setModalOpen(true);
@@ -47,14 +26,8 @@ function Task(props) {
               {props.task.title}
             </p>
             <div className="task-pad">
-              <span
-                onClick={() =>
-                  deleteTask(props.columnId, props.index, props.task.id)
-                }
-              >
-                <LuText />
-                {props.task.assigneeName}
-              </span>
+              <LuText />
+              {props.task.assigneeName}
             </div>
           </div>
         )}
