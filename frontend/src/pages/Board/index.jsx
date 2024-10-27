@@ -114,6 +114,7 @@ function Board({ token }) {
                     return (
                       <Column
                         key={column.id}
+                        board={board}
                         column={column}
                         tasks={column.tasks}
                         index={column.index}

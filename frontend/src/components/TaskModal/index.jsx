@@ -5,11 +5,12 @@ import './task_modal.css';
 
 const ws = process.env.REACT_APP_PUBLIC_URL
 
-export const Modal = ({ isOpen, onClose, task, onRemove }) => {
+export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }) => {
     const [taskData, setTaskData] = useState(task);
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(taskData.title);
     const [description, setDescription] = useState(taskData.description || '');
+    const [users, setUsers] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState({
         author: '',
         executor: '',
@@ -26,12 +27,24 @@ export const Modal = ({ isOpen, onClose, task, onRemove }) => {
     useEffect(() => {
         if (!isOpen) return;
         getTaskDetail().then((data) => {
+            data.assigneeName = task.assigneeName
+            data.authorName = task.authorName
+
             setTaskData(data);
             setTitle(data.title);
             setDescription(data.description || '');
-            console.log(data);
         });
     }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        fetch(`${ws}/api/get_users`).then((res) => {
+            res.json().then((data) => {
+                setUsers(data)
+            })
+        })
+    }, [isOpen])
 
     const updateTitle = () => {
         fetch(`${ws}/api/task/rename/${taskData.id}?new_title=${title}`, {
@@ -70,9 +83,27 @@ export const Modal = ({ isOpen, onClose, task, onRemove }) => {
         })
     }
 
-    const handleOptionChange = (field, value) => {
-        setSelectedOptions((prev) => ({ ...prev, [field]: value }));
-    };
+    const updateColumn = (idx) => {
+        fetch(`${ws}/api/tasks/${taskData.id}/move?new_column_id=${idx}&new_index=0`, {
+            method: "PUT",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then((res) => {
+            res.json().then(onUpdateNeeded)
+        })
+    }
+
+    const updateAssignee = (idx) => {
+        fetch(`${ws}/api/task/change_responsible/${taskData.id}?id_user=${idx}`, {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then((res) => {
+            res.json().then(onUpdateNeeded)
+        })
+    }
 
     if (!isOpen) return null;
 
@@ -104,33 +135,41 @@ export const Modal = ({ isOpen, onClose, task, onRemove }) => {
                     <button className="quill-update-contents font-inter" onClick={updateDescription}>Обновить</button>
                 </div>
                 <div className="modal-actions">
-                    <h3>Меню</h3>
                     <ul>
                         <li>
-                            Автор
-                            <select onChange={(e) => handleOptionChange('author', e.target.value)}>
-                                <option value="">Выберите автора</option>
-                                <option value="Автор 1">Автор 1</option>
-                                <option value="Автор 2">Автор 2</option>
-                                <option value="Автор 3">Автор 3</option>
+                            <p className="font-semibold">Автор</p>
+                            <p>{taskData.authorName}</p>
+                        </li>
+                        <li>
+                            <p className="font-semibold">Исполнитель</p>
+                            <select
+                                id="user"
+                                value={taskData.assignee_id}
+                                onChange={(e) => updateAssignee(e.target.value)}
+                            >
+                                {users.map((user) => {
+                                    return (
+                                        <option value={user.id}>
+                                            {user.fullname}
+                                        </option>
+                                    );
+                                })}
                             </select>
                         </li>
                         <li>
-                            Исполнитель
-                            <select onChange={(e) => handleOptionChange('executor', e.target.value)}>
-                                <option value="">Выберите исполнителя</option>
-                                <option value="Исполнитель 1">Исполнитель 1</option>
-                                <option value="Исполнитель 2">Исполнитель 2</option>
-                                <option value="Исполнитель 3">Исполнитель 3</option>
-                            </select>
-                        </li>
-                        <li>
-                            Статус задачи
-                            <select onChange={(e) => handleOptionChange('status', e.target.value)}>
-                                <option value="">Выберите статус</option>
-                                <option value="В процессе">В процессе</option>
-                                <option value="Завершено">Завершено</option>
-                                <option value="Отложено">Отложено</option>
+                            <p className="font-semibold">Статус задачи</p>
+                            <select
+                                id="role"
+                                value={taskData.column}
+                                onChange={(e) => updateColumn(e.target.value)}
+                            >
+                                {board.map((column) => {
+                                    return (
+                                        <option value={column.id}>
+                                            {column.title}
+                                        </option>
+                                    );
+                                })}
                             </select>
                         </li>
                         <li>
