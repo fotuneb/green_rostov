@@ -16,6 +16,34 @@ function Column(props) {
     })
   }
 
+  let filter = props.filter;
+  let tasks = props.tasks.filter((task) => {
+    if (filter.filterText != '' && !task.title.includes(filter.filterText)) {
+      return false;
+    }
+
+    const taskCreateDate = new Date(task.created_at).getTime()
+    if (filter.startDate) {
+      const date = new Date(filter.startDate).getTime()
+      if (date > taskCreateDate) {
+        return false;
+      }
+    }
+
+    if (filter.endDate) {
+      const date = new Date(filter.endDate).getTime()
+      if (date < taskCreateDate) {
+        return false;
+      }
+    }
+
+    if (filter.responsiblePerson && task.assignee_id != filter.responsiblePerson) {
+      return false;
+    }
+
+    return true;
+  })
+
   return (
     <Draggable draggableId={props.column.id} index={props.index}>
       {(provided) => (
@@ -47,7 +75,7 @@ function Column(props) {
             >
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {props.tasks.map((task) => (
+                  {tasks.map((task) => (
                     <Task
                       key={task.id}
                       task={task}

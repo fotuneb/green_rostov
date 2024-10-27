@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
+import TaskFilter from "../../components/TaskFilter"
 import "./board.css"
 
 import Column from "../../components/Column"
@@ -10,6 +11,13 @@ const ws = process.env.REACT_APP_PUBLIC_URL
 
 function Board({ token }) {
   const [board, setBoard] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [filter, setFilter] = useState({
+    startDate: '',
+    endDate: '',
+    responsiblePerson: '',
+    filterText: '',
+  });
 
   useEffect(() => {
     fetchBoard().then((data) => { setBoard(data) });
@@ -30,6 +38,8 @@ function Board({ token }) {
 
     const usersReq = await fetch(ws + '/api/get_users', headersArg);
     const users = await usersReq.json();
+
+    setUsers(users);
 
     let idxToCol = {};
     for (let column of columns) {
@@ -95,47 +105,51 @@ function Board({ token }) {
   }
 
   return (
-    <div className="board board-columns font-inter">
-      {token ? (
-        <>
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable
-              droppableId="all-columns"
-              direction="horizontal"
-              type="column"
-            >
-              {(provided) => (
-                <div
-                  className="board-columns"
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                >
-                  {board.map((column) => {
-                    return (
-                      <Column
-                        key={column.id}
-                        board={board}
-                        column={column}
-                        tasks={column.tasks}
-                        index={column.index}
-                        onUpdateNeeded={updateBoard}
-                      />
-                    );
-                  })}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-          <div className="container mx-auto flex justify-between my-5 px-2">
-            <div className="flex justify-center">
-              <AddColumn board={board} onColumnAdded={updateBoard} />
+    <div className="board-main">
+      <TaskFilter users={users} onFilterUpdate={(f) => setFilter(f)} />
+      <div className="board board-columns font-inter">
+        {token ? (
+          <>
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable
+                droppableId="all-columns"
+                direction="horizontal"
+                type="column"
+              >
+                {(provided) => (
+                  <div
+                    className="board-columns"
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {board.map((column) => {
+                      return (
+                        <Column
+                          key={column.id}
+                          board={board}
+                          column={column}
+                          tasks={column.tasks}
+                          index={column.index}
+                          filter={filter}
+                          onUpdateNeeded={updateBoard}
+                        />
+                      );
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+            <div className="container mx-auto flex justify-between my-5 px-2">
+              <div className="flex justify-center">
+                <AddColumn board={board} onColumnAdded={updateBoard} />
+              </div>
             </div>
-          </div>
-        </>
-      ) : (
-        <Navigate to="/login" />
-      )}
+          </>
+        ) : (
+          <Navigate to="/login" />
+        )}
+      </div>
     </div>
   )
 }
