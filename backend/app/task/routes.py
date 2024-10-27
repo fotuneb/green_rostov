@@ -216,7 +216,6 @@ async def change_task_content(id: int, desc: str):
 async def change_responsible(id: int, id_user: int):
     try:
         task = await Task.get(id=id)
-        user = await UserModel.get(id=id_user)  # Проверка существования пользователя
         task.assignee_id = id_user
         await task.save()
         return {"msg": "assignee updated successully"}
