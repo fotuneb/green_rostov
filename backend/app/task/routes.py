@@ -102,7 +102,7 @@ async def move_column(column_id: int, new_index: int):
 # вывод всех задач
 @router.get("/api/tasks")
 async def get_tasks():
-    tasks = await Task.all().values("id", "index", "author_id", "assignee_id", "column_id")
+    tasks = await Task.all().values("id", "title", "index", "author_id", "assignee_id", "column_id", "created_at", "updated_at")
     return tasks
     
 
@@ -114,11 +114,14 @@ async def get_task_using_id(task_id: int):
     
     return {
         "id": task.id,
+        "title": task.title,
         "index": task.index,
         "description": task.description,
         "author": task.author_id,
         "assignee": task.assignee_id, 
-        "column": task.column_id
+        "column": task.column_id,
+        "created_at": task.created_at,
+        "updated_at": task.updated_at
     }
 
 # вывод всех колонок 
@@ -280,7 +283,7 @@ async def create_comment(text: str, id_user: int, id_task: int):
     # проверка на существование задачи
     task = await Task.get_or_none(id=id_task)
     # проверка на текущего пользователя
-    temp_user = await User.get_or_none(id=id_user)
+    temp_user = await UserModel.get_or_none(id=id_user)
     if not task:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
     
