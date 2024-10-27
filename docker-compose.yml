@@ -28,7 +28,6 @@ services:
       dockerfile: Dockerfile
     command: npm run-script start
     env_file: .env
-    tty: true
     ports:
       - 3000:3000
     depends_on:
