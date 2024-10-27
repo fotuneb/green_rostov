@@ -1,57 +1,82 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
+import TaskFilter from "../../components/TaskFilter"
 import "./board.css"
 
 import Column from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
 
-function Board(props) {
-  const initialData = { tasks: {}, columns: {}, columnOrder: [] };
-  const [board, setBoard] = useState(initialData);
-  const isMounted = useRef(false);
+const ws = process.env.REACT_APP_PUBLIC_URL
+
+function Board({ token }) {
+  const [board, setBoard] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [filter, setFilter] = useState({
+    startDate: '',
+    endDate: '',
+    responsiblePerson: '',
+    filterText: '',
+  });
+
+  const hasRights = localStorage.getItem('role') != 'guest';
 
   useEffect(() => {
-    fetchBoard().then((data) => setBoard(data));
+    fetchBoard().then((data) => { setBoard(data) });
   }, []);
 
-  useEffect(() => {
-    if (isMounted.current) {
-      saveBoard().then(() => { });
-    } else {
-      isMounted.current = true;
-    }
-  }, [board]);
-
   async function fetchBoard() {
-    const ws = "http://localhost:8000";
+    const headers = {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+    }
 
-    const response = await fetch(ws + "/api/board", {
-      headers: {
-        Authorization: "Bearer " + props.token,
-      },
-    });
+    const headersArg = { headers }
 
-    const data = await response.json();
+    const columnReq = await fetch(ws + '/api/columns', headersArg);
+    let columns = await columnReq.json();
 
-    return data["board"];
+    const tasksReq = await fetch(ws + '/api/tasks', headersArg);
+    const tasks = await tasksReq.json();
+
+    const usersReq = await fetch(ws + '/api/get_users', headersArg);
+    const users = await usersReq.json();
+
+    setUsers(users);
+
+    let idxToCol = {};
+    for (let column of columns) {
+      column.tasks = [];
+      column.id = column.id + ''
+      idxToCol[column.id] = column;
+    }
+
+    let userIdToName = {}
+    for (const user of users) {
+      userIdToName[user.id] = user.fullname;
+    }
+
+    for (let task of tasks) {
+      task.id = task.id + '';
+      task.assigneeName = userIdToName[task.assignee_id];
+      task.authorName = userIdToName[task.author_id];
+      let columnData = idxToCol[task.column_id];
+      if (!columnData) {
+        continue;
+      }
+
+      columnData.tasks.push(task);
+    }
+
+    return columns;
+
   }
 
-  async function saveBoard() {
-    const ws = "http://localhost:8000";
-
-    await fetch(ws + "/api/board", {    /* 422 ошибка */ 
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + props.token,
-      },
-      body: JSON.stringify(board),
-    });
+  const updateBoard = () => {
+    fetchBoard().then((data) => { setBoard(data) })
   }
 
-  function onDragEnd(result) {
-    const { destination, source, draggableId, type } = result;
+  const onDragEnd = ({ destination, source, draggableId, type }) => {
+    console.log(destination, source, draggableId, type)
 
     if (!destination) {
       return;
@@ -64,113 +89,69 @@ function Board(props) {
       return;
     }
 
-    if (type === "column") {
-      const newColumnOrder = Array.from(board.columnOrder);
-      newColumnOrder.splice(source.index, 1);
-      newColumnOrder.splice(destination.index, 0, draggableId);
-
-      setBoard({
-        ...board,
-        columnOrder: newColumnOrder,
-      });
+    if (type === 'task') {
+      fetch(`${ws}/api/tasks/${draggableId}/move/?new_column_id=${destination.droppableId}&new_index=${destination.index}`, {
+        method: "PUT"
+      }).then((req) => {
+        req.json().then(updateBoard)
+      })
     }
 
-    if (type === "task") {
-      const startColumn = board.columns[source.droppableId];
-      const finishColumn = board.columns[destination.droppableId];
-
-      if (startColumn === finishColumn) {
-        const newTaskIds = Array.from(startColumn.taskIds);
-        newTaskIds.splice(source.index, 1);
-        newTaskIds.splice(destination.index, 0, draggableId);
-
-        const newColumn = {
-          ...startColumn,
-          taskIds: newTaskIds,
-        };
-
-        setBoard({
-          ...board,
-          columns: {
-            ...board.columns,
-            [newColumn.id]: newColumn,
-          },
-        });
-      } else {
-        const newStartTaskIds = Array.from(startColumn.taskIds);
-        const newFinishTaskIds = Array.from(finishColumn.taskIds);
-
-        newStartTaskIds.splice(source.index, 1);
-        newFinishTaskIds.splice(destination.index, 0, draggableId);
-
-        const newStartColumn = {
-          ...startColumn,
-          taskIds: newStartTaskIds,
-        };
-
-        const newFinishColumn = {
-          ...finishColumn,
-          taskIds: newFinishTaskIds,
-        };
-
-        setBoard({
-          ...board,
-          columns: {
-            ...board.columns,
-            [newStartColumn.id]: newStartColumn,
-            [newFinishColumn.id]: newFinishColumn,
-          },
-        });
-      }
+    if (type === 'column') {
+      fetch(`${ws}/api/columns/${draggableId}/move/?new_index=${destination.index}`, {
+        method: "PUT"
+      }).then((req) => {
+        req.json().then(updateBoard)
+      })
     }
   }
 
   return (
-    <div className="board board-columns font-inter">
-      {props.token ? (
-        <>
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable
-              droppableId="all-columns"
-              direction="horizontal"
-              type="column"
-            >
-              {(provided) => (
-                <div
-                  className="board-columns"
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                >
-                  {board.columnOrder.map((columnId, index) => {
-                    const column = board.columns[columnId];
-                    const tasks = column.taskIds.map(
-                      (taskId) => board.tasks[taskId]
-                    );
-                    return (
-                      <Column
-                        key={column.id}
-                        column={column}
-                        tasks={tasks}
-                        index={index}
-                        board={board}
-                        setBoard={setBoard}
-                      />
-                    );
-                  })}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-          <div className="container mx-auto flex justify-between my-5 px-2">
-            <div className="flex justify-center">
-              <AddColumn board={board} setBoard={setBoard} />
+    <div className="board-main">
+      <TaskFilter users={users} onFilterUpdate={(f) => setFilter(f)} />
+      <div className="board board-columns font-inter">
+        {token ? (
+          <>
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable
+                droppableId="all-columns"
+                direction="horizontal"
+                type="column"
+              >
+                {(provided) => (
+                  <div
+                    className="board-columns"
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {board.map((column) => {
+                      return (
+                        <Column
+                          key={column.id}
+                          board={board}
+                          column={column}
+                          tasks={column.tasks}
+                          index={column.index}
+                          filter={filter}
+                          onUpdateNeeded={updateBoard}
+                        />
+                      );
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+            <div className="container mx-auto flex justify-between my-5 px-2">
+              <div className="flex justify-center">
+                {hasRights && <AddColumn board={board} onColumnAdded={updateBoard} />}
+              </div>
             </div>
-          </div>
-        </>
-      ) : (
-        <Navigate to="/login" />
-      )}
+          </>
+        ) : (
+          <Navigate to="/login" />
+        )}
+      </div>
     </div>
   )
 }

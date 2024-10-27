@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./add_column.css"
+
+const ws = process.env.REACT_APP_PUBLIC_URL
 
 function AddColumn(props) {
   const [showNewColumnButton, setShowNewColumnButton] = useState(true);
@@ -14,26 +16,15 @@ function AddColumn(props) {
     }
   }
 
-  function addColumn(title) {
-    const newColumnId = "column-" + Math.floor(Math.random() * 1000000);
-
-    const newColumnOrder = Array.from(props.board.columnOrder);
-    newColumnOrder.push(newColumnId);
-
-    const newColumn = {
-      id: newColumnId,
-      title: title,
-      taskIds: [],
-    };
-
-    props.setBoard({
-      ...props.board,
-      columns: {
-        ...props.board.columns,
-        [newColumnId]: newColumn,
-      },
-      columnOrder: newColumnOrder,
-    });
+  async function addColumn(title) {
+    fetch(ws + '/api/column/?title=' + title, {
+      method: "PUT",
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    }).then((req) => {
+      req.json().then(props.onColumnAdded)
+    })
   }
 
   return (

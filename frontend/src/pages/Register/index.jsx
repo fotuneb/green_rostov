@@ -23,6 +23,8 @@ function Register(props) {
       const access_token = data["access_token"];
       props.setToken(access_token);
       localStorage.setItem("token", access_token);
+      localStorage.setItem("user_id", data.id)
+      localStorage.setItem("role", data.role);
       navigate("/board");
     } catch (error) {
       setError(error)
@@ -36,7 +38,7 @@ function Register(props) {
       password1: password1,
     };
 
-    const response = await fetch("http://localhost:8000/api/users", {
+    const response = await fetch(process.env.REACT_APP_PUBLIC_URL + "/api/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

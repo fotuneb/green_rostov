@@ -11,6 +11,8 @@ class Comments(Model):
     create_date = fields.DatetimeField(null=True, auto_now_add=True)
     task = fields.ForeignKeyField("models.Task", related_name="comments")
 
+    class Meta:
+        table = "comments"
 
 class Column(Model):
     id = fields.IntField(pk=True)
@@ -30,6 +32,9 @@ class Task(Model):
     author = fields.ForeignKeyField("models.UserModel", related_name="tasks_created")
     assignee = fields.ForeignKeyField("models.UserModel", related_name="tasks_assigned")
     column = fields.ForeignKeyField("models.Column", related_name="column", on_delete=fields.CASCADE)
+    created_at = fields.DatetimeField(auto_now_add=True)  # Время создания
+    updated_at = fields.DatetimeField(auto_now=True)
+    
     
 
     class Meta:

@@ -5,38 +5,22 @@ import { Modal } from "../TaskModal"
 import "./task.css"
 
 function Task(props) {
-  function deleteTask(columnId, index, taskId) {
-    const column = props.board.columns[columnId];
-    const newTaskIds = Array.from(column.taskIds);
-    newTaskIds.splice(index, 1);
-
-    const tasks = props.board.tasks;
-    const { [taskId]: oldTask, ...newTasks } = tasks;
-
-    props.setBoard({
-      ...props.board,
-      columns: {
-        ...props.board.columns,
-        [columnId]: {
-          ...column,
-          taskIds: newTaskIds,
-        },
-      },
-      tasks: newTasks,
-    });
-  }
-
   const [isModalOpen, setModalOpen] = useState(false);
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
+  const onRemove = () => {
+    closeModal();
+    props.onTaskDeleted()
+  }
+
   return (
     <>
-      <Modal isOpen={isModalOpen} task={props.task} onClose={closeModal} />
+      <Modal isOpen={isModalOpen} task={props.task} onUpdateNeeded={props.onTaskDeleted} onClose={closeModal} board={props.board} onRemove={onRemove} />
       <Draggable draggableId={props.task.id} index={props.index}>
         {(provided) => (
-          <button
+          <div
             onClick={openModal}
             className="task"
             {...provided.draggableProps}
@@ -44,18 +28,13 @@ function Task(props) {
             ref={provided.innerRef}
           >
             <p className="font-regular task-pad">
-              {props.task.content}
+              {props.task.title}
             </p>
             <div className="task-pad">
-              <span
-                onClick={() =>
-                  deleteTask(props.columnId, props.index, props.task.id)
-                }
-              >
-                <LuText />
-              </span>
+              <LuText />
+              {props.task.assigneeName}
             </div>
-          </button>
+          </div>
         )}
       </Draggable>
     </>

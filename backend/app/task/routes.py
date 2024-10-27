@@ -1,21 +1,29 @@
+import openpyxl
+from openpyxl import Workbook
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
-from starlette.status import HTTP_400_BAD_REQUEST
+from fastapi.responses import FileResponse
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from tortoise.transactions import in_transaction
 from tortoise.exceptions import DoesNotExist
-
+from app.user.authentication import get_current_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments
 # from app.task.schemas import Task
-
+import pandas
 from pydantic import BaseModel
 
 router = APIRouter()
 
 
 
-# возвращается id  и index
+# возвращается id и index
 @router.put("/api/column")
-async def create_column(request: str):
+async def create_column(title: str, current_user: UserModel = Depends(get_current_user)):
+    # проверка на текущего пользователя
+    if current_user.role == "guest":
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="You haven't sufficient permission")
+
     columns_exist = await Column.exists()
     if columns_exist:
         max_index_record = await Column.all().order_by("-index").values("index")
@@ -26,7 +34,7 @@ async def create_column(request: str):
         new_index = 0
 
     # Создайте новый столбец
-    column = await Column.create(title = request, index=new_index)
+    column = await Column.create(title=title, index=new_index)
 
     return {"id": column.id, 
             "index": column.index,
@@ -47,7 +55,7 @@ async def delete_column(id: int):
 
 
 # возвращается ok 200
-@router.post("/api/column/rename/{new_title}")
+@router.post("/api/column/rename/{id}")
 async def rename_column(id: int, new_title: str):
     try:
         column = await Column.get(id=id)
@@ -62,7 +70,6 @@ async def rename_column(id: int, new_title: str):
 # [+] realisation drag-n-drop for column
 
 # возвращается status ok 200
-# @router.post("/api/column/move")
 @router.put("/api/columns/{column_id}/move")
 async def move_column(column_id: int, new_index: int):
     async with in_transaction() as conn:
@@ -96,14 +103,33 @@ async def move_column(column_id: int, new_index: int):
 
 
 
-# вывод всех задач      / добавить названия и тд
-@router.get("/api/task")
+# вывод всех задач
+@router.get("/api/tasks")
 async def get_tasks():
-    tasks = await Task.all()
+    tasks = await Task.all().values("id", "title", "index", "author_id", "assignee_id", "column_id", "created_at", "updated_at")
     return tasks
+    
 
-# вывод всех колонок    / добавить названия и тд
-@router.get("/api/column")
+@router.get("/api/task/{task_id}")
+async def get_task_using_id(task_id: int):
+    task = await Task.get_or_none(id=task_id)
+    # if not task:      # !
+    #     raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Column not found")
+    
+    return {
+        "id": task.id,
+        "title": task.title,
+        "index": task.index,
+        "description": task.description,
+        "author": task.author_id,
+        "assignee": task.assignee_id, 
+        "column": task.column_id,
+        "created_at": task.created_at,
+        "updated_at": task.updated_at
+    }
+
+# вывод всех колонок 
+@router.get("/api/columns")
 async def get_columns():
     column = await Column.all()
     return column
@@ -164,7 +190,7 @@ async def delete_task(id: int):
 
 # POST /api/task/rename - переименовать (передаю id и новое название, жду 200)
 # возвращается ok 200
-@router.post("/api/task/rename/{new_title}")
+@router.post("/api/task/rename/{id}")
 async def rename_task(id: int, new_title: str):
     try:
         task = await Task.get(id=id)
@@ -177,7 +203,7 @@ async def rename_task(id: int, new_title: str):
 
 # POST /api/task/change_contents - изменить содержимое (как выше, но текст)
 # возвращается ok 200
-@router.post("/api/task/change_contents/{new_title}")
+@router.post("/api/task/change_contents/{id}")
 async def change_task_content(id: int, desc: str):
     try:
         task = await Task.get(id=id)
@@ -198,7 +224,7 @@ async def change_responsible(id: int, id_user: int):
         await task.save()
         return {"msg": "assignee updated successully"}
     except DoesNotExist:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="User or Task not found")
 
 
 
@@ -216,7 +242,7 @@ async def move_task(task_id: int, new_column_id: int, new_index: int):
 
         # Если перемещение происходит внутри той же колонки
         if old_column_id == new_column_id:
-            if old_index < new_index:           # !!!
+            if old_index < new_index:
                 # Перемещение вниз: увеличиваем индексы между старым и новым положением
                 tasks_to_shift = await Task.filter(column_id=new_column_id, index__gt=old_index, index__lte=new_index)
                 for t in tasks_to_shift:
@@ -250,10 +276,24 @@ async def move_task(task_id: int, new_column_id: int, new_index: int):
     return {"success": True}
 
 
+    
 
 # POST /api/task/comments/ создать (передается text, user_id, task_id, возвращается id коммента)
-@router.post("/api/task/comments")
+@router.post("/api/comments")
 async def create_comment(text: str, id_user: int, id_task: int):
+    # проверка на существование задачи
+    task = await Task.get_or_none(id=id_task)
+    # проверка на текущего пользователя
+    temp_user = await UserModel.get_or_none(id=id_user)
+    if not task:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+    
+    if not temp_user:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="User not found")
+    elif temp_user.role == "guest":
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="You haven't sufficient permission")
+    
+
     comment = await Comments.create(
         author_id = id_user,
         text = text,
@@ -268,7 +308,7 @@ async def create_comment(text: str, id_user: int, id_task: int):
 
 
 # возвращается ok 200
-@router.delete("/api/task/comments/{id}")
+@router.delete("/api/comments/{id}")
 async def delete_comment(id: int):
     try:
         comment = await Comments.get(id=id)
@@ -278,11 +318,57 @@ async def delete_comment(id: int):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
 
 
+@router.get("/api/comments")
+async def get_comments(task_id: int):
+    try:
+        # Извлекаем комментарии, связанные с задачей
+        comments = await Comments.filter(task_id=task_id).prefetch_related("author")
+        
+        # Проверяем, найдены ли комментарии
+        if not comments:
+            raise HTTPException(status_code=404, detail="Comments not found")
+
+        # Возвращаем список комментариев
+        return comments
+
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Task not found")
 
 
-# вывод всех комментов    / добавить названия и тд
-@router.get("/api/task/comments")
-async def get_comments_from_user(user_id: int):
-    task_instance = await Task.get(id=user_id)
-    comms_from_user = await task_instance.comments.all()
-    return comms_from_user
+
+
+
+# генерация эксель файла
+@router.get("/export/board")
+async def export_board_to_excel():
+    # Получаем все колонки с задачами
+    columns = await Column.all().prefetch_related('column')
+
+    # Создаем новый Excel-файл
+    workbook = Workbook()
+    workbook.remove(workbook.active)  # Удаляем стандартный пустой лист
+    
+    for column in columns:
+        # Создаем лист для каждой колонки
+        worksheet = workbook.create_sheet(title=column.title[:30])  # Ограничиваем название до 30 символов
+        worksheet.append(["ID", "Название задачи", "Описание", "Автор", "Назначенный пользователь", "Дата создания", "Дата обновления"])
+
+        # Добавляем задачи на лист
+        tasks = await Task.filter(column=column.id).prefetch_related("author", "assignee")
+        for task in tasks:
+            worksheet.append([
+                task.id,
+                task.title,
+                task.description,
+                task.author.fullname if task.author else "Не указано",
+                task.assignee.fullname if task.assignee else "Не назначен",
+                task.created_at.strftime("%Y-%m-%d %H:%M:%S") if task.created_at else "Нет данных",
+                task.updated_at.strftime("%Y-%m-%d %H:%M:%S") if task.updated_at else "Нет данных"
+            ])
+
+    # Сохраняем файл
+    #filename = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+    filepath = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+
+    workbook.save(filepath)
+    return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

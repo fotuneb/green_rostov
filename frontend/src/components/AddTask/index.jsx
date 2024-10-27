@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { LuPlus } from "react-icons/lu"
 import "./add_task.css"
 
+const ws = process.env.REACT_APP_PUBLIC_URL
+
 function AddTask(props) {
   const [showNewTaskButton, setShowNewTaskButton] = useState(true);
   const [value, setValue] = useState("");
@@ -16,32 +18,11 @@ function AddTask(props) {
   }
 
   function addNewTask(content, columnId) {
-    const newTaskId = "task-" + Math.floor(Math.random() * 1000000);
-
-    const column = props.board.columns[columnId];
-    const newTaskIds = Array.from(column.taskIds);
-    newTaskIds.push(newTaskId);
-
-    
-    const newTask = {  /* need to change, create body where will be content and responsible */
-      id: newTaskId,
-      content: content,
-    };
-
-    props.setBoard({
-      ...props.board,
-      tasks: {
-        ...props.board.tasks,
-        [newTaskId]: newTask,
-      },
-      columns: {
-        ...props.board.columns,
-        [column.id]: {
-          ...column,
-          taskIds: newTaskIds,
-        },
-      },
-    });
+    fetch(`${ws}/api/task/?title=${content}&id_column=${columnId}&id_user=${localStorage.getItem("user_id")}`, {
+      method: "PUT",
+    }).then((req) => {
+      req.json().then(props.onTaskAdded)
+    })
   }
 
   return (

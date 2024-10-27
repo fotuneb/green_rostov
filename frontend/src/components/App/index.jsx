@@ -5,7 +5,7 @@ import Navbar from "../Navbar";
 import Register from "../../pages/Register";
 import Login from "../../pages/Login";
 import Index from "../../pages/Index";
-import Admin from "../../pages/Admin";
+import Admin from "../../pages/Admin"
 
 function getToken() {
   return localStorage.getItem("token");
@@ -27,6 +27,7 @@ function App() {
             element={<Register setToken={setToken} />}
           />
           <Route exact path="/login" element={<Login setToken={setToken} />} />
+          <Route exact path="/admin" element={<Admin token={token} />} />
         </Routes>
       </BrowserRouter>
     </div>

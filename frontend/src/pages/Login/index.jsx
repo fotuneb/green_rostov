@@ -5,6 +5,7 @@ import './login.css'; // Импортируем стили
 
 const Login = (props) => {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
@@ -15,9 +16,12 @@ const Login = (props) => {
       const access_token = data["access_token"];
       props.setToken(access_token);
       localStorage.setItem("token", access_token);
+      localStorage.setItem("user_id", data.id)
+      localStorage.setItem("role", data.role);
       navigate("/board");
     } catch (error) {
-      console.error("Login failed:", error);
+      setError(error + '');
+
     }
   };
 
@@ -26,13 +30,17 @@ const Login = (props) => {
     searchParams.append("username", email);
     searchParams.append("password", password);
 
-    const response = await fetch("http://localhost:8000/api/token", {
+    const response = await fetch(process.env.REACT_APP_PUBLIC_URL + "/api/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: searchParams.toString(),
     });
+
+    if (response.status == 401) {
+      throw new Error('Неправильный логин или пароль!')
+    }
 
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -69,6 +77,7 @@ const Login = (props) => {
             <div className="register-link">
               Еще нет аккаунта? <Link to="/signup">Зарегистрироваться</Link>
             </div>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <button type="submit" className="login-button">Войти</button>
           </div>
         </form>
