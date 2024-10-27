@@ -15,6 +15,7 @@ const Login = (props) => {
       const access_token = data["access_token"];
       props.setToken(access_token);
       localStorage.setItem("token", access_token);
+      localStorage.setItem("user_id", data.id)
       navigate("/board");
     } catch (error) {
       console.error("Login failed:", error);

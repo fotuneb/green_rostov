@@ -44,7 +44,7 @@ function Task(props) {
             ref={provided.innerRef}
           >
             <p className="font-regular task-pad">
-              {props.task.content}
+              {props.task.title}
             </p>
             <div className="task-pad">
               <span

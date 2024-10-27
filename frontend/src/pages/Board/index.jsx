@@ -6,50 +6,49 @@ import "./board.css"
 import Column from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
 
-function Board(props) {
-  const initialData = { tasks: {}, columns: {}, columnOrder: [] };
-  const [board, setBoard] = useState(initialData);
-  const isMounted = useRef(false);
+const ws = process.env.REACT_APP_PUBLIC_URL
+
+function Board({ token }) {
+  const [board, setBoard] = useState([]);
 
   useEffect(() => {
-    fetchBoard().then((data) => setBoard(data));
+    fetchBoard().then((data) => { setBoard(data) });
   }, []);
 
-  useEffect(() => {
-    if (isMounted.current) {
-      saveBoard().then(() => { });
-    } else {
-      isMounted.current = true;
-    }
-  }, [board]);
-
   async function fetchBoard() {
-    const ws = "http://localhost:8000";
+    const columnReq = await fetch(ws + '/api/column');
+    let columns = await columnReq.json();
 
-    const response = await fetch(ws + "/api/board", {
-      headers: {
-        Authorization: "Bearer " + props.token,
-      },
-    });
+    const tasksReq = await fetch(ws + '/api/task');
+    const tasks = await tasksReq.json();
 
-    const data = await response.json();
+    let idxToCol = {};
+    for (let column of columns) {
+      column.tasks = [];
+      column.id = column.id + ''
+      idxToCol[column.id] = column;
+    }
 
-    return data["board"];
+    for (let task of tasks) {
+      task.id = task.id + ''
+      let columnData = idxToCol[task.column_id];
+      if (!columnData) {
+        continue;
+      }
+
+      columnData.tasks.push(task);
+    }
+
+    return columns;
+
   }
 
-  async function saveBoard() {
-    await fetch(process.env.REACT_APP_PUBLIC_URL + "/api/board", {    /* 422 ошибка */
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + props.token,
-      },
-      body: JSON.stringify(board),
-    });
+  const updateBoard = () => {
+    fetchBoard().then((data) => { setBoard(data) })
   }
 
-  function onDragEnd(result) {
-    const { destination, source, draggableId, type } = result;
+  const onDragEnd = ({ destination, source, draggableId, type }) => {
+    console.log(destination, source, draggableId, type)
 
     if (!destination) {
       return;
@@ -62,70 +61,26 @@ function Board(props) {
       return;
     }
 
-    if (type === "column") {
-      const newColumnOrder = Array.from(board.columnOrder);
-      newColumnOrder.splice(source.index, 1);
-      newColumnOrder.splice(destination.index, 0, draggableId);
-
-      setBoard({
-        ...board,
-        columnOrder: newColumnOrder,
-      });
+    if (type === 'task') {
+      fetch(`${ws}/api/tasks/${draggableId}/move/?new_column_id=${destination.droppableId}&new_index=${destination.index}`, {
+        method: "PUT"
+      }).then((req) => {
+        req.json().then(updateBoard)
+      })
     }
 
-    if (type === "task") {
-      const startColumn = board.columns[source.droppableId];
-      const finishColumn = board.columns[destination.droppableId];
-
-      if (startColumn === finishColumn) {
-        const newTaskIds = Array.from(startColumn.taskIds);
-        newTaskIds.splice(source.index, 1);
-        newTaskIds.splice(destination.index, 0, draggableId);
-
-        const newColumn = {
-          ...startColumn,
-          taskIds: newTaskIds,
-        };
-
-        setBoard({
-          ...board,
-          columns: {
-            ...board.columns,
-            [newColumn.id]: newColumn,
-          },
-        });
-      } else {
-        const newStartTaskIds = Array.from(startColumn.taskIds);
-        const newFinishTaskIds = Array.from(finishColumn.taskIds);
-
-        newStartTaskIds.splice(source.index, 1);
-        newFinishTaskIds.splice(destination.index, 0, draggableId);
-
-        const newStartColumn = {
-          ...startColumn,
-          taskIds: newStartTaskIds,
-        };
-
-        const newFinishColumn = {
-          ...finishColumn,
-          taskIds: newFinishTaskIds,
-        };
-
-        setBoard({
-          ...board,
-          columns: {
-            ...board.columns,
-            [newStartColumn.id]: newStartColumn,
-            [newFinishColumn.id]: newFinishColumn,
-          },
-        });
-      }
+    if (type === 'column') {
+      fetch(`${ws}/api/columns/${draggableId}/move/?new_index=${destination.index}`, {
+        method: "PUT"
+      }).then((req) => {
+        req.json().then(updateBoard)
+      })
     }
   }
 
   return (
     <div className="board board-columns font-inter">
-      {props.token ? (
+      {token ? (
         <>
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable
@@ -139,19 +94,14 @@ function Board(props) {
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
-                  {board.columnOrder.map((columnId, index) => {
-                    const column = board.columns[columnId];
-                    const tasks = column.taskIds.map(
-                      (taskId) => board.tasks[taskId]
-                    );
+                  {board.map((column) => {
                     return (
                       <Column
                         key={column.id}
                         column={column}
-                        tasks={tasks}
-                        index={index}
-                        board={board}
-                        setBoard={setBoard}
+                        tasks={column.tasks}
+                        index={column.index}
+                        onUpdateNeeded={updateBoard}
                       />
                     );
                   })}
@@ -162,7 +112,7 @@ function Board(props) {
           </DragDropContext>
           <div className="container mx-auto flex justify-between my-5 px-2">
             <div className="flex justify-center">
-              <AddColumn board={board} setBoard={setBoard} />
+              <AddColumn board={board} onColumnAdded={updateBoard} />
             </div>
           </div>
         </>

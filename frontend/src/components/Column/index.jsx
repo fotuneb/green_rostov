@@ -5,26 +5,15 @@ import Task from "../Task";
 import AddTask from "../AddTask";
 import "./column.css"
 
+const ws = process.env.REACT_APP_PUBLIC_URL
+
 function Column(props) {
   function deleteColumn(columnId, index) {
-    const columnTasks = props.board.columns[columnId].taskIds;
-
-    const finalTasks = columnTasks.reduce((previousValue, currentValue) => {
-      const { [currentValue]: oldTask, ...newTasks } = previousValue;
-      return newTasks;
-    }, props.board.tasks);
-
-    const columns = props.board.columns;
-    const { [columnId]: oldColumn, ...newColumns } = columns;
-
-    const newColumnOrder = Array.from(props.board.columnOrder);
-    newColumnOrder.splice(index, 1);
-
-    props.setBoard({
-      tasks: finalTasks,
-      columns: newColumns,
-      columnOrder: newColumnOrder,
-    });
+    fetch(`${ws}/api/column/${columnId}`, {
+      method: "DELETE"
+    }).then((req) => {
+      req.json().then(props.onUpdateNeeded)
+    })
   }
 
   return (
@@ -58,14 +47,12 @@ function Column(props) {
             >
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {props.tasks.map((task, index) => (
+                  {props.tasks.map((task) => (
                     <Task
                       key={task.id}
                       task={task}
-                      columnId={props.column.id}
-                      index={index}
-                      board={props.board}
-                      setBoard={props.setBoard}
+                      columnId={task.column_id}
+                      index={task.index}
                     />
                   ))}
 
@@ -75,8 +62,8 @@ function Column(props) {
             </Droppable>
             <AddTask
               board={props.board}
-              setBoard={props.setBoard}
               columnId={props.column.id}
+              onTaskAdded={props.onUpdateNeeded}
             />
           </div>
         </div>
