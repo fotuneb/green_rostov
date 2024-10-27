@@ -2,6 +2,7 @@ import openpyxl
 from openpyxl import Workbook
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import FileResponse
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from tortoise.transactions import in_transaction
 from tortoise.exceptions import DoesNotExist
@@ -320,19 +321,20 @@ async def delete_comment(id: int):
 
 
 
-# вывод всех комментов по задаче
+# вывод всех комментов по задаче        # !!!!!
 @router.get("/api/task/comments")
 async def get_comments_using_task_id(task_id: int):
-    task_instance = await Task.get_or_none(id=task_id)
-    # if not task_instance:     # !
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    try:
+        comms = await Comments.all().order_by("-task_id")
+        task_instance = await Task.get_or_none(id=task_id)
+        # comms_from_task = await task_instance.comments.all()
+        return comms_from_task
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
 
-    comms_from_task = await task_instance.comments.all()
-    return comms_from_task
 
 
-
-# генерация файла
+# генерация файла       # !!!
 @router.get("/export/board")
 async def export_board_to_excel():
     # Получаем все колонки с задачами
@@ -361,8 +363,8 @@ async def export_board_to_excel():
             ])
 
     # Сохраняем файл
-    filename = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
-    filepath = f"/mnt/data/{filename}"  # Используйте временный путь для сохранения файла
+    #filename = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+    filepath = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
 
     workbook.save(filepath)
-    return FileResponse(filepath, filename=filename, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
