@@ -9,7 +9,7 @@ export const Modal = ({ isOpen, onClose, task }) => {
     const [taskData, setTaskData] = useState(task);
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(taskData.title);
-    const [description, setDescription] = useState(taskData.description);
+    const [description, setDescription] = useState(taskData.description || '');
     const [selectedOptions, setSelectedOptions] = useState({
         author: '',
         executor: '',
@@ -24,12 +24,27 @@ export const Modal = ({ isOpen, onClose, task }) => {
     }
 
     useEffect(() => {
-        if (!isOpen) return null;
-        getTaskDetail().then((data) => { setTaskData(data) });
+        if (!isOpen) return;
+        getTaskDetail().then((data) => {
+            setTaskData(data);
+            setTitle(data.title);
+            setDescription(data.description || '');
+            console.log(data);
+        });
     }, [isOpen]);
 
     const updateTitle = () => {
         fetch(`${ws}/api/task/rename/${taskData.id}?new_title=${title}`, {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        });
+    }
+
+    const updateDescription = () => {
+        console.log(description)
+        fetch(`${ws}/api/task/change_contents/${taskData.id}?desc=${description}`, {
             method: "POST",
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -46,7 +61,6 @@ export const Modal = ({ isOpen, onClose, task }) => {
 
     const handleOptionChange = (field, value) => {
         setSelectedOptions((prev) => ({ ...prev, [field]: value }));
-        console.log(`${field}: ${value}`);
     };
 
     if (!isOpen) return null;
@@ -75,6 +89,8 @@ export const Modal = ({ isOpen, onClose, task }) => {
                         modules={Modal.modules}
                         formats={Modal.formats}
                     />
+
+                    <button className="quill-update-contents font-inter" onClick={updateDescription}>Обновить</button>
                 </div>
                 <div className="modal-actions">
                     <h3>Меню</h3>
