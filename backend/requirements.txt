@@ -25,6 +25,7 @@ pre-commit==2.19.0
 psycopg2-binary==2.9.3
 pycparser==2.21
 pydantic==1.9.1
+python-dotenv
 PyJWT==2.4.0
 pypika-tortoise==0.1.6
 python-multipart==0.0.5
