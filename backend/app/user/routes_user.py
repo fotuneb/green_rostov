@@ -4,7 +4,7 @@ from passlib.hash import bcrypt
 import re
 from app.user.authentication import authenticate_user, create_token, get_current_user, get_admin_user
 from app.user.models_user import UserModel
-from app.user.schemas_user import User, UserIn, UserPublicInfo
+from app.user.schemas_user import User, UserIn, UserPublicInfo, UserPasswordSchema
 
 router1 = APIRouter()
 admin_router = APIRouter()
@@ -79,6 +79,21 @@ async def change_about(user_info: UserPublicInfo, current_user: UserModel = Depe
 
     await user.save()
     return {"msg": "About updated successfully"}
+
+@router1.post("/api/users/change-password")
+async def change_password(password_data: UserPasswordSchema, current_user: UserModel = Depends(get_current_user)):
+    user = await UserModel.get(id=current_user.id)
+    
+    if not user.verify_password(password_data.current_password):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Текущий пароль введен неправильно!",
+        )
+
+    user.password = bcrypt.hash(password_data.new_password)
+    await user.save()
+
+    return {"msg": "Пароль успешно изменен"}
 
 
 @router1.post("/api/token")
