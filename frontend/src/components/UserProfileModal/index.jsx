@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import "./user_profile_modal.css"
 
-const EditProfile = () => {
+const EditProfile = ({closeModal}) => {
     const [userInfo, setUserInfo] = useState({
         fullname: '',
         about: '',
@@ -12,6 +12,8 @@ const EditProfile = () => {
         newPassword: '',
         confirmPassword: '',
     });
+
+    const [error, setError] = useState('');
     
     const getMyData = async () => {
         const data = await fetch('/api/get_user/' + localStorage.getItem('user_id'), {
@@ -55,6 +57,34 @@ const EditProfile = () => {
             },
             body: JSON.stringify(userInfo)
         })
+
+        if (passwords.newPassword === '')
+            return closeModal()
+
+        if (passwords.newPassword !== passwords.confirmPassword) {
+            setError('Пароли не совпадают!')
+            return
+        }
+
+        const processResponse = async (res) => {
+            if (res.status === 200)
+                return closeModal()
+
+            const json = await res.json()
+            setError(json.detail)
+        }
+
+        fetch('/api/users/change-password', {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                current_password: passwords.currentPassword,
+                new_password: passwords.newPassword
+            })
+        }).then(processResponse)
     };
 
     return (
@@ -117,6 +147,7 @@ const EditProfile = () => {
                         onChange={handlePasswordChange}
                     />
                 </div>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
             </form>
         </div>
@@ -130,7 +161,7 @@ export const UserProfileModal = ({ isOpen, onClose }) => {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content user-profile-modal" onClick={(e) => e.stopPropagation()}>
-                <EditProfile />
+                <EditProfile closeModal={onClose} />
             </div>
         </div>
     );
