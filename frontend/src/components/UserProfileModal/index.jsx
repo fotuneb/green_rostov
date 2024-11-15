@@ -66,7 +66,6 @@ const EditProfile = () => {
                         name="currentPassword"
                         value={passwords.currentPassword}
                         onChange={handlePasswordChange}
-                        required
                     />
                 </div>
                 <div className="input-group">
@@ -78,7 +77,6 @@ const EditProfile = () => {
                         name="newPassword"
                         value={passwords.newPassword}
                         onChange={handlePasswordChange}
-                        required
                     />
                 </div>
                 <div className="input-group">
@@ -90,7 +88,6 @@ const EditProfile = () => {
                         name="confirmPassword"
                         value={passwords.confirmPassword}
                         onChange={handlePasswordChange}
-                        required
                     />
                 </div>
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
