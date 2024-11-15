@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./user_profile_modal.css"
 
 const EditProfile = () => {
     const [userInfo, setUserInfo] = useState({
-        name: '',
+        fullname: '',
         about: '',
     });
     const [passwords, setPasswords] = useState({
@@ -12,6 +12,27 @@ const EditProfile = () => {
         newPassword: '',
         confirmPassword: '',
     });
+    
+    const getMyData = async () => {
+        const data = await fetch('/api/get_user/' + localStorage.getItem('user_id'), {
+            method: "GET"
+        })
+
+        return await data.json()
+    }
+
+    useEffect(() => {
+        if (userInfo.fullname !== '' || userInfo.about !== '')
+            return
+
+        getMyData().then((myData) => {
+
+            setUserInfo({
+                fullname: myData.fullname,
+                about: myData.about
+            })
+        })
+    }, [userInfo])
 
     const handleUserInfoChange = (e) => {
         const { name, value } = e.target;
@@ -25,9 +46,15 @@ const EditProfile = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Логика отправки данных на сервер
-        console.log('Информация пользователя:', userInfo);
-        console.log('Пароли:', passwords);
+
+        fetch('/api/users/change-info', {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(userInfo)
+        })
     };
 
     return (
@@ -38,8 +65,8 @@ const EditProfile = () => {
                     <label className="user-profile-label">ФИО:</label>
                     <input
                         type="text"
-                        name="name"
-                        value={userInfo.name}
+                        name="fullname"
+                        value={userInfo.fullname}
                         onChange={handleUserInfoChange}
                         required
                     />
