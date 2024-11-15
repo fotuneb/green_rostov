@@ -9,14 +9,14 @@ from app.user.schemas_user import User, UserIn, UserPublicInfo
 router1 = APIRouter()
 admin_router = APIRouter()
 
-@admin_router.post("/api/change-role-admin/{user_id}")
+@admin_router.post("/api/users/admin/change-role/{user_id}")
 async def change_role(user_id: int, new_role: str, admin_user: UserModel = Depends(get_admin_user)):
     user = await UserModel.get(id=user_id)
     user.role = new_role
     await user.save()
     return {"msg": "Role updated successfully"}
 
-@admin_router.post("/api/change-fullname-admin/{user_id}")
+@admin_router.post("/api/users/admin/change-fullname/{user_id}")
 async def change_fullname(user_id: int, new_fullname: str, admin_user: UserModel = Depends(get_admin_user)):
     user = await UserModel.get(id=user_id)
     if not re.fullmatch(r"[A-Za-zА-Яа-яёЁ\s\-]+", new_fullname):
@@ -28,7 +28,7 @@ async def change_fullname(user_id: int, new_fullname: str, admin_user: UserModel
     await user.save()
     return {"msg": "Role updated successfully"}
 
-@admin_router.post("/api/change-password-admin/{user_id}")
+@admin_router.post("/api/users/admin/change-password/{user_id}")
 async def change_password(user_id: int, new_password: str, admin_user: UserModel = Depends(get_admin_user)):
     user = await UserModel.get(id=user_id)
     if len(new_password) > 20:

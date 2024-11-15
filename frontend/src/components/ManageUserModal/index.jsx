@@ -5,7 +5,7 @@ import "./manage_user_modal.css";
 const ws = process.env.REACT_APP_PUBLIC_URL;
 
 const updateFullname = async (token, userId, fullname) => {
-    const response = await fetch(ws + "/api/change-fullname-admin/" + userId + '?new_fullname=' + fullname, {
+    const response = await fetch(ws + "/api/users/admin/change-fullname/" + userId + '?new_fullname=' + fullname, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -17,7 +17,7 @@ const updateFullname = async (token, userId, fullname) => {
 }
 
 const updateRole = async (token, userId, role) => {
-    const response = await fetch(ws + "/api/change-role-admin/" + userId + '?new_role=' + role, {
+    const response = await fetch(ws + "/api/users/admin/change-role/" + userId + '?new_role=' + role, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -29,7 +29,7 @@ const updateRole = async (token, userId, role) => {
 }
 
 const updatePassword = async (token, userId, password) => {
-    const response = await fetch(ws + "/api/change-password-admin/" + userId + '?new_password=' + password, {
+    const response = await fetch(ws + "/api/users/admin/change-password/" + userId + '?new_password=' + password, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
