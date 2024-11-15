@@ -4,7 +4,7 @@ from passlib.hash import bcrypt
 import re
 from app.user.authentication import authenticate_user, create_token, get_current_user, get_admin_user
 from app.user.models_user import UserModel
-from app.user.schemas_user import User, UserIn
+from app.user.schemas_user import User, UserIn, UserPublicInfo
 
 router1 = APIRouter()
 admin_router = APIRouter()
@@ -70,17 +70,16 @@ async def create_user(user_in: UserIn):
 
     return {"access_token": await create_token(user)}
 
-@router1.post("/api/change-about/{user_id}")
-async def change_about(user_id: int, new_about: str):
-    user = await UserModel.get(id=user_id)
-    if user.role == "guest":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail = "Нет прав",
-        )
-    user.about = new_about
+@router1.post("/api/users/change-info")
+async def change_about(user_info: UserPublicInfo, current_user: UserModel = Depends(get_current_user)):
+    user = await UserModel.get(id=current_user.id)
+
+    user.about = user_info.about
+    user.fullname = user_info.fullname
+
     await user.save()
     return {"msg": "About updated successfully"}
+
 
 @router1.post("/api/token")
 async def generate_token(form_data: OAuth2PasswordRequestForm = Depends()):
