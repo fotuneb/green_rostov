@@ -72,7 +72,7 @@ function Column(props) {
           </div>
           <div className="h-full">
             <Droppable
-              droppableId={props.column.id}
+              droppableId={`column${props.column.id}`}
               direction="vertical"
               type="task"
             >

@@ -11,13 +11,15 @@ function Navbar(props) {
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
+  const excelExport = () => {
+    open(process.env.REACT_APP_PUBLIC_URL + '/export/board')
+  }
+
   return (
     <>
       <UserProfileModal isOpen={isModalOpen} onClose={closeModal} />
       <nav className="navbar">
-        <Link to="/">
-          <button className="nav-button">Экпорт Excel</button>
-        </Link>
+          <button className="nav-button" onClick={excelExport}>Экпорт Excel</button>
         {!props.token ? (
           <div className="font-inter">
             <Link to="/login">
