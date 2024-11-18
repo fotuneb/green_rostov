@@ -149,7 +149,6 @@ async def create_task(title: str, id_column: int, id_user: int):
         max_index = max_index_record[0]["index"] if max_index_record else 0
         new_index = max_index + 1  # Увеличиваем индекс на 1
     else:
-        # Если колонок нет, устанавливаем индекс в 0
         new_index = 0
 
     current_column = await Column.get(id=id_column)
