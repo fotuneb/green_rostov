@@ -12,6 +12,12 @@ from app.task.models import Column, Task, Comments
 # from app.task.schemas import Task
 import pandas
 from pydantic import BaseModel
+import base64
+import os
+
+IMAGE_FOLDER = "static/images"  # Папка для хранения изображений
+
+
 
 router = APIRouter()
 
@@ -106,23 +112,25 @@ async def move_column(column_id: int, new_index: int):
 # вывод всех задач
 @router.get("/api/tasks")
 async def get_tasks():
-    tasks = await Task.all().values("id", "title", "index", "author_id", "assignee_id", "column_id", "created_at", "updated_at")
+    tasks = await Task.all().values("id", "title", "index", "author_id", "images", "assignee_id", "column_id", "created_at", "updated_at")
     return tasks
     
 
 @router.get("/api/task/{task_id}")
 async def get_task_using_id(task_id: int):
     task = await Task.get_or_none(id=task_id)
-    # if not task:      # !
-    #     raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Column not found")
-    
+
+    if not task:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+
     return {
         "id": task.id,
         "title": task.title,
         "index": task.index,
         "description": task.description,
+        "images": task.images,  # добавил эту хуйню
         "author": task.author_id,
-        "assignee": task.assignee_id, 
+        "assignee": task.assignee_id,
         "column": task.column_id,
         "created_at": task.created_at,
         "updated_at": task.updated_at
@@ -140,38 +148,103 @@ async def get_columns():
 # [+] создание task'a
 
 # возвращается id и индекс; содерджимое (description) изначально пусто
-@router.put("/api/task")
-async def create_task(title: str, id_column: int, id_user: int):
+@router.put("/api/task")    # !!!
+async def create_task(
+    title: str, 
+    id_column: int, 
+    id_user: int, 
+    description: str = "", 
+    images: list[str] = None  # добавил эту хуйню (список изображений)
+):
     tasks_exist = await Task.exists()
     if tasks_exist:
-        # Если колонки существуют, находим максимальный индекс
+        # Если задачи существуют, находим максимальный индекс
         max_index_record = await Task.all().order_by("-index").values("index")
         max_index = max_index_record[0]["index"] if max_index_record else 0
-        new_index = max_index + 1  # Увеличиваем индекс на 1
+        new_index = max_index + 1
     else:
         new_index = 0
 
     current_column = await Column.get(id=id_column)
-    # if not current_column:
+
+    # Обработка изображений
+    extracted_images = []
+    if images:
+        for index, base64_image in enumerate(images):
+            try:
+                # Определение типа файла
+                header, encoded = base64_image.split(",", 1)
+                ext = header.split("/")[1].split(";")[0]
+                image_data = base64.b64decode(encoded)
+
+                # Генерация имени файла и сохранение
+                filename = f"task_new_image_{index}.{ext}"
+                filepath = os.path.join(IMAGE_FOLDER, filename)
+                os.makedirs(IMAGE_FOLDER, exist_ok=True)
+                with open(filepath, "wb") as img_file:
+                    img_file.write(image_data)
+
+                extracted_images.append(filepath)
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Error processing image: {e}")
 
 
     task = await Task.create(
-        index = new_index,
-        title = title,
-        description = "",
-        author_id = id_user,
-        assignee_id = id_user,
-        column = current_column
+        index=new_index,
+        title=title,
+        description=description,
+        images=extracted_images,
+        author_id=id_user,
+        assignee_id=id_user,
+        column=current_column
     )
 
     return {
         "id": task.id,  
         "index": task.index,
+        "title": task.title,
         "description": task.description,
+        "images": task.images,  # добавил эту хуйню (ссылка на фотку)
         "author": task.author_id,
         "assignee": task.assignee_id, 
-        "column": task.column_id
+        "column": task.column_id,
+        "created_at": task.created_at,
+        "updated_at": task.updated_at
     }
+
+# @router.put("/api/task")
+# async def create_task(title: str, id_column: int, id_user: int):
+#     tasks_exist = await Task.exists()
+#     if tasks_exist:
+#         # Если колонки существуют, находим максимальный индекс
+#         max_index_record = await Task.all().order_by("-index").values("index")
+#         max_index = max_index_record[0]["index"] if max_index_record else 0
+#         new_index = max_index + 1  # Увеличиваем индекс на 1
+#     else:
+#         # Если колонок нет, устанавливаем индекс в 0
+#         new_index = 0
+
+#     current_column = await Column.get(id=id_column)
+#     # if not current_column:
+
+
+#     task = await Task.create(
+#         index = new_index,
+#         title = title,
+#         description = "",
+#         author_id = id_user,
+#         assignee_id = id_user,
+#         column = current_column
+#     )
+
+#     return {
+#         "id": task.id,  
+#         "index": task.index,
+#         "description": task.description,
+#         "author": task.author_id,
+#         "assignee": task.assignee_id, 
+#         "column": task.column_id
+#     }
 
 
 
@@ -202,15 +275,44 @@ async def rename_task(id: int, new_title: str):
 
 # POST /api/task/change_contents - изменить содержимое (как выше, но текст)
 # возвращается ok 200
-@router.post("/api/task/change_contents/{id}")
+@router.post("/api/task/change_contents/{id}")  # у гпт попросил чекнуть !!!
 async def change_task_content(id: int, desc: str):
     try:
         task = await Task.get(id=id)
-        task.description = desc
+
+        # Обработка текста, извлечение изображений
+        extracted_images = []
+        new_desc = desc  # Начальный текст без изменений
+
+        # Поиск Base64 изображений в тексте
+        for index, line in enumerate(desc.splitlines()):
+            if line.startswith("data:image/"):
+                try:
+                    # Определение типа файла
+                    header, encoded = line.split(",", 1)
+                    ext = header.split("/")[1].split(";")[0]
+                    image_data = base64.b64decode(encoded)
+
+                    # Генерация имени файла и сохранение
+                    filename = f"task_{id}_image_{index}.{ext}"
+                    filepath = os.path.join(IMAGE_FOLDER, filename)
+                    os.makedirs(IMAGE_FOLDER, exist_ok=True)
+                    with open(filepath, "wb") as img_file:
+                        img_file.write(image_data)
+
+                    extracted_images.append(filepath)
+                    new_desc = new_desc.replace(line, f"[Image {index + 1}]")  # Убираем Base64, вставляем плейсхолдер
+                except Exception as e:
+                    raise HTTPException(status_code=400, detail=f"Error processing image: {e}")
+
+        # Сохранение задачи
+        task.description = new_desc
+        task.images = extracted_images
         await task.save()
-        return {"description": task.description}
+
+        return {"description": task.description, "images": task.images}
     except DoesNotExist:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="description not found")
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
 
 
 # POST /api/task/change_responsible - изменить ответственного (передается id пользователя, ожидаю 200)
@@ -301,7 +403,7 @@ async def create_comment(text: str, id_user: int, id_task: int):
     return {"id": comment.id,
             "author_id": comment.author_id,
             "create_date": comment.create_date,
-            "text": comment.text,
+            "text": comment.text,           # !!!
             "task_id": comment.task_id
     }
 
@@ -328,7 +430,7 @@ async def get_comments(task_id: int):
             raise HTTPException(status_code=404, detail="Comments not found")
 
         # Возвращаем список комментариев
-        return comments
+        return comments     # !!!       передается также еще и описание, нужно изменить 
 
     except DoesNotExist:
         raise HTTPException(status_code=404, detail="Task not found")

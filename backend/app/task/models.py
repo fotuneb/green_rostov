@@ -29,11 +29,12 @@ class Task(Model):
     index = fields.IntField()
     title = fields.CharField(max_length=255)
     description = fields.TextField(null=True)
+    images = fields.JSONField(null=True, default=list)  # Хранение ссылок на изображения
     author = fields.ForeignKeyField("models.UserModel", related_name="tasks_created")
     assignee = fields.ForeignKeyField("models.UserModel", related_name="tasks_assigned")
     column = fields.ForeignKeyField("models.Column", related_name="column", on_delete=fields.CASCADE)
-    created_at = fields.DatetimeField(auto_now_add=True)  # Время создания
-    updated_at = fields.DatetimeField(auto_now=True)
+    created_at = fields.DatetimeField(auto_now_add=True)    # Время создания
+    updated_at = fields.DatetimeField(auto_now=True)        # Время обновления
     
     
 

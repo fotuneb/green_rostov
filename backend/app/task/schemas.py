@@ -7,6 +7,7 @@ class Task(BaseModel):
     index: int
     content: str
     responsible: str
+    images: dict
 
 class Tasks(BaseModel):
     __root__: dict[str, Task]
