@@ -111,13 +111,13 @@ async def move_column(column_id: int, new_index: int):
 
 # вывод всех задач
 @router.get("/api/tasks")
-async def get_tasks():
-    tasks = await Task.all().values("id", "title", "index", "author_id", "images", "assignee_id", "column_id", "created_at", "updated_at")
+async def get_tasks():  # ?!?!
+    tasks = await Task.all().values("id", "title", "index", "author_id", "assignee_id", "column_id", "created_at", "updated_at")
     return tasks
     
 
 @router.get("/api/task/{task_id}")
-async def get_task_using_id(task_id: int):
+async def get_task_using_id(task_id: int):  # ?!?!
     task = await Task.get_or_none(id=task_id)
 
     if not task:
@@ -148,7 +148,7 @@ async def get_columns():
 # [+] создание task'a
 
 # возвращается id и индекс; содерджимое (description) изначально пусто
-@router.put("/api/task")    # !!!
+@router.put("/api/task")   # ?!?!
 async def create_task(
     title: str, 
     id_column: int, 
@@ -276,7 +276,7 @@ async def rename_task(id: int, new_title: str):
 # POST /api/task/change_contents - изменить содержимое (как выше, но текст)
 # возвращается ok 200
 @router.post("/api/task/change_contents/{id}")  # у гпт попросил чекнуть !!!
-async def change_task_content(id: int, desc: str):
+async def change_task_content(id: int, desc: str):  # ?!?!
     try:
         task = await Task.get(id=id)
 
