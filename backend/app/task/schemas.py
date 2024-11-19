@@ -8,6 +8,7 @@ class Task(BaseModel):
     content: str
     responsible: str
     images: dict
+    assignee: UserModel
 
 class Tasks(BaseModel):
     __root__: dict[str, Task]
