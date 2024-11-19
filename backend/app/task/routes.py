@@ -9,7 +9,7 @@ from tortoise.exceptions import DoesNotExist
 from app.user.authentication import get_current_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments
-# from app.task.schemas import Task
+from app.task.schemas import Rename, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
 import pandas
 from pydantic import BaseModel
 import base64
