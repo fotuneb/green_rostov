@@ -128,7 +128,6 @@ async def get_task_using_id(task_id: int):  # ?!?!
         "title": task.title,
         "index": task.index,
         "description": task.description,
-        "images": task.images,  # добавил эту хуйню
         "author": task.author_id,
         "assignee": task.assignee_id,
         "column": task.column_id,
@@ -202,9 +201,7 @@ async def create_task(
     return {
         "id": task.id,  
         "index": task.index,
-        "title": task.title,
         "description": task.description,
-        "images": task.images,  # добавил эту хуйню (ссылка на фотку)
         "author": task.author_id,
         "assignee": task.assignee_id, 
         "column": task.column_id,
@@ -212,39 +209,6 @@ async def create_task(
         "updated_at": task.updated_at
     }
 
-# @router.put("/api/task")
-# async def create_task(title: str, id_column: int, id_user: int):
-#     tasks_exist = await Task.exists()
-#     if tasks_exist:
-#         # Если колонки существуют, находим максимальный индекс
-#         max_index_record = await Task.all().order_by("-index").values("index")
-#         max_index = max_index_record[0]["index"] if max_index_record else 0
-#         new_index = max_index + 1  # Увеличиваем индекс на 1
-#     else:
-#         # Если колонок нет, устанавливаем индекс в 0
-#         new_index = 0
-
-#     current_column = await Column.get(id=id_column)
-#     # if not current_column:
-
-
-#     task = await Task.create(
-#         index = new_index,
-#         title = title,
-#         description = "",
-#         author_id = id_user,
-#         assignee_id = id_user,
-#         column = current_column
-#     )
-
-#     return {
-#         "id": task.id,  
-#         "index": task.index,
-#         "description": task.description,
-#         "author": task.author_id,
-#         "assignee": task.assignee_id, 
-#         "column": task.column_id
-#     }
 
 
 
@@ -293,26 +257,9 @@ async def change_task_content(id: int, desc: str):  # ?!?!
                     ext = header.split("/")[1].split(";")[0]
                     image_data = base64.b64decode(encoded)
 
-                    # Генерация имени файла и сохранение
-                    filename = f"task_{id}_image_{index}.{ext}"
-                    filepath = os.path.join(IMAGE_FOLDER, filename)
-                    os.makedirs(IMAGE_FOLDER, exist_ok=True)
-                    with open(filepath, "wb") as img_file:
-                        img_file.write(image_data)
 
-                    extracted_images.append(filepath)
-                    new_desc = new_desc.replace(line, f"[Image {index + 1}]")  # Убираем Base64, вставляем плейсхолдер
-                except Exception as e:
-                    raise HTTPException(status_code=400, detail=f"Error processing image: {e}")
 
-        # Сохранение задачи
-        task.description = new_desc
-        task.images = extracted_images
-        await task.save()
 
-        return {"description": task.description, "images": task.images}
-    except DoesNotExist:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
 
 
 # POST /api/task/change_responsible - изменить ответственного (передается id пользователя, ожидаю 200)
