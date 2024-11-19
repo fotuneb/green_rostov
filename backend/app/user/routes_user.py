@@ -63,6 +63,11 @@ async def create_user(user_in: UserIn):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Пароль должен быть не длиннее 20 символов.",
         )
+    if await UserModel.filter(login=user_in.login).exists():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Логин уже существует. Пожалуйста, выберите другой.",
+        )
     user = await UserModel.create(
         fullname = user_in.fullname, login=user_in.login, password=bcrypt.hash(user_in.password1)
     )

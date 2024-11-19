@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from tortoise.contrib.pydantic import pydantic_model_creator
 from app.task.models import Column
+from app.user.models_user import UserModel
 
 class Task(BaseModel):
     id: str
