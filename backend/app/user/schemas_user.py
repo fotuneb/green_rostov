@@ -9,7 +9,7 @@ class UserIn(BaseModel):
 
 class UserPublicInfo(BaseModel):
     fullname: str
-    about: str
+    about: str 
 
 class UserPasswordSchema(BaseModel):
     current_password: str
