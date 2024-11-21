@@ -36,6 +36,20 @@ services:
       - ./frontend:/app/frontend
       - /app/frontend/node_modules
 
+
+  bot:
+    build:
+      context: tg_bot
+      dockerfile: Dockerfile
+    command: python main.py
+    env_file: .env
+    depends_on:
+      - server
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./tg_bot:/app/bot
+
   nginx:
     build:
       context: nginx
@@ -43,6 +57,7 @@ services:
     depends_on:
       - server
       - client
+      - bot
     ports:
       - 8080:80
 
