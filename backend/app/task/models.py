@@ -48,7 +48,6 @@ class Attachment(Model):
     id = fields.IntField(pk=True)
     file_path = fields.CharField(max_length=255)  # Путь к файлу или URL
     uploaded_at = fields.DatetimeField(auto_now_add=True)
-    task = fields.ForeignKeyField("models.Task", related_name="task_attachments")
 
     class Meta:
         table = "attachments"

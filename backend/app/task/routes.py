@@ -15,12 +15,10 @@ from pydantic import BaseModel
 import base64
 import os
 
-IMAGE_FOLDER = "static/images"  # Папка для хранения изображений
 
 
 
 router = APIRouter()
-
 
 
 # возвращается id и index
@@ -385,11 +383,6 @@ async def export_board_to_excel():
 
     workbook.save(filepath)
     return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
-
-
-
-
 
 
 
