@@ -34,13 +34,13 @@ class Task(Model):
     assignee = fields.ForeignKeyField("models.UserModel", related_name="tasks_assigned")
     column = fields.ForeignKeyField("models.Column", related_name="column", on_delete=fields.CASCADE)
     created_at = fields.DatetimeField(auto_now_add=True)  # Время создания
-    updated_at = fields.DatetimeField(auto_now=True)
+    updated_at = fields.DatetimeField(auto_now=True)      # Время обновления
+    
     deadline = fields.DatetimeField(null=True)
     time_track = fields.DatetimeField(null=True)  # Храним время в секундах
     is_running = fields.BooleanField(default=False)  # Состояние таймера
     last_started_at = fields.DatetimeField(null=True)  # Когда таймер был запущен
-    created_at = fields.DatetimeField(auto_now_add=True)    # Время создания
-    updated_at = fields.DatetimeField(auto_now=True)        # Время обновления
+  
     attachments = fields.ManyToManyField("models.Attachment", related_name="tasks_attachments", on_delete=fields.CASCADE)
 
     
