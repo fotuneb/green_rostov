@@ -35,7 +35,8 @@ class Task(Model):
     column = fields.ForeignKeyField("models.Column", related_name="column", on_delete=fields.CASCADE)
     created_at = fields.DatetimeField(auto_now_add=True)    # Время создания
     updated_at = fields.DatetimeField(auto_now=True)        # Время обновления
-    
+    attachments = fields.ManyToManyField("models.Attachment", related_name="tasks_attachments", on_delete=fields.CASCADE)
+
     
 
     class Meta:

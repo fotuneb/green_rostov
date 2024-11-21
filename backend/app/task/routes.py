@@ -1,8 +1,9 @@
 import openpyxl
 from openpyxl import Workbook
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, Form, Request
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from tortoise.transactions import in_transaction
 from tortoise.exceptions import DoesNotExist
@@ -107,19 +108,48 @@ async def move_column(ColumnInfoDrag: Column_drag):
 
 
 
-# вывод всех задач
-@router.get("/api/tasks")
-async def get_tasks():  # ?!?!
-    tasks = await Task.all().values("id", "title", "index", "author_id", "assignee_id", "column_id", "created_at", "updated_at")
-    return tasks
-    
+@router.get("/api/tasks/")
+async def get_tasks():
+    tasks = await Task.all()  # Получаем все задачи
+
+    task_list = []
+    for task in tasks:
+        # Получаем вложения для каждой задачи
+        attachments = await task.attachments.all()  # Получаем все вложения для текущей задачи
+
+        # Формируем список вложений
+        attachment_list = [{"id": attachment.id, "file_path": attachment.file_path, "uploaded_at": attachment.uploaded_at} for attachment in attachments]
+
+        # Добавляем задачу с вложениями в список
+        task_list.append({
+            "id": task.id,
+            "title": task.title,
+            "index": task.index,
+            "description": task.description,
+            "author": task.author_id,
+            "assignee": task.assignee_id,
+            "column": task.column_id,
+            "created_at": task.created_at,
+            "updated_at": task.updated_at,
+            "attachments": attachment_list  # Добавляем вложения в задачу
+        })
+
+    return task_list
+
+
 
 @router.get("/api/task/{task_id}")
-async def get_task_using_id(task_id: int):  # ?!?!
+async def get_task_using_id(task_id: int):
     task = await Task.get_or_none(id=task_id)
 
     if not task:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+
+    # Получаем список вложений, связанных с задачей
+    attachments = await task.attachments.all()  # Получаем все вложения, связанные с задачей
+
+    # Формируем список вложений
+    attachment_list = [{"id": attachment.id, "file_path": attachment.file_path, "uploaded_at": attachment.uploaded_at} for attachment in attachments]
 
     return {
         "id": task.id,
@@ -130,8 +160,10 @@ async def get_task_using_id(task_id: int):  # ?!?!
         "assignee": task.assignee_id,
         "column": task.column_id,
         "created_at": task.created_at,
-        "updated_at": task.updated_at
+        "updated_at": task.updated_at,
+        "attachments": attachment_list  # Добавляем список вложений
     }
+
 
 # вывод всех колонок 
 @router.get("/api/columns")
@@ -397,7 +429,10 @@ def validate_image_file(file_bytes: bytes) -> bool:
     return file_bytes.startswith(png_signature) or file_bytes.startswith(jpeg_signature)
 
 
-@router.post("/tasks/{task_id}/attachments/")
+
+
+
+@router.post("/api/attachments/")
 async def create_attachment(task_id: int, file: UploadFile):
     # Проверяем, что MIME-тип соответствует ожиданиям
     if file.content_type not in ["image/jpeg", "image/png"]:
@@ -407,7 +442,7 @@ async def create_attachment(task_id: int, file: UploadFile):
     try:
         task = await Task.get(id=task_id)
     except DoesNotExist:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
 
     # Считываем содержимое файла
     file_bytes = await file.read()
@@ -417,15 +452,80 @@ async def create_attachment(task_id: int, file: UploadFile):
         raise HTTPException(status_code=400, detail="Invalid image format")
 
     # Генерируем уникальный путь для файла
-    upload_dir = "uploads"  # Базовая директория для загрузки файлов
+    upload_dir = os.path.join("uploads", str(task_id))  # Директория для конкретной задачи
     os.makedirs(upload_dir, exist_ok=True)  # Создаем директорию, если её нет
 
-    file_path = os.path.join(upload_dir, f"{task_id}_{file.filename}")
+    file_path = os.path.join(upload_dir, file.filename)
 
     # Сохраняем файл
-    with open(file_path, "wb") as f:
-        f.write(file_bytes)
+    try:
+        with open(file_path, "wb") as f:
+            f.write(file_bytes)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
 
     # Создаем запись о вложении
     attachment = await Attachment.create(file_path=file_path, task=task)
+
+    # Привязываем вложение к задаче через связь Many-to-Many
+    await task.attachments.add(attachment)
+
     return {"id": attachment.id, "file_path": attachment.file_path}
+
+
+
+@router.get("/api/attachments/")
+async def get_attachments():
+    attachments = await Attachment.all()
+    return attachments
+
+
+@router.delete("/api/attachments/{attachment_id}")
+async def delete_attachment(attachment_id: int):
+    # Находим вложение по id
+    try:
+        attachment = await Attachment.get(id=attachment_id)
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Attachment not found")
+
+    # Проверяем, существует ли файл
+    if os.path.exists(attachment.file_path):
+        try:
+            os.remove(attachment.file_path)  # Удаляем файл с сервера
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error deleting file: {str(e)}")
+    else:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="File not found on server")
+
+    # Удаляем запись о вложении из базы данных
+    try:
+        await attachment.delete()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting attachment record: {str(e)}")
+
+    return {"message": "Attachment deleted successfully"}
+
+
+
+
+
+@router.get("/api/attachments/{attachment_id}/")
+async def create_url_for_file(attachment_id: int):
+    # Ищем вложение по id
+    try:
+        attachment = await Attachment.get(id=attachment_id)
+    except DoesNotExist:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+
+    # Получаем путь к файлу
+    file_path = attachment.file_path
+
+    # Проверяем, существует ли файл
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found on server")
+
+    # Определяем MIME-тип на основе расширения файла
+    mime_type = "image/jpeg" if file_path.endswith((".jpg", ".jpeg")) else "image/png"
+
+    # Возвращаем файл с указанным MIME-типом
+    return FileResponse(file_path, media_type=mime_type)
