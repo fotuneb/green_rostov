@@ -437,7 +437,7 @@ def validate_image_file(file_bytes: bytes) -> bool:
 async def create_attachment(task_id: int, file: UploadFile):
     # Проверяем, что MIME-тип соответствует ожиданиям
     if file.content_type not in ["image/jpeg", "image/png"]:
-        raise HTTPException(status_code=400, detail="Only JPG and PNG files are allowed")
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Only JPG and PNG files are allowed")
 
     # Проверка, существует ли задача
     try:
@@ -450,7 +450,7 @@ async def create_attachment(task_id: int, file: UploadFile):
 
     # Проверяем содержимое файла на допустимый формат
     if not validate_image_file(file_bytes):
-        raise HTTPException(status_code=400, detail="Invalid image format")
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
 
     # Генерируем уникальный путь для файла
     upload_dir = os.path.join("uploads", str(task_id))  # Директория для конкретной задачи
@@ -516,14 +516,14 @@ async def create_url_for_file(attachment_id: int):
     try:
         attachment = await Attachment.get(id=attachment_id)
     except DoesNotExist:
-        raise HTTPException(status_code=404, detail="Attachment not found")
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Attachment not found")
 
     # Получаем путь к файлу
     file_path = attachment.file_path
 
     # Проверяем, существует ли файл
     if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File not found on server")
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="File not found on server")
 
     # Определяем MIME-тип на основе расширения файла
     mime_type = "image/jpeg" if file_path.endswith((".jpg", ".jpeg")) else "image/png"
