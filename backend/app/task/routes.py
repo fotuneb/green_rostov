@@ -131,8 +131,11 @@ async def get_tasks():
             "assignee": task.assignee_id,
             "column": task.column_id,
             "created_at": task.created_at,
-            "updated_at": task.updated_at,
+            "updated_at": task.updated_at,  
+            "deadline": task.deadline,                                      # +
+            "time_track": task.time_track,                                  # +
             "attachments": attachment_list  # Добавляем вложения в задачу
+
         })
 
     return task_list
@@ -162,8 +165,8 @@ async def get_task_using_id(task_id: int):
         "column": task.column_id,
         "created_at": task.created_at,
         "updated_at": task.updated_at,
-        "deadline":task.deadline,
-        "time_track":task.time_track,
+        "deadline":task.deadline,                                   # +
+        "time_track":task.time_track,                               # +
         "attachments": attachment_list  # Добавляем список вложений
     }
 
@@ -192,7 +195,7 @@ async def create_task(TaskInfo: TaskPublicInfo):
         # Если колонок нет, устанавливаем индекс в 0
         new_index = 0
 
-    current_column = await Column.get(id=TaskInfo.id_column)
+    current_column = await Column.get(id=TaskInfo.id_column)    # + 
 
 
     task = await Task.create(
@@ -216,8 +219,8 @@ async def create_task(TaskInfo: TaskPublicInfo):
         "author": task.author_id,
         "assignee": task.assignee_id, 
         "column": task.column_id,
-        "deadline":task.deadline,
-        "time_track":task.time_track
+        "deadline":task.deadline,           # +
+        "time_track":task.time_track        # +
     }
 
 
@@ -276,7 +279,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
         task = await Task.get(id=TaskChangeInfo.id)
         task.assignee_id = TaskChangeInfo.id_user
         await task.save()
-        new_assignee = await UserModel.get(id=TaskChangeInfo.id_user)
+        new_assignee = await UserModel.get(id=TaskChangeInfo.id_user)   # + 
         if not new_assignee.telegram_id:
             return {"msg": "assignee updated successully, but new_assignee have not a tg"}
         elif new_assignee.notifications:
@@ -450,6 +453,9 @@ async def get_user_tasks(telegram_id: int):
         return {"tasks": task_list}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка получения задач: {str(e)}")
+
+
+
 # Оповещение о дедлайнах задач
 # @router.get("/api/tasks/deadline")
 # async def get_upcoming_deadlines():
@@ -580,3 +586,4 @@ async def create_url_for_file(attachment_id: int):
 
     # Возвращаем файл с указанным MIME-типом
     return FileResponse(file_path, media_type=mime_type)
+
