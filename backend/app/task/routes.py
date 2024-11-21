@@ -386,7 +386,8 @@ async def get_comments(task_id: int):
 async def export_board_to_excel():
     # Получаем все колонки с задачами
     columns = await Column.all().prefetch_related('column')
-
+    if not columns:
+        return "Не удалось экспортировать доску, проверьте, существует ли она"
     # Создаем новый Excel-файл
     workbook = Workbook()
     workbook.remove(workbook.active)  # Удаляем стандартный пустой лист
@@ -412,7 +413,7 @@ async def export_board_to_excel():
     # Сохраняем файл
     #filename = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
     filepath = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
-
+    
     workbook.save(filepath)
     return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
