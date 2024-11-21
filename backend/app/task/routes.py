@@ -10,7 +10,7 @@ from tortoise.exceptions import DoesNotExist
 from app.user.authentication import get_current_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
-from app.task.schemas import Rename, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
+from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
 from app.task.tg_http import notify_new_assignee
 import pandas
 from pydantic import BaseModel
@@ -62,7 +62,7 @@ async def delete_column(id: int):
 
 # возвращается ok 200
 @router.post("/api/column/rename/{info.id}")
-async def rename_column(info: Rename):
+async def rename_column(info: ObjectRenameInfo):
     try:
         column = await Column.get(id=info.id)
         column.title = info.new_title
@@ -241,7 +241,7 @@ async def delete_task(id: int):
 # POST /api/task/rename - переименовать (передаю id и новое название, жду 200)
 # возвращается ok 200
 @router.post("/api/task/rename/{info.id}")
-async def rename_task(info: Rename):
+async def rename_task(info: ObjectRenameInfo):
     try:
         task = await Task.get(id=info.id)
         task.title = info.new_title
