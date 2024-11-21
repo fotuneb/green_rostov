@@ -1,6 +1,6 @@
 import openpyxl
 from openpyxl import Workbook
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, Form, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -11,6 +11,7 @@ from app.user.authentication import get_current_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
 from app.task.schemas import Rename, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
+from app.task.tg_http import notify_new_assignee
 import pandas
 from pydantic import BaseModel
 import base64
@@ -200,6 +201,11 @@ async def create_task(TaskInfo: TaskPublicInfo):
         assignee_id = TaskInfo.id_user,
         column = current_column
     )
+    assignee = await UserModel.get(id=id_user)
+    if not assignee.telegram_id or not assignee.notifications:
+            pass
+    else:
+        await notify_new_assignee(assignee.telegram_id, task)
 
     return {
         "id": task.id,  
@@ -259,12 +265,20 @@ async def change_task_content(TaskChangeInfo: Task_for_desc):
 
 # POST /api/task/change_responsible - изменить ответственного (передается id пользователя, ожидаю 200)
 # ожидаю 200
+# отправка уведомления в тг при изменении
 @router.post("/api/task/change_responsible/{TaskChangeInfo.id}")
 async def change_responsible(TaskChangeInfo: Task_change_resposible):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
         task.assignee_id = TaskChangeInfo.id_user
         await task.save()
+        new_assignee = await UserModel.get(id=id_user)
+        if not new_assignee.telegram_id:
+            return {"msg": "assignee updated successully, but new_assignee have not a tg"}
+        elif new_assignee.notifications:
+            await notify_new_assignee(new_assignee.telegram_id, task)
+        else:
+            return {"msg": "user has disabled notifications"}
         return {"msg": "assignee updated successully"}
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="User or Task not found")
@@ -416,6 +430,38 @@ async def export_board_to_excel():
     
     workbook.save(filepath)
     return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+@router.get("/api/user_tasks")
+async def get_user_tasks(telegram_id: int):
+    try:
+        tasks = await Task.filter(assignee__telegram_id=telegram_id).all()
+        if not tasks:
+            return {"tasks": []}
+
+        task_list = [
+            {"title": task.title, }
+            for task in tasks
+        ]
+
+        return {"tasks": task_list}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ошибка получения задач: {str(e)}")
+# Оповещение о дедлайнах задач
+# @router.get("/api/tasks/deadline")
+# async def get_upcoming_deadlines():
+#     now = datetime.now()
+#     deadline_threshold = now + timedelta(days=2)
+    
+#     tasks = await Task.filter(deadline__gte=now, deadline__lte=deadline_threshold).order_by("deadline").all()
+#     result = []
+#     for task in tasks:
+#         result.append({
+#             "title": task.title,
+#             "deadline": task.deadline,
+#             "assignee_id": task.assignee_id,
+#         })
+#     return result
+
 
 
 
