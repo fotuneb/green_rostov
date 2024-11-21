@@ -106,7 +106,7 @@ async def move_column(column_id: int, new_index: int):
 # вывод всех задач
 @router.get("/api/tasks")
 async def get_tasks():
-    tasks = await Task.all().values("id", "title", "index", "author_id", "assignee_id", "column_id", "created_at", "updated_at")
+    tasks = await Task.all().values("id", "title", "index", "author_id", "assignee_id", "column_id", "created_at", "updated_at", "deadline","time_track")
     return tasks
     
 
@@ -125,7 +125,9 @@ async def get_task_using_id(task_id: int):
         "assignee": task.assignee_id, 
         "column": task.column_id,
         "created_at": task.created_at,
-        "updated_at": task.updated_at
+        "updated_at": task.updated_at,
+        "deadline":task.deadline,
+        "time_track":task.time_track
     }
 
 # вывод всех колонок 
@@ -171,7 +173,9 @@ async def create_task(title: str, id_column: int, id_user: int):
         "description": task.description,
         "author": task.author_id,
         "assignee": task.assignee_id, 
-        "column": task.column_id
+        "column": task.column_id,
+        "deadline":task.deadline,
+        "time_track":task.time_track
     }
 
 

@@ -34,7 +34,10 @@ class Task(Model):
     column = fields.ForeignKeyField("models.Column", related_name="column", on_delete=fields.CASCADE)
     created_at = fields.DatetimeField(auto_now_add=True)  # Время создания
     updated_at = fields.DatetimeField(auto_now=True)
-    
+    deadline = fields.DatetimeField(null=True)
+    time_track = fields.DatetimeField(null=True)  # Храним время в секундах
+    is_running = fields.BooleanField(default=False)  # Состояние таймера
+    last_started_at = fields.DatetimeField(null=True)  # Когда таймер был запущен
     
 
     class Meta:

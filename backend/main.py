@@ -6,6 +6,7 @@ from app.config import settings
 from app.user.routes_user import router1
 from app.task.routes import router
 from app.user.routes_user import admin_router
+import app.task.routes_for_time
 
 
 def create_app() -> FastAPI:
