@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
-import TaskFilter from "../../components/TaskFilter"
-import "./board.css"
+import { getCookie } from "../../components/Cookies";
+import TaskFilter from "../../components/TaskFilter";
+import "./board.css";
 
 import Column from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
@@ -19,7 +20,7 @@ function Board({ token }) {
     filterText: '',
   });
 
-  const hasRights = localStorage.getItem('role') != 'guest';
+  const hasRights = getCookie('role') != 'guest';
 
   useEffect(() => {
     fetchBoard().then((data) => { setBoard(data) });
@@ -27,7 +28,7 @@ function Board({ token }) {
 
   async function fetchBoard() {
     const headers = {
-      'Authorization': 'Bearer ' + localStorage.getItem('token')
+      'Authorization': 'Bearer ' + getCookie('token')
     }
 
     const headersArg = { headers }

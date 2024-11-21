@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getCookie } from "../Cookies";
 import "./add_column.css"
 
 const ws = process.env.REACT_APP_PUBLIC_URL
@@ -20,7 +21,7 @@ function AddColumn(props) {
     fetch(ws + '/api/column/?title=' + title, {
       method: "PUT",
       headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token')
+        'Authorization': 'Bearer ' + getCookie('token')
       }
     }).then((req) => {
       req.json().then(props.onColumnAdded)

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getCookie } from '../Cookies';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
@@ -17,7 +18,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         status: '',
     });
 
-    const hasRights = localStorage.getItem('role') != 'guest';
+    const hasRights = getCookie('role') != 'guest';
 
 
     const quillRef = useRef(null); // Ссылка на редактор
@@ -53,7 +54,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         fetch(`${ws}/api/task/rename/${taskData.id}?new_title=${title}`, {
             method: "POST",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                'Authorization': 'Bearer ' + getCookie('token')
             }
         });
     }
@@ -63,7 +64,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         fetch(`${ws}/api/task/change_contents/${taskData.id}?desc=${description}`, {
             method: "POST",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                'Authorization': 'Bearer ' + getCookie('token')
             }
         });
     }
@@ -79,7 +80,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         fetch(`${ws}/api/task/${taskData.id}`, {
             method: "DELETE",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                'Authorization': 'Bearer ' + getCookie('token')
             }
         }).then((res) => {
             res.json().then(onRemove)
@@ -90,7 +91,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         fetch(`${ws}/api/tasks/${taskData.id}/move?new_column_id=${idx}&new_index=0`, {
             method: "PUT",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                'Authorization': 'Bearer ' + getCookie('token')
             }
         }).then((res) => {
             res.json().then(onUpdateNeeded)
@@ -101,7 +102,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         fetch(`${ws}/api/task/change_responsible/${taskData.id}?id_user=${idx}`, {
             method: "POST",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                'Authorization': 'Bearer ' + getCookie('token')
             }
         }).then((res) => {
             res.json().then(onUpdateNeeded)

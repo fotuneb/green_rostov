@@ -1,4 +1,5 @@
 import React from "react";
+import { deleteCookie } from "../Cookies";
 import { useNavigate } from "react-router";
 
 function Logout(props) {
@@ -6,9 +7,9 @@ function Logout(props) {
 
   function logoutUser() {
     props.setToken("");
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_id");
-    localStorage.removeItem("role");
+    deleteCookie("token");
+    deleteCookie("user_id");
+    deleteCookie("role");
     navigate("/");
   }
 

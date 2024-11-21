@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { setCookie } from "../../components/Cookies";
 import './login.css'; // Импортируем стили
 
 
@@ -13,15 +14,20 @@ const Login = (props) => {
     event.preventDefault();
     try {
       const data = await loginUser();
+      // Получаем необходимые данные
       const access_token = data["access_token"];
+      const user_id = data["id"];
+      const role = data["role"];
+      // Задаем токен
       props.setToken(access_token);
-      localStorage.setItem("token", access_token);
-      localStorage.setItem("user_id", data.id)
-      localStorage.setItem("role", data.role);
+      // Сохранение данных в куки
+      setCookie("token", access_token);
+      setCookie("user_id", user_id);
+      setCookie("role", role);
+      // Переходим в доску
       navigate("/board");
     } catch (error) {
       setError(error + '');
-
     }
   };
 

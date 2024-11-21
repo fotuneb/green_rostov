@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import "./user_profile_modal.css"
+import { getCookie } from '../Cookies';
 
 const EditProfile = ({closeModal}) => {
     const [userInfo, setUserInfo] = useState({
@@ -16,7 +17,7 @@ const EditProfile = ({closeModal}) => {
     const [error, setError] = useState('');
     
     const getMyData = async () => {
-        const data = await fetch('/api/get_user/' + localStorage.getItem('user_id'), {
+        const data = await fetch('/api/get_user/' + getCookie('user_id'), {
             method: "GET"
         })
 
@@ -52,7 +53,7 @@ const EditProfile = ({closeModal}) => {
         fetch('/api/users/change-info', {
             method: "POST",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Authorization': 'Bearer ' + getCookie('token'),
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(userInfo)
@@ -77,7 +78,7 @@ const EditProfile = ({closeModal}) => {
         fetch('/api/users/change-password', {
             method: "POST",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Authorization': 'Bearer ' + getCookie('token'),
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({

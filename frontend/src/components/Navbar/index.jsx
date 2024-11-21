@@ -2,6 +2,7 @@ import { React, useState } from "react";
 import { Link } from "react-router-dom";
 import Logout from "../Logout";
 import { UserProfileModal } from "../UserProfileModal"
+import { getCookie } from "../../components/Cookies"
 import "./navbar.css";
 
 function Navbar(props) {
@@ -12,7 +13,7 @@ function Navbar(props) {
   const closeModal = () => setModalOpen(false);
 
   const excelExport = () => {
-    open(process.env.REACT_APP_PUBLIC_URL + '/export/board')
+    window.location.href = process.env.REACT_APP_PUBLIC_URL + '/export/board';
   }
 
   return (
@@ -35,7 +36,7 @@ function Navbar(props) {
               <button className="nav-button">Моя доска</button>
             </Link>
             {
-              localStorage.getItem('role') == 'admin' && <Link to="/admin">
+              getCookie('role') == 'admin' && <Link to="/admin">
                 <button className="nav-button">Админка</button>
               </Link>
             }

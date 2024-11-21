@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getCookie } from "../Cookies";
 import { LuPlus } from "react-icons/lu"
 import "./add_task.css"
 
@@ -18,7 +19,7 @@ function AddTask(props) {
   }
 
   function addNewTask(content, columnId) {
-    fetch(`${ws}/api/task/?title=${content}&id_column=${columnId}&id_user=${localStorage.getItem("user_id")}`, {
+    fetch(`${ws}/api/task/?title=${content}&id_column=${columnId}&id_user=${getCookie("user_id")}`, {
       method: "PUT",
     }).then((req) => {
       req.json().then(props.onTaskAdded)

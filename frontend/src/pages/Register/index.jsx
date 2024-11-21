@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { setCookie } from "../../components/Cookies"
 import { Link, useNavigate } from "react-router-dom";
 import './register.css'; // Импортируем стили
 
@@ -20,11 +21,17 @@ function Register(props) {
       setError('');
 
       const data = await createUser();
+      // Получаем необходимые данные
       const access_token = data["access_token"];
+      const user_id = data["id"];
+      const role = data["role"];
+      // Задаем токен
       props.setToken(access_token);
-      localStorage.setItem("token", access_token);
-      localStorage.setItem("user_id", data.id)
-      localStorage.setItem("role", data.role);
+      // Сохранение данных в куки
+      setCookie("token", access_token, 7);
+      setCookie("user_id", user_id, 7);
+      setCookie("role", role, 7);
+      // Переходим в доску
       navigate("/board");
     } catch (error) {
       setError(error)

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { getCookie } from "../Cookies";
 import Board from "../../pages/Board";
 import Navbar from "../Navbar";
 import Register from "../../pages/Register";
@@ -8,7 +9,7 @@ import Index from "../../pages/Index";
 import Admin from "../../pages/Admin"
 
 function getToken() {
-  return localStorage.getItem("token");
+  return getCookie("token");
 }
 
 function App() {
