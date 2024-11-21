@@ -162,6 +162,8 @@ async def get_task_using_id(task_id: int):
         "column": task.column_id,
         "created_at": task.created_at,
         "updated_at": task.updated_at,
+        "deadline":task.deadline,
+        "time_track":task.time_track,
         "attachments": attachment_list  # Добавляем список вложений
     }
 
@@ -213,7 +215,9 @@ async def create_task(TaskInfo: TaskPublicInfo):
         "description": task.description,
         "author": task.author_id,
         "assignee": task.assignee_id, 
-        "column": task.column_id
+        "column": task.column_id,
+        "deadline":task.deadline,
+        "time_track":task.time_track
     }
 
 
