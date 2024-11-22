@@ -6,5 +6,13 @@ class UserIn(BaseModel):
     fullname: str
     login: str
     password1: str
+
+class UserPublicInfo(BaseModel):
+    fullname: str
+    about: str 
+
+class UserPasswordSchema(BaseModel):
+    current_password: str
+    new_password: str
     
 User = pydantic_model_creator(UserModel, name="User")

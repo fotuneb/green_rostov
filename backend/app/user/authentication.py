@@ -1,12 +1,14 @@
 from typing import Union
 
 import jwt
+from itsdangerous import URLSafeTimedSerializer
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from app.config import settings
 from app.user.models_user import UserModel
 from app.user.schemas_user import User
+from app.config import settings
 
 oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -20,7 +22,7 @@ async def authenticate_user(login: str, password: str) -> Union[User, bool]: # t
     user = await UserModel.get_or_none(login=login)
     if not user or not user.verify_password(password):
         return False
-
+    
     return user
 
 
@@ -44,3 +46,9 @@ async def get_admin_user(current_user: UserModel = Depends(get_current_user)):
             detail="Access denied. Admin privileges required."
         )
     return current_user
+
+async def generate_telegram_link(user_id: int):
+    serializer = URLSafeTimedSerializer(settings.secret_key)
+    token = serializer.dumps(user_id)
+
+    return f"https://t.me/{settings.bot_name}?start={token}"

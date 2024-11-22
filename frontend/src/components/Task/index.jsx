@@ -18,7 +18,7 @@ function Task(props) {
   return (
     <>
       <Modal isOpen={isModalOpen} task={props.task} onUpdateNeeded={props.onTaskDeleted} onClose={closeModal} board={props.board} onRemove={onRemove} />
-      <Draggable draggableId={props.task.id} index={props.index}>
+      <Draggable draggableId={`task${props.task.column_id}${props.task.id}`} index={props.index}>
         {(provided) => (
           <div
             onClick={openModal}

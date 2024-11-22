@@ -14,6 +14,7 @@ class Comments(Model):
     class Meta:
         table = "comments"
 
+
 class Column(Model):
     id = fields.IntField(pk=True)
     index = fields.IntField()
@@ -32,13 +33,32 @@ class Task(Model):
     author = fields.ForeignKeyField("models.UserModel", related_name="tasks_created")
     assignee = fields.ForeignKeyField("models.UserModel", related_name="tasks_assigned")
     column = fields.ForeignKeyField("models.Column", related_name="column", on_delete=fields.CASCADE)
+<<<<<<< HEAD
     created_at = fields.DatetimeField(auto_now_add=True)  # Время создания
     updated_at = fields.DatetimeField(auto_now=True)
     deadline = fields.DatetimeField(null=True)
     time_track = fields.DatetimeField(null=True)  # Храним время в секундах
     is_running = fields.BooleanField(default=False)  # Состояние таймера
     last_started_at = fields.DatetimeField(null=True)  # Когда таймер был запущен
+=======
+    created_at = fields.DatetimeField(auto_now_add=True)    # Время создания
+    updated_at = fields.DatetimeField(auto_now=True)        # Время обновления
+    attachments = fields.ManyToManyField("models.Attachment", related_name="tasks_attachments", on_delete=fields.CASCADE)
+
+>>>>>>> main
     
 
     class Meta:
         table = "tasks"
+
+
+
+
+class Attachment(Model):
+    id = fields.IntField(pk=True)
+    file_path = fields.CharField(max_length=255)  # Путь к файлу или URL
+    uploaded_at = fields.DatetimeField(auto_now_add=True)
+
+    class Meta:
+        table = "attachments"
+
