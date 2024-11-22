@@ -5,7 +5,7 @@ from app.user.models_user import UserModel
 
 
 
-class Rename(BaseModel):
+class ObjectRenameInfo(BaseModel):
     id: int
     new_title: str
 

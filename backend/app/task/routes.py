@@ -10,7 +10,7 @@ from tortoise.exceptions import DoesNotExist
 from app.user.authentication import get_current_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
-from app.task.schemas import Rename, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
+from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
 from app.task.tg_http import notify_new_assignee
 import pandas
 from pydantic import BaseModel
@@ -62,7 +62,7 @@ async def delete_column(id: int):
 
 # возвращается ok 200
 @router.post("/api/column/rename/{info.id}")
-async def rename_column(info: Rename):
+async def rename_column(info: ObjectRenameInfo):
     try:
         column = await Column.get(id=info.id)
         column.title = info.new_title
@@ -131,8 +131,11 @@ async def get_tasks():
             "assignee": task.assignee_id,
             "column": task.column_id,
             "created_at": task.created_at,
-            "updated_at": task.updated_at,
+            "updated_at": task.updated_at,  
+            "deadline": task.deadline,                                      # +
+            "time_track": task.time_track,                                  # +
             "attachments": attachment_list  # Добавляем вложения в задачу
+
         })
 
     return task_list
@@ -162,6 +165,8 @@ async def get_task_using_id(task_id: int):
         "column": task.column_id,
         "created_at": task.created_at,
         "updated_at": task.updated_at,
+        "deadline":task.deadline,                                   # +
+        "time_track":task.time_track,                               # +
         "attachments": attachment_list  # Добавляем список вложений
     }
 
@@ -190,7 +195,7 @@ async def create_task(TaskInfo: TaskPublicInfo):
         # Если колонок нет, устанавливаем индекс в 0
         new_index = 0
 
-    current_column = await Column.get(id=TaskInfo.id_column)
+    current_column = await Column.get(id=TaskInfo.id_column)    # + 
 
 
     task = await Task.create(
@@ -201,7 +206,7 @@ async def create_task(TaskInfo: TaskPublicInfo):
         assignee_id = TaskInfo.id_user,
         column = current_column
     )
-    assignee = await UserModel.get(id=id_user)
+    assignee = await UserModel.get(id=TaskInfo.id_user)
     if not assignee.telegram_id or not assignee.notifications:
             pass
     else:
@@ -213,7 +218,9 @@ async def create_task(TaskInfo: TaskPublicInfo):
         "description": task.description,
         "author": task.author_id,
         "assignee": task.assignee_id, 
-        "column": task.column_id
+        "column": task.column_id,
+        "deadline":task.deadline,           # +
+        "time_track":task.time_track        # +
     }
 
 
@@ -234,7 +241,7 @@ async def delete_task(id: int):
 # POST /api/task/rename - переименовать (передаю id и новое название, жду 200)
 # возвращается ok 200
 @router.post("/api/task/rename/{info.id}")
-async def rename_task(info: Rename):
+async def rename_task(info: ObjectRenameInfo):
     try:
         task = await Task.get(id=info.id)
         task.title = info.new_title
@@ -272,7 +279,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
         task = await Task.get(id=TaskChangeInfo.id)
         task.assignee_id = TaskChangeInfo.id_user
         await task.save()
-        new_assignee = await UserModel.get(id=id_user)
+        new_assignee = await UserModel.get(id=TaskChangeInfo.id_user)   # + 
         if not new_assignee.telegram_id:
             return {"msg": "assignee updated successully, but new_assignee have not a tg"}
         elif new_assignee.notifications:
@@ -446,6 +453,9 @@ async def get_user_tasks(telegram_id: int):
         return {"tasks": task_list}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка получения задач: {str(e)}")
+
+
+
 # Оповещение о дедлайнах задач
 # @router.get("/api/tasks/deadline")
 # async def get_upcoming_deadlines():
@@ -576,3 +586,4 @@ async def create_url_for_file(attachment_id: int):
 
     # Возвращаем файл с указанным MIME-типом
     return FileResponse(file_path, media_type=mime_type)
+
