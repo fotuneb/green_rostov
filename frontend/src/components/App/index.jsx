@@ -1,38 +1,70 @@
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Router } from "react-router-dom";
 import { getCookie } from "../../utilities/cookies.js";
+import Navbar from "../Navbar"
 import Board from "../../pages/Board";
-import Navbar from "../Navbar";
-import Register from "../../pages/Register";
 import Login from "../../pages/Login";
-import Index from "../../pages/Index";
-import Admin from "../../pages/Admin"
+import Register from "../../pages/Register";
 
 function getToken() {
   return getCookie("token");
 }
 
+// Основной компонент приложения
 function App() {
   const [token, setToken] = useState(() => getToken());
 
+  // Проверка, залогинен ли пользователь
+  const verifyLogin = () => {
+      return getCookie("token") && getCookie("user_id")
+  }
+  
+  // Устанавливаем флаг
+  const isLogged = verifyLogin()
+
+  // Если флаг true, при запуске отправляем юзера на доску
+  // Если флаг false, пользователь должен пройти авторизацию
   return (
     <div className="App">
       <BrowserRouter>
-        <Navbar token={token} setToken={setToken} />
-        <Routes>
-          <Route exact path="/" element={<Index />} />
-          <Route exact path="/board" element={<Board token={token} />} />
-          <Route
-            exact
-            path="/signup"
-            element={<Register setToken={setToken} />}
-          />
-          <Route exact path="/login" element={<Login setToken={setToken} />} />
-          <Route exact path="/admin" element={<Admin token={token} />} />
-        </Routes>
+        {isLogged ? (
+          <>
+            <Navbar token={token} setToken={setToken} />
+            <Board token={token} />
+          </>
+        ) : (
+          <Routes>
+            {/* Базовый маршрут для логина */}
+            <Route path="/" element={<Login setToken={setToken} />} />
+
+            {/* Маршрут для /board */}
+            <Route
+              path="/board"
+              element={
+                <>
+                  <Navbar token={token} setToken={setToken} />
+                  <Board token={token} />
+                </>
+              }
+            />
+
+            {/* Маршрут для /signup */}
+            <Route
+              path="/signup"
+              element={<Register setToken={setToken} />}
+            />
+
+            {/* Маршрут /login для логина со страницы регистрации */}
+            <Route
+              path="/login"
+              element={<Login setToken={setToken} />}
+            />
+          </Routes>
+        )}
       </BrowserRouter>
     </div>
   );
 }
 
 export default App;
+ 
