@@ -493,7 +493,7 @@ async def create_attachment(task_id: int, file: UploadFile):
     unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
 
     # Создаем директорию, если её нет
-    upload_dir = os.path.join("uploads")
+    upload_dir = os.path.join("uploads", "attachments")
     os.makedirs(upload_dir, exist_ok=True)
 
     # Полный путь к файлу
