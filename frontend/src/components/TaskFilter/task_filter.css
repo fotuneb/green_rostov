@@ -1,12 +1,14 @@
 .filter-container {
     display: flex;
-    align-items: center;
+    align-items: center; 
+    position: relative;
+    gap: 10px; 
 }
 
 .filter-button {
     padding: 10px 15px;
     margin-right: 10px;
-    background-color: #007bff;
+    background-color: #6C97BF;
     color: white;
     border: none;
     border-radius: 4px;
@@ -14,25 +16,82 @@
 }
 
 .filter-button:hover {
-    background-color: #0056b3;
+    background-color: #6C97BF;
 }
 
 .filter-menu {
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 25px; 
     padding: 15px;
-    background-color: white;
+    background-color: #6C97BF; 
     position: absolute;
-    /* Для размещения над другими элементами */
     z-index: 1000;
-    /* Чтобы меню было поверх остальных элементов */
+    color: white; 
+    width: 170px; 
+    top: 100%; 
+    left: 0; 
+    margin-top: 10px; 
 }
 
 .filter-entry {
     display: flex;
     flex-direction: column;
+    margin-bottom: 15px; 
 }
 
-.filter-menu div {
-    margin-bottom: 10px;
+.filter-entry label {
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.filter-entry input,
+.filter-entry select {
+    border: 2px solid white; 
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 14px;
+    outline: none;
+    background-color: #6C97BF; 
+    color: white; 
+}
+
+.filter-entry input:focus,
+.filter-entry select:focus {
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.8); 
+
+}
+
+.filter-entry input[type="date"] {
+    appearance: none; 
+    -webkit-appearance: none; 
+    -moz-appearance: textfield; 
+    border: 2px solid white; 
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 14px;
+    color: rgb(253, 253, 253); 
+    background-color: transparent; 
+    position: relative;
+}
+
+.filter-entry input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(100%); 
+    cursor: pointer; 
+}
+
+button {
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: white;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
+}
+
+button:hover {
+    background-color: #f0f0f0;
 }
