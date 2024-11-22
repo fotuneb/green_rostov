@@ -27,8 +27,16 @@ const EditProfile = ({closeModal}) => {
     }
 
     // Обработчик перехода к тг-боту
-    const handleTgBot = () => {
-        navigate("/api/tg-link");
+    const handleTgBot = async () => {
+        const data = await fetch('/api/tg-link/?user_id=' + getCookie('user_id'), {
+            method: "GET"
+        })
+
+        const response = data.json();
+
+        response.then((data) => {
+            window.open(data.telegram_link)
+        })
     }
 
     useEffect(() => {
