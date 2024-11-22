@@ -189,4 +189,3 @@ async def stop_timer(task_id: int):
         "message": "Timer stopped",
         "total_time": formatted_time
     }
-
