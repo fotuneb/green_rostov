@@ -20,12 +20,11 @@ function Navbar(props) {
     <>
       <UserProfileModal isOpen={isModalOpen} onClose={closeModal} />
       <nav className="navbar">
-        // Кнопка "Экспорт в Excel" отображается только при логине в админ-аккаунт
+        {/* Кнопка "Экспорт в Excel" отображается только при логине в админ-аккаунт */}
         {
           getCookie('role') == 'admin' && 
           <button className="nav-button" onClick={excelExport}>Экспорт в Excel</button>
         }
-       {/* <button className="nav-button" onClick={excelExport}>Экспорт в Excel</button> */}
         {!props.token ? (
           <div className="font-inter">
             <Link to="/login">
@@ -36,8 +35,8 @@ function Navbar(props) {
             </Link>
           </div>
         ) : (
-          <div>
-            // Кнопка "Админка" отображается только при логине в админ-аккаунт
+          <div className="justify-between">
+            {/* Кнопка "Админка" отображается только при логине в админ-аккаунт */}
             {
               getCookie('role') == 'admin' && <Link to="/admin">
                 <button className="nav-button">Админка</button>

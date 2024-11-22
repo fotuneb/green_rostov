@@ -128,6 +128,7 @@ const EditProfile = ({ user, token }) => {
                 </div>
                 {curError && <p style={{ color: 'red' }}>{curError}</p>}
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
+                <button className="user-profile-save font-inter">Связать с Telegram-ботом</button>
             </form>
         </div>
     );

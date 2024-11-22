@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
+import { Link, useNavigate } from 'react-router-dom';
 
 const EditProfile = ({closeModal}) => {
     const [userInfo, setUserInfo] = useState({
@@ -15,6 +16,7 @@ const EditProfile = ({closeModal}) => {
     });
 
     const [error, setError] = useState('');
+    const navigate = useNavigate();
     
     const getMyData = async () => {
         const data = await fetch('/api/get_user/' + getCookie('user_id'), {
@@ -22,6 +24,11 @@ const EditProfile = ({closeModal}) => {
         })
 
         return await data.json()
+    }
+
+    // Обработчик перехода к тг-боту
+    const handleTgBot = () => {
+        navigate("/api/tg-link");
     }
 
     useEffect(() => {
@@ -150,6 +157,7 @@ const EditProfile = ({closeModal}) => {
                 </div>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
+                <button className="user-profile-save font-inter" onClick={handleTgBot}>Связать с Telegram-ботом</button>
             </form>
         </div>
     );
