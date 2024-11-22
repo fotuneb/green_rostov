@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { setCookie } from "../../components/Cookies"
+import { setCookie } from "../../utilities/cookies.js"
 import { Link, useNavigate } from "react-router-dom";
 import './register.css'; // Импортируем стили
 

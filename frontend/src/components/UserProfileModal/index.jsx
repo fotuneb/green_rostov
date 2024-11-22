@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import "./user_profile_modal.css"
-import { getCookie } from '../Cookies';
+import { getCookie } from '../../utilities/cookies.js';
 
 const EditProfile = ({closeModal}) => {
     const [userInfo, setUserInfo] = useState({

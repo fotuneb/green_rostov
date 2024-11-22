@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
-import { getCookie } from "../../components/Cookies";
+import { getCookie } from "../../utilities/cookies.js";
 import TaskFilter from "../../components/TaskFilter";
 import "./board.css";
 

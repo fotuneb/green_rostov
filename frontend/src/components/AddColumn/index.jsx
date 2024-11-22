@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getCookie } from "../Cookies";
+import { getCookie } from "../../utilities/cookies.js";
 import "./add_column.css"
 
 const ws = process.env.REACT_APP_PUBLIC_URL

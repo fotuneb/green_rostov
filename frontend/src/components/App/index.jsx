@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { getCookie } from "../Cookies";
+import { getCookie } from "../../utilities/cookies.js";
 import Board from "../../pages/Board";
 import Navbar from "../Navbar";
 import Register from "../../pages/Register";

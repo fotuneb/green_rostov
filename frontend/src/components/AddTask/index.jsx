@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getCookie } from "../Cookies";
+import { getCookie } from "../../utilities/cookies.js";
 import { LuPlus } from "react-icons/lu"
 import "./add_task.css"
 

@@ -2,7 +2,7 @@ import { React, useState } from "react";
 import { Link } from "react-router-dom";
 import Logout from "../Logout";
 import { UserProfileModal } from "../UserProfileModal"
-import { getCookie } from "../../components/Cookies"
+import { getCookie } from "../../utilities/cookies.js"
 import "./navbar.css";
 
 function Navbar(props) {

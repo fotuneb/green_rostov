@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getCookie } from '../Cookies';
+import { getCookie } from '../../utilities/cookies.js';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
@@ -19,8 +19,6 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     });
 
     const hasRights = getCookie('role') != 'guest';
-
-
     const quillRef = useRef(null); // Ссылка на редактор
 
     const getTaskDetail = async () => {

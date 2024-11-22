@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { setCookie } from "../../components/Cookies";
+import { setCookie } from "../../utilities/cookies.js";
 import './login.css'; // Импортируем стили
 
 

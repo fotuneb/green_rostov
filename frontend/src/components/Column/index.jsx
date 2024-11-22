@@ -1,7 +1,7 @@
 import React from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { LuTrash2 } from "react-icons/lu";
-import { getCookie } from "../Cookies";
+import { getCookie } from "../../utilities/cookies.js";
 import Task from "../Task";
 import AddTask from "../AddTask";
 import "./column.css"

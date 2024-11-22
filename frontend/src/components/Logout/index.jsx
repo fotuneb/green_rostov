@@ -1,5 +1,5 @@
 import React from "react";
-import { deleteCookie } from "../Cookies";
+import { deleteCookie } from "../../utilities/cookies.js";
 import { useNavigate } from "react-router";
 
 function Logout(props) {
