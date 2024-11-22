@@ -144,7 +144,7 @@ async def check_telegram_link(tg_id: int):
 async def get_user_notifications(telegram_id: int):
     user = await UserModel.filter(telegram_id=telegram_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
     return {"notifications": user.notifications}
 
 
@@ -152,11 +152,11 @@ async def get_user_notifications(telegram_id: int):
 async def update_user_notifications(telegram_id: int, data: dict):
     user = await UserModel.filter(telegram_id=telegram_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
     
     notifications = data.get("notifications")
     if notifications is None:
-        raise HTTPException(status_code=400, detail="Invalid data")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid data")
     
     user.notifications = notifications
     await user.save()

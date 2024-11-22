@@ -16,6 +16,7 @@ from pydantic import BaseModel
 import base64
 import os
 import uuid
+from app.task.util import validate_image_file
 
 
 
@@ -133,6 +134,7 @@ async def get_tasks():
             "updated_at": task.updated_at,  
             "deadline": task.deadline,                                      # +
             "time_track": task.time_track,                                  # +
+            "is_running": task.is_running,
             "attachments": attachment_list  # Добавляем вложения в задачу
 
         })
@@ -166,6 +168,7 @@ async def get_task_using_id(task_id: int):
         "updated_at": task.updated_at,
         "deadline":task.deadline,                                   # +
         "time_track":task.time_track,                               # +
+        "is_running": task.is_running,
         "attachments": attachment_list  # Добавляем список вложений
     }
 
@@ -454,16 +457,6 @@ async def get_user_tasks(telegram_id: int):
         raise HTTPException(status_code=500, detail=f"Ошибка получения задач: {str(e)}")
 
 
-
-
-
-
-# Функция проверки формата файла по первым байтам
-def validate_image_file(file_bytes: bytes) -> bool:
-    # Проверяем на PNG (первые 8 байт) и JPEG (первые 2 байта)
-    png_signature = b"\x89PNG\r\n\x1a\n"
-    jpeg_signature = b"\xff\xd8"
-    return file_bytes.startswith(png_signature) or file_bytes.startswith(jpeg_signature)
 
 
 
