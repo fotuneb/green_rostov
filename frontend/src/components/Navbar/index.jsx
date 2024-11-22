@@ -32,9 +32,6 @@ function Navbar(props) {
           </div>
         ) : (
           <div>
-            <Link to="/board">
-              <button className="nav-button">Моя доска</button>
-            </Link>
             {
               getCookie('role') == 'admin' && <Link to="/admin">
                 <button className="nav-button">Админка</button>
