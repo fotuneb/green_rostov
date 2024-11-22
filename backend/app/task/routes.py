@@ -12,7 +12,6 @@ from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
 from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
 from app.task.tg_http import notify_new_assignee
-import pandas
 from pydantic import BaseModel
 import base64
 import os
@@ -456,25 +455,6 @@ async def get_user_tasks(telegram_id: int):
 
 
 
-# Оповещение о дедлайнах задач
-# @router.get("/api/tasks/deadline")
-# async def get_upcoming_deadlines():
-#     now = datetime.now()
-#     deadline_threshold = now + timedelta(days=2)
-    
-#     tasks = await Task.filter(deadline__gte=now, deadline__lte=deadline_threshold).order_by("deadline").all()
-#     result = []
-#     for task in tasks:
-#         result.append({
-#             "title": task.title,
-#             "deadline": task.deadline,
-#             "assignee_id": task.assignee_id,
-#         })
-#     return result
-
-
-
-
 
 
 
@@ -509,7 +489,7 @@ async def create_attachment(task_id: int, file: UploadFile):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
 
     # Генерируем уникальный путь для файла
-    upload_dir = os.path.join("uploads", str(task_id))  # Директория для конкретной задачи
+    upload_dir = os.path.join("uploads")  # Директория для конкретной задачи
     os.makedirs(upload_dir, exist_ok=True)  # Создаем директорию, если её нет
 
     file_path = os.path.join(upload_dir, file.filename)
