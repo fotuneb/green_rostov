@@ -1,11 +1,11 @@
 from pydantic import BaseModel
 from tortoise.contrib.pydantic import pydantic_model_creator
 from app.user.models_user import UserModel
+from fastapi import UploadFile
 
 
 
-
-class Rename(BaseModel):
+class ObjectRenameInfo(BaseModel):
     id: int
     new_title: str
 
@@ -42,10 +42,3 @@ class CommentPublicInfo(BaseModel):
     text: str
     id_user: int
     id_task: int
-
-
-
-# class Column(BaseModel):
-#     title: str
-#     index: int
-#     tasks: Tasks
