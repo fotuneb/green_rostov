@@ -1,31 +1,22 @@
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Command
+from aiogram.filters import CommandObject, Command, CommandStart
 from config import SECRET_KEY
 import aiohttp
 from app.keyboards import main_kb, notifications
 
 router = Router()
 
-@router.message(Command("start"))
-async def start_command(message: Message):
+
+@router.message(CommandStart(deep_link=True))
+async def start_command(message: Message, command: CommandObject):
     telegram_id = message.from_user.id
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"http://server:8000/api/check_telegram_link/{telegram_id}"
-        ) as response:
-            if response.status == 200:
-                user_data = await response.json()
-                if user_data.get("telegram_id") == telegram_id:
-                    await message.answer(f"Добро пожаловать обратно, {user_data['username']}👋🏻!", reply_markup=main_kb)
-                    return
-
-    args = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else None
+    args = command.args
 
     if not args:
-        await message.answer("Добро пожаловать! Пожалуйста, авторизуйтесь через сайт, чтобы использовать бота.")
+        await message.answer("Добро пожаловать! Впишите команду /start 'token' ")
         return
 
     serializer = URLSafeTimedSerializer(SECRET_KEY)
@@ -34,6 +25,17 @@ async def start_command(message: Message):
     except BadSignature:
         await message.answer("Некорректный токен. Попробуйте снова.")
         return
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"http://server:8000/api/check_telegram_link/{user_id}"
+        ) as response:
+            if response.status == 200:
+                user_data = await response.json()
+                if user_data.get("telegram_id") == telegram_id:
+                    await message.answer(f"Добро пожаловать обратно, {user_data['username']}👋🏻!", reply_markup=main_kb)
+                    return
+
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
@@ -51,7 +53,7 @@ async def my_tasks(message: Message):
 
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            "http://server:8000/api/user_tasks",  
+            "http://server:8000/api/tasks_tg",  
             params={"telegram_id": telegram_id}  
         ) as response:
             if response.status == 200:

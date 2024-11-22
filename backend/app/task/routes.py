@@ -201,7 +201,7 @@ async def create_task(TaskInfo: TaskPublicInfo):
         assignee_id = TaskInfo.id_user,
         column = current_column
     )
-    assignee = await UserModel.get(id=id_user)
+    assignee = await UserModel.get(id=TaskInfo.id_user)
     if not assignee.telegram_id or not assignee.notifications:
             pass
     else:
@@ -272,7 +272,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
         task = await Task.get(id=TaskChangeInfo.id)
         task.assignee_id = TaskChangeInfo.id_user
         await task.save()
-        new_assignee = await UserModel.get(id=id_user)
+        new_assignee = await UserModel.get(id=TaskChangeInfo.id_user)
         if not new_assignee.telegram_id:
             return {"msg": "assignee updated successully, but new_assignee have not a tg"}
         elif new_assignee.notifications:
@@ -431,8 +431,8 @@ async def export_board_to_excel():
     workbook.save(filepath)
     return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-@router.get("/api/user_tasks")
-async def get_user_tasks(telegram_id: int):
+@router.get("/api/tasks_tg")
+async def get_user_tasks_for_tg(telegram_id: int):
     try:
         tasks = await Task.filter(assignee__telegram_id=telegram_id).all()
         if not tasks:

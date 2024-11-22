@@ -133,10 +133,10 @@ async def link_telegram(data: dict):
     await user.save()
     return {"status": "nice", "message": "Телеграмм успешно подключен"}
 
-@router1.get("/api/check_telegram_link/{tg_id}")
-async def check_telegram_link(tg_id: int):
-    user = await UserModel.filter(telegram_id=tg_id).first()
-    if user:
+@router1.get("/api/check_telegram_link/{user_id}")
+async def check_telegram_link(user_id: int):
+    user = await UserModel.filter(id=user_id).first()
+    if user.telegram_id:
         return {"telegram_id": user.telegram_id, "username": user.fullname}
     return {"telegram_id": None, "username": None}
 
