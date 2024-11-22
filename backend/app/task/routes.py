@@ -15,7 +15,7 @@ from app.task.tg_http import notify_new_assignee
 from pydantic import BaseModel
 import base64
 import os
-
+import uuid
 
 
 
@@ -488,11 +488,16 @@ async def create_attachment(task_id: int, file: UploadFile):
     if not validate_image_file(file_bytes):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
 
-    # Генерируем уникальный путь для файла
-    upload_dir = os.path.join("uploads")  # Директория для конкретной задачи
-    os.makedirs(upload_dir, exist_ok=True)  # Создаем директорию, если её нет
+    # Генерируем уникальное имя файла с сохранением расширения
+    file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
+    unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
 
-    file_path = os.path.join(upload_dir, file.filename)
+    # Создаем директорию, если её нет
+    upload_dir = os.path.join("uploads")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # Полный путь к файлу
+    file_path = os.path.join(upload_dir, unique_filename)
 
     # Сохраняем файл
     try:
