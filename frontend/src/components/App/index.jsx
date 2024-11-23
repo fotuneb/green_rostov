@@ -6,6 +6,7 @@ import NotFound404 from "../NotFound404";
 import Board from "../../pages/Board";
 import Login from "../../pages/Login";
 import Register from "../../pages/Register";
+import Admin from "../../pages/Admin";
 
 function getToken() {
   return getCookie("token");
@@ -59,6 +60,12 @@ function App() {
             <Route
               path="/login"
               element={<Login setToken={setToken} />}
+            />
+
+            {/* Маршрут /admin для открытия страницы админки */}
+            <Route
+              path="/admin"
+              element={<Admin token={token} />}
             />
 
             {/* Маршрут для страницы 404 */}
