@@ -183,7 +183,7 @@ async def get_columns():
 
 # возвращается id и индекс; содерджимое (description) изначально пусто
 @router.put("/api/task")
-async def create_task(TaskInfo: TaskPublicInfo):
+async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depends(get_current_user)):
     tasks_exist = await Task.exists()
     if tasks_exist:
         # Если колонки существуют, находим максимальный индекс
@@ -201,11 +201,11 @@ async def create_task(TaskInfo: TaskPublicInfo):
         index = new_index,
         title = TaskInfo.title,
         description = TaskInfo.description,
-        author_id = TaskInfo.id_user,
-        assignee_id = TaskInfo.id_user,
+        author_id = current_user.id,
+        assignee_id = current_user.id,
         column = current_column
     )
-    assignee = await UserModel.get(id=TaskInfo.id_user)
+    assignee = await UserModel.get(id=current_user.id)
     if not assignee.telegram_id or not assignee.notifications:
             pass
     else:
