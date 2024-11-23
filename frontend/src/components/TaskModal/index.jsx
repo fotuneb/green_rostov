@@ -59,7 +59,6 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }
 
     const updateDescription = () => {
-        console.log(description)
         fetch(`${ws}/api/task/change_contents/${taskData.id}?desc=${description}`, {
             method: "POST",
             headers: {

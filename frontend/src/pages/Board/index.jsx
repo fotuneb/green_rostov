@@ -71,6 +71,10 @@ function Board({ token }) {
       columnData.tasks.push(task);
     }
 
+    for (let column of columns) {
+      column.tasks.sort((a, b) => a.index - b.index);
+    }
+
     return columns;
 
   }
@@ -79,9 +83,12 @@ function Board({ token }) {
     fetchBoard().then((data) => { setBoard(data) })
   }
 
-  const onDragEnd = ({ destination, source, draggableId, type }) => {
-    console.log(destination, source, draggableId, type)
+  const parseDraggableId = (taskDraggableId, id) => {
+    const match = taskDraggableId.match(/(\d+)$/);
+    return match ? match[id] : null;
+  }
 
+  const onDragEnd = ({ destination, source, draggableId, type }) => {
     if (!destination) {
       return;
     }
@@ -94,16 +101,34 @@ function Board({ token }) {
     }
 
     if (type === 'task') {
-      fetch(`${ws}/api/tasks/${draggableId}/move/?new_column_id=${destination.droppableId}&new_index=${destination.index}`, {
-        method: "PUT"
+      const task_id = parseInt(parseDraggableId(draggableId, 1))
+      const new_column_id = parseInt(parseDraggableId(destination.droppableId, 0))
+
+      fetch(`${ws}/api/tasks/move`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          task_id: task_id,
+          new_column_id: new_column_id,
+          new_index: destination.index
+        })
       }).then((req) => {
         req.json().then(updateBoard)
       })
     }
 
     if (type === 'column') {
-      fetch(`${ws}/api/columns/${draggableId}/move/?new_index=${destination.index}`, {
-        method: "PUT"
+      fetch(`api/columns/move`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          column_id: draggableId,
+          new_index: destination.index
+        })
       }).then((req) => {
         req.json().then(updateBoard)
       })

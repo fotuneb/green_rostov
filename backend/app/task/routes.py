@@ -75,7 +75,7 @@ async def rename_column(info: ObjectRenameInfo):
 # [+] realisation drag-n-drop for column
 
 # возвращается status ok 200
-@router.put("/api/columns/{ColumnInfoDrag.column_id}/move")
+@router.put("/api/columns/move")
 async def move_column(ColumnInfoDrag: Column_drag):
     async with in_transaction() as conn:
         # Получаем колонку, которую необходимо переместить
