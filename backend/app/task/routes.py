@@ -106,9 +106,7 @@ async def move_column(ColumnInfoDrag: Column_drag):
 
 
 
-
-
-@router.get("/api/tasks/")
+@router.get("/api/tasks")
 async def get_tasks():
     tasks = await Task.all()  # Получаем все задачи
 
@@ -128,7 +126,7 @@ async def get_tasks():
             "description": task.description,
             "author": task.author_id,
             "assignee": task.assignee_id,
-            "column": task.column_id,
+            "column_id": task.column_id,
             "created_at": task.created_at,
             "updated_at": task.updated_at,  
             "deadline": task.deadline,                                      # +
