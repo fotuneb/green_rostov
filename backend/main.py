@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 from fastapi.middleware.cors import CORSMiddleware
+import asyncio
+import aiohttp
 
 from app.config import settings
 from app.user.routes_user import router1
 from app.task.routes import router
+from app.task.tg_http import notify_upcoming_deadlines
 from app.user.routes_user import admin_router
 import app.task.routes_for_time
 
@@ -41,5 +44,8 @@ def create_app() -> FastAPI:
 
     return application
 
-
 app = create_app()
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(notify_upcoming_deadlines())

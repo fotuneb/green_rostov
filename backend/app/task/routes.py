@@ -11,7 +11,7 @@ from app.user.authentication import get_current_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
 from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
-from app.task.tg_http import notify_new_assignee
+from app.task.tg_http import notify_new_assignee, send_deadline_notification
 from pydantic import BaseModel
 import base64
 import os
@@ -284,7 +284,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
         task.assignee_id = TaskChangeInfo.id_user
         await task.save()
         new_assignee = await UserModel.get(id=TaskChangeInfo.id_user)   # + 
-        if not new_assignee.telegram_id:
+        if not new_assignee.telegram_id :
             return {"msg": "assignee updated successully, but new_assignee have not a tg"}
         elif new_assignee.notifications:
             await notify_new_assignee(new_assignee.telegram_id, task)
@@ -442,15 +442,15 @@ async def export_board_to_excel():
     workbook.save(filepath)
     return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-@router.get("/api/user_tasks")
-async def get_user_tasks(telegram_id: int):
+@router.get("/api/tasks_tg")
+async def get_user_tasks_for_tg(telegram_id: int):
     try:
         tasks = await Task.filter(assignee__telegram_id=telegram_id).all()
         if not tasks:
             return {"tasks": []}
 
         task_list = [
-            {"title": task.title, }
+            {"title": task.title, "deadline": task.deadline}
             for task in tasks
         ]
 
@@ -621,4 +621,25 @@ async def create_url_for_file(attachment_id: int):
 
     # Возвращаем файл с указанным MIME-типом
     return FileResponse(file_path, media_type=mime_type)
+
+
+@router.get("/api/tasks/deadline")
+async def get_upcoming_deadlines():
+    try:
+        now = datetime.now()
+        deadline_threshold = now + timedelta(days=2)
+        tasks = await Task.all().filter(
+            deadline__gte=now, deadline__lte=deadline_threshold
+        ).select_related("assignee").order_by("deadline")
+        result = []
+        for task in tasks:
+            if task.assignee and task.assignee.telegram_id:
+                result.append({
+                    "title": task.title,
+                    "deadline": task.deadline,
+                    "telegram_id": task.assignee.telegram_id,
+                })
+        return result
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Tasks doesnt collected")
 
