@@ -17,6 +17,8 @@ import base64
 import os
 import uuid
 from app.task.util import validate_image_file
+from PIL import Image
+import io
 
 
 
@@ -395,7 +397,7 @@ async def get_comments(task_id: int):
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comments not found")
 
         # Возвращаем список комментариев
-        return comments     # !!!       передается также еще и описание, нужно изменить 
+        return comments
 
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
@@ -479,32 +481,38 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
     if not validate_image_file(file_bytes):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
 
-    # Генерируем уникальное имя файла с сохранением расширения
-    file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
-    unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
+       # Открываем изображение с помощью Pillow
+    try:
+        image = Image.open(io.BytesIO(file_bytes))
+    except Exception as e:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=f"Error processing image: {str(e)}")
 
-    # Создаем директорию, если её нет
+    # Определяем фильтр для ресайза
+    try:
+        resampling_filter = Image.Resampling.LANCZOS  # Для новых версий Pillow
+    except AttributeError:
+        resampling_filter = Image.ANTIALIAS  # Для старых версий Pillow
+
+    # Сжимаем изображение до 128x128
+    image = image.convert("RGB")  # Приводим изображение к RGB (на случай PNG с альфа-каналом)
+    image = image.resize((128, 128), resampling_filter)
+
+    # Генерируем уникальное имя файла с сохранением расширения
+    unique_filename = f"{uuid.uuid4()}.jpg"  # Сохраняем как JPEG
     upload_dir = os.path.join("uploads", "avatars")
     os.makedirs(upload_dir, exist_ok=True)
-
-    # Полный путь к файлу
     file_path = os.path.join(upload_dir, unique_filename)
 
-    # Сохраняем файл
+    # Сохраняем сжатое изображение на диск
     try:
-        with open(file_path, "wb") as f:
-            f.write(file_bytes)
+        image.save(file_path, "JPEG")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving compressed image: {str(e)}")
 
     # Создаем запись о вложении
     attachment = await Attachment.create(file_path=file_path)
 
-
-    # 128x128 !!!
     user.avatar = attachment
-
-
     await user.save()
 
     return {"id": attachment.id, "file_path": attachment.file_path}
