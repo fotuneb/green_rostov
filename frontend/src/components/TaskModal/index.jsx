@@ -5,6 +5,21 @@ import './task_modal.css';
 
 const ws = process.env.REACT_APP_PUBLIC_URL
 
+const formatDate = (dateString) => {
+    const date = new Date(dateString); // Преобразуем строку в объект Date
+  
+    // Получаем компоненты даты и времени
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Месяцы в JS начинаются с 0
+    const year = date.getUTCFullYear();
+  
+    // Форматируем в нужный вид
+    return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+  }
+
 export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }) => {
     const [taskData, setTaskData] = useState(task);
     const [isEditing, setIsEditing] = useState(false);
@@ -39,6 +54,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         });
     }, [isOpen]);
 
+
     useEffect(() => {
         if (!isOpen) return;
 
@@ -50,20 +66,32 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }, [isOpen])
 
     const updateTitle = () => {
-        fetch(`${ws}/api/task/rename/${taskData.id}?new_title=${title}`, {
+        fetch(`/api/task/rename`, {
             method: "POST",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            }
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                id: taskData.id,
+                new_title: title
+            })
         });
     }
 
     const updateDescription = () => {
-        fetch(`${ws}/api/task/change_contents/${taskData.id}?desc=${description}`, {
+        fetch(`/api/task/change_contents`, {
             method: "POST",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            }
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                id: taskData.id,
+                desc: description
+            })
         });
     }
 
@@ -86,23 +114,36 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }
 
     const updateColumn = (idx) => {
-        fetch(`${ws}/api/tasks/${taskData.id}/move?new_column_id=${idx}&new_index=0`, {
+        fetch(`${ws}/api/tasks/move`, {
             method: "PUT",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            }
-        }).then((res) => {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+
+            body: JSON.stringify({
+              task_id: taskData.id,
+              new_column_id: idx,
+              new_index: 0
+            })
+          }).then((res) => {
             res.json().then(onUpdateNeeded)
         })
     }
 
     const updateAssignee = (idx) => {
-        fetch(`${ws}/api/task/change_responsible/${taskData.id}?id_user=${idx}`, {
-            method: "POST",
+        fetch(`${ws}/api/tasks/change_responsible`, {
+            method: "PUT",
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            }
-        }).then((res) => {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+
+            body: JSON.stringify({
+              id: taskData.id,
+              id_user: idx,
+            })
+          }).then((res) => {
             res.json().then(onUpdateNeeded)
         })
     }
@@ -141,6 +182,14 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         <li>
                             <p className="font-semibold">Автор</p>
                             <p>{taskData.authorName}</p>
+                        </li>
+                        <li>
+                            <p className="font-semibold">Дата создания</p>
+                            <p>{formatDate(taskData.created_at)}</p>
+                        </li>
+                        <li>
+                            <p className="font-semibold">Дата изменения</p>
+                            <p>{formatDate(taskData.updated_at)}</p>
                         </li>
                         <li>
                             <p className="font-semibold">Исполнитель</p>
