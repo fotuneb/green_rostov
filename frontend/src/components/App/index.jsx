@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Router } from "react-router-dom";
 import { getCookie } from "../../utilities/cookies.js";
 import Navbar from "../Navbar"
+import NotFound404 from "../NotFound404";
 import Board from "../../pages/Board";
 import Login from "../../pages/Login";
 import Register from "../../pages/Register";
@@ -59,6 +60,9 @@ function App() {
               path="/login"
               element={<Login setToken={setToken} />}
             />
+
+            {/* Маршрут для страницы 404 */}
+            <Route path="*" element={<NotFound404 />} />
           </Routes>
         )}
       </BrowserRouter>

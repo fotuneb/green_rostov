@@ -165,7 +165,7 @@ const EditProfile = ({closeModal}) => {
                 </div>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
-                <button className="user-profile-save font-inter" onClick={handleTgBot}>Связать с Telegram-ботом</button>
+                <button className="user-profile-save font-inter" onClick={handleTgBot}>Перейти к Telegram-боту</button>
             </form>
         </div>
     );
