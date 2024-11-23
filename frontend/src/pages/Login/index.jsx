@@ -56,39 +56,44 @@ const Login = (props) => {
   };
 
   return (
-    <div className="login-container font-inter">
-      <div className="login-form">
-        <h2 className="login-title">Вход</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label htmlFor="username">Логин</label>
-            <input
-              id="username"
-              name="username"
-              required
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="password">Пароль</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              onChange={(event) => setPassword(event.target.value)}
-            />
-          </div>
-          <div className="login-footer">
-            <div className="register-link">
-              Еще нет аккаунта? <Link to="/signup">Зарегистрироваться</Link>
-            </div>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <button type="submit" className="login-button">Войти</button>
-          </div>
-        </form>
+    <>
+      <div className="main">
+          <h1 className="login-title">Kaban</h1>
+          <h3>Log in to your account</h3>
+          <form onSubmit={handleSubmit}>
+              <label for="first" className="login-label">
+                  Username:
+              </label>
+              <input 
+                     className="login-input"
+                     type="text" 
+                     id="username" 
+                     name="username" 
+                     required
+                     onChange={(event) => setEmail(event.target.value)}
+                     placeholder="Enter your login">
+              </input>
+              <label for="password" className="login-label">
+                  Password:
+              </label>
+              <input className="login-input"
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                required
+                onChange={(event) => setPassword(event.target.value)}>
+              </input>
+              <div className="wrap">
+                <button type="submit" className="login-button">Log in</button>
+              </div>
+          </form>
+          <p>{error && <p style={{ color: 'red' }}>{error}</p>}
+              Not registered?
+              <Link to="/signup" className="login-href"> Create an account</Link>
+          </p>
       </div>
-    </div>
+    </>
   );
 };
 
