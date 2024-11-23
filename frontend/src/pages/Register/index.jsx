@@ -52,59 +52,59 @@ function Register(props) {
       <div className="body-wrapper">
         <div className="main">
           <h1 className="register-title">Kaban</h1>
-          <h3>Account registration</h3>
+          <h3>Регистрация</h3>
           <form onSubmit={handleSubmit}>
               <label htmlFor="fullname" className="register-label">
-                  Full Name:
+                  ФИО:
               </label>
               <input type="text" 
                     id="fullname" 
                     name="fullname" 
-                    placeholder="Enter your Full Name" 
+                    placeholder="Введите Ваше ФИО" 
                     required 
                     className="register-input"
                     onChange={(event) => setFullname(event.target.value)}>
               </input>
               <label htmlFor="username" className="register-label">
-                  Username:
+                  Логин:
               </label>
               <input type="text" 
                     id="username" 
                     name="username" 
-                    placeholder="Enter your Name" 
+                    placeholder="Введите Ваш логин" 
                     required 
                     className="register-input"
                     onChange={(event) => setUsername(event.target.value)}>
               </input>
               <label htmlFor="password" className="register-label">
-                  Password:
+                  Пароль:
               </label>
               <input type="password" 
                     id="password" 
                     name="password" 
-                    placeholder="Enter your Password" 
+                    placeholder="Введите пароль" 
                     required 
                     className="register-input"
                     onChange={(event) => setPassword1(event.target.value)}>
               </input>
               <label htmlFor="password2" className="register-label">
-                  Repeat Password:
+                  Повторите пароль:
               </label>
               <input type="password" 
                     id="password2" 
                     name="password2" 
-                    placeholder="Repeat your Password" 
+                    placeholder="Повторите введённый пароль" 
                     required 
                     className="register-input"
                     onChange={(event) => setPassword2(event.target.value)}>
               </input>
               <div class="wrap">
                   {error && <p style={{ color: 'red' }}>{error}</p>}
-                  <button type="submit" className="register-button">Register</button>
+                  <button type="submit" className="register-button">Зарегистрироваться</button>
               </div>
           </form>
-          <p>You have an account?
-              <Link to="/login" class="register-href"> Log in</Link>
+          <p>Уже есть аккаунт?
+              <Link to="/login" class="register-href"> Войти</Link>
           </p>
         </div>
       </div>
