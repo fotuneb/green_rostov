@@ -500,7 +500,11 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
     # Создаем запись о вложении
     attachment = await Attachment.create(file_path=file_path)
 
+
+    # 128x128 !!!
     user.avatar = attachment
+
+
     await user.save()
 
     return {"id": attachment.id, "file_path": attachment.file_path}
