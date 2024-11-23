@@ -76,7 +76,7 @@ async def rename_column(info: ObjectRenameInfo):
 # [+] realisation drag-n-drop for column
 
 # возвращается status ok 200
-@router.put("/api/columns/{ColumnInfoDrag.column_id}/move")
+@router.put("/api/columns/move")
 async def move_column(ColumnInfoDrag: Column_drag):
     async with in_transaction() as conn:
         # Получаем колонку, которую необходимо переместить
@@ -107,35 +107,20 @@ async def move_column(ColumnInfoDrag: Column_drag):
 
 
 
-
-
-@router.get("/api/tasks/")
+@router.get("/api/tasks")
 async def get_tasks():
     tasks = await Task.all()  # Получаем все задачи
 
     task_list = []
     for task in tasks:
-        # Получаем вложения для каждой задачи
-        attachments = await task.attachments.all()  # Получаем все вложения для текущей задачи
-
-        # Формируем список вложений
-        attachment_list = [{"id": attachment.id, "file_path": attachment.file_path, "uploaded_at": attachment.uploaded_at} for attachment in attachments]
-
         # Добавляем задачу с вложениями в список
         task_list.append({
             "id": task.id,
             "title": task.title,
             "index": task.index,
-            "description": task.description,
             "author": task.author_id,
             "assignee": task.assignee_id,
-            "column": task.column_id,
-            "created_at": task.created_at,
-            "updated_at": task.updated_at,  
-            "deadline": task.deadline,                                      # +
-            "time_track": task.time_track,                                  # +
-            "is_running": task.is_running,
-            "attachments": attachment_list  # Добавляем вложения в задачу
+            "column_id": task.column_id, 
 
         })
 
@@ -186,7 +171,7 @@ async def get_columns():
 
 # возвращается id и индекс; содерджимое (description) изначально пусто
 @router.put("/api/task")
-async def create_task(TaskInfo: TaskPublicInfo):
+async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depends(get_current_user)):
     tasks_exist = await Task.exists()
     if tasks_exist:
         # Если колонки существуют, находим максимальный индекс
@@ -204,11 +189,11 @@ async def create_task(TaskInfo: TaskPublicInfo):
         index = new_index,
         title = TaskInfo.title,
         description = TaskInfo.description,
-        author_id = TaskInfo.id_user,
-        assignee_id = TaskInfo.id_user,
+        author_id = current_user.id,
+        assignee_id = current_user.id,
         column = current_column
     )
-    assignee = await UserModel.get(id=TaskInfo.id_user)
+    assignee = await UserModel.get(id=current_user.id)
     if not assignee.telegram_id or not assignee.notifications:
             pass
     else:
@@ -242,7 +227,7 @@ async def delete_task(id: int):
 
 # POST /api/task/rename - переименовать (передаю id и новое название, жду 200)
 # возвращается ok 200
-@router.post("/api/task/rename/{info.id}")
+@router.post("/api/task/rename")
 async def rename_task(info: ObjectRenameInfo):
     try:
         task = await Task.get(id=info.id)
@@ -258,7 +243,7 @@ async def rename_task(info: ObjectRenameInfo):
 
 # POST /api/task/change_contents - изменить содержимое (как выше, но текст)
 # возвращается ok 200
-@router.post("/api/task/change_contents/{id}")
+@router.post("/api/task/change_contents")
 async def change_task_content(TaskChangeInfo: Task_for_desc):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
@@ -275,7 +260,7 @@ async def change_task_content(TaskChangeInfo: Task_for_desc):
 # POST /api/task/change_responsible - изменить ответственного (передается id пользователя, ожидаю 200)
 # ожидаю 200
 # отправка уведомления в тг при изменении
-@router.post("/api/task/change_responsible/{TaskChangeInfo.id}")
+@router.post("/api/task/change_responsible")
 async def change_responsible(TaskChangeInfo: Task_change_resposible):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
@@ -295,7 +280,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
 
 
 # POST /api/task/move - поменять порядок (передаю id, столбец и индекс, в котором должна находиться таска, жду 200)
-@router.put("/api/tasks/{TaskDragInfo.task_id}/move")
+@router.put("/api/tasks/move")
 async def move_task(TaskDragInfo: Task_Drag):
     async with in_transaction() as conn:
         # Получаем задачу, которую необходимо переместить

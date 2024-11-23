@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { LuPlus } from "react-icons/lu"
 import "./add_task.css"
 
-const ws = process.env.REACT_APP_PUBLIC_URL
-
 function AddTask(props) {
   const [showNewTaskButton, setShowNewTaskButton] = useState(true);
   const [value, setValue] = useState("");
@@ -18,8 +16,17 @@ function AddTask(props) {
   }
 
   function addNewTask(content, columnId) {
-    fetch(`${ws}/api/task/?title=${content}&id_column=${columnId}&id_user=${localStorage.getItem("user_id")}`, {
+    fetch(`/api/task`, {
       method: "PUT",
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: content,
+        id_column: parseInt(columnId),
+        description: ""
+      })
     }).then((req) => {
       req.json().then(props.onTaskAdded)
     })
