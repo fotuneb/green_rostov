@@ -6,7 +6,7 @@ from starlette.status import HTTP_400_BAD_REQUEST
 from app.task.util import process_deadline, format_time, datetime_to_seconds
 
 
-@router.post("/tasks/{task_id}/deadline")
+@router.post("/api/tasks/{task_id}/deadline")
 async def update_deadline(task_id: int, new_deadline: str):
     """
     Обновить или установить новый deadline для задачи.
@@ -31,7 +31,7 @@ async def update_deadline(task_id: int, new_deadline: str):
     return {"new_deadline": task.deadline}
 
 
-@router.post("/tasks/{task_id}/start_timer")
+@router.post("/api/tasks/{task_id}/start_timer")
 async def start_timer(task_id: int):
     task = await Task.get_or_none(id=task_id)
     if not task:
@@ -46,7 +46,7 @@ async def start_timer(task_id: int):
     return {"message": "Timer started"}
 
 
-@router.post("/tasks/{task_id}/del_timer")
+@router.post("/api/tasks/{task_id}/del_timer")
 async def del_timer(task_id: int):
     task = await Task.get_or_none(id=task_id)
     if not task:
@@ -82,7 +82,7 @@ async def del_timer(task_id: int):
         "total_time": format_time
     }
     
-@router.get("/tasks/{task_id}/tracker")
+@router.get("/api/tasks/{task_id}/tracker")
 async def get_task_tracker(task_id: int):
     task = await Task.get_or_none(id=task_id)
     if not task:
@@ -109,7 +109,7 @@ async def get_task_tracker(task_id: int):
         "status": status
     }
 
-@router.post("/tasks/{task_id}/stop_timer")
+@router.post("/api/tasks/{task_id}/stop_timer")
 async def stop_timer(task_id: int):
     task = await Task.get_or_none(id=task_id)
     if not task:
