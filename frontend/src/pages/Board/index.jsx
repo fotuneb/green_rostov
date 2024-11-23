@@ -61,8 +61,8 @@ function Board({ token }) {
 
     for (let task of tasks) {
       task.id = task.id + '';
-      task.assigneeName = userIdToName[task.assignee_id];
-      task.authorName = userIdToName[task.author_id];
+      task.assigneeName = userIdToName[task.assignee];
+      task.authorName = userIdToName[task.author];
       let columnData = idxToCol[task.column_id];
       if (!columnData) {
         continue;
