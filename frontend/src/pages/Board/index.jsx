@@ -27,7 +27,7 @@ function Board({ token }) {
 
   async function fetchBoard() {
     const headers = {
-      'Authorization': 'Bearer ' + getCookie('token')
+      'Authorization': 'Bearer ' + getCookie('token'),
       'Accept': 'application/json'
     }
 
