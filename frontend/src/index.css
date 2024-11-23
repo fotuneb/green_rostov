@@ -1,7 +1,10 @@
 body {
-  background-color: #f3f4f6;
+  font-family: "Montserrat", sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
+  background: #D6CEFF;
+  flex-direction: column;
   margin: 0;
-  /* Светлый фон страницы */
 }
 
 .column-width {

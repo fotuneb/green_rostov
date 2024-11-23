@@ -35,7 +35,7 @@ function Navbar(props) {
             </Link>
           </div>
         ) : (
-          <div className="justify-between">
+          <div className={`navbar-container justify-end`}>
             {/* Кнопка "Админка" отображается только при логине в админ-аккаунт */}
             {
               getCookie('role') == 'admin' && <Link to="/admin">
