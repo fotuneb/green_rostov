@@ -46,7 +46,7 @@ function Navbar(props) {
                 <button className="nav-button">Админка</button>
               </Link>
             }
-            <Link to="/404"><button className="navButton">404</button></Link>
+            <Link to="/404"><button onClick={goTo404} className="navButton">404</button></Link>
             <button onClick={openModal} className="nav-button">Профиль</button>
             <span className="h-8 w-px mx-6 bg-gray-200" aria-hidden="true" />
             <Logout setToken={props.setToken}/>
