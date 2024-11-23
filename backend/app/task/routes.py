@@ -283,7 +283,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
 
 
 # POST /api/task/move - поменять порядок (передаю id, столбец и индекс, в котором должна находиться таска, жду 200)
-@router.put("/api/tasks/{TaskDragInfo.task_id}/move")
+@router.put("/api/tasks/move")
 async def move_task(TaskDragInfo: Task_Drag):
     async with in_transaction() as conn:
         # Получаем задачу, которую необходимо переместить
