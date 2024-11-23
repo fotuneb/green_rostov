@@ -19,9 +19,7 @@ class Column_drag(BaseModel):
 class TaskPublicInfo(BaseModel):
     title: str
     id_column: int
-    id_user: int
     description: str = ""
-
 
 
 class Task_for_desc(BaseModel):

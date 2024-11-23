@@ -120,6 +120,7 @@ async def generate_tg_link(user_id: int):
         return {"error": "Пользователь не найден"}
     return {"telegram_link": await generate_telegram_link(user.id)}
 
+# используется у тг-бота
 @router1.post("/api/link_telegram")
 async def link_telegram(data: dict):
     user_id = data.get("user_id")
@@ -133,22 +134,24 @@ async def link_telegram(data: dict):
     await user.save()
     return {"status": "nice", "message": "Телеграмм успешно подключен"}
 
-@router1.get("/api/check_telegram_link/{tg_id}")
-async def check_telegram_link(tg_id: int):
-    user = await UserModel.filter(telegram_id=tg_id).first()
-    if user:
+# используется у тг-бота
+@router1.get("/api/check_telegram_link/{user_id}")
+async def check_telegram_link(user_id: int):
+    user = await UserModel.filter(id=user_id).first()
+    if user.telegram_id:
         return {"telegram_id": user.telegram_id, "username": user.fullname}
     return {"telegram_id": None, "username": None}
 
-@router1.get("/api/user/notifications/{telegram_id}")
+# используется у тг-бота
+@router1.get("/api/user/notifications_get/{telegram_id}")
 async def get_user_notifications(telegram_id: int):
     user = await UserModel.filter(telegram_id=telegram_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
     return {"notifications": user.notifications}
 
-
-@router1.post("/api/user/notifications/{telegram_id}")
+# используется у тг-бота
+@router1.post("/api/user/notifications_update/{telegram_id}")
 async def update_user_notifications(telegram_id: int, data: dict):
     user = await UserModel.filter(telegram_id=telegram_id).first()
     if not user:

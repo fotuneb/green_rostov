@@ -28,17 +28,21 @@ function Board({ token }) {
   async function fetchBoard() {
     const headers = {
       'Authorization': 'Bearer ' + getCookie('token')
+      'Accept': 'application/json'
     }
 
-    const headersArg = { headers }
+    const headersArg = {
+      method: "GET",
+      headers
+    }
 
-    const columnReq = await fetch(ws + '/api/columns', headersArg);
+    const columnReq = await fetch('/api/columns', headersArg);
     let columns = await columnReq.json();
 
-    const tasksReq = await fetch(ws + '/api/tasks', headersArg);
+    const tasksReq = await fetch('/api/tasks', headersArg);
     const tasks = await tasksReq.json();
 
-    const usersReq = await fetch(ws + '/api/get_users', headersArg);
+    const usersReq = await fetch('/api/get_users', headersArg);
     const users = await usersReq.json();
 
     setUsers(users);
@@ -57,14 +61,18 @@ function Board({ token }) {
 
     for (let task of tasks) {
       task.id = task.id + '';
-      task.assigneeName = userIdToName[task.assignee_id];
-      task.authorName = userIdToName[task.author_id];
+      task.assigneeName = userIdToName[task.assignee];
+      task.authorName = userIdToName[task.author];
       let columnData = idxToCol[task.column_id];
       if (!columnData) {
         continue;
       }
 
       columnData.tasks.push(task);
+    }
+
+    for (let column of columns) {
+      column.tasks.sort((a, b) => a.index - b.index);
     }
 
     return columns;
@@ -75,9 +83,12 @@ function Board({ token }) {
     fetchBoard().then((data) => { setBoard(data) })
   }
 
-  const onDragEnd = ({ destination, source, draggableId, type }) => {
-    console.log(destination, source, draggableId, type)
+  const parseDraggableId = (taskDraggableId, id) => {
+    const match = taskDraggableId.match(/(\d+)$/);
+    return match ? match[id] : null;
+  }
 
+  const onDragEnd = ({ destination, source, draggableId, type }) => {
     if (!destination) {
       return;
     }
@@ -90,16 +101,34 @@ function Board({ token }) {
     }
 
     if (type === 'task') {
-      fetch(`${ws}/api/tasks/${draggableId}/move/?new_column_id=${destination.droppableId}&new_index=${destination.index}`, {
-        method: "PUT"
+      const task_id = parseInt(parseDraggableId(draggableId, 1))
+      const new_column_id = parseInt(parseDraggableId(destination.droppableId, 0))
+
+      fetch(`${ws}/api/tasks/move`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          task_id: task_id,
+          new_column_id: new_column_id,
+          new_index: destination.index
+        })
       }).then((req) => {
         req.json().then(updateBoard)
       })
     }
 
     if (type === 'column') {
-      fetch(`${ws}/api/columns/${draggableId}/move/?new_index=${destination.index}`, {
-        method: "PUT"
+      fetch(`api/columns/move`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          column_id: draggableId,
+          new_index: destination.index
+        })
       }).then((req) => {
         req.json().then(updateBoard)
       })

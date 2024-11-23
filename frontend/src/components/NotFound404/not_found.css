@@ -1,0 +1,74 @@
+body {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.container-404 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.not-found-title {
+    position: absolute;
+    top: 1%;
+    left: 25%;
+    color: #D422B0;
+    font-size: 90px;
+    font-family: DynaPuff, sans-serif;
+}
+
+.not-found-subtitle {
+    position: absolute;
+    top: 30%;
+    left: 25%;
+    font-size: 20px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Жёлтый круг */
+.circle-1 {
+    position: absolute;
+    bottom: -121px;
+    left: -121px;
+    width: 242px;
+    height: 242px;
+    border-radius: 50%;
+    background-color: #F9E7CD;
+    z-index: 1;
+}
+
+/* Голубой круг */
+.circle-2 {
+    position: absolute;
+    bottom: -146px;
+    left: 110px;
+    width: 302px;
+    height: 302px;
+    border-radius: 50%;
+    background-color: #C7E5FC;
+    z-index: 2;
+}
+
+/* Фиолетовый круг */
+.circle-3 {
+    position: absolute;
+    bottom: -94px;
+    left: 410px;
+    width: 302px;
+    height: 302px;
+    border-radius: 50%;
+    background-color: #D6CEFF;
+    z-index: 3;
+}
+
+/* Бежевый круг */
+.circle-4 {
+    position: absolute;
+    bottom: 1px;
+    right: -151px;
+    width: 302px;
+    height: 302px;
+    border-radius: 50%;
+    background-color: #F8DEDD;
+}
