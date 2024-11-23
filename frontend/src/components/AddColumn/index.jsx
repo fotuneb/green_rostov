@@ -35,7 +35,7 @@ function AddColumn(props) {
           Добавить столбец
         </button>
       ) : (
-        <input
+        <input 
           autoFocus
           type="text"
           className="border rounded-md px-2 py-1 outline-none focus:outline-none"

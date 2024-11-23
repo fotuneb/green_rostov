@@ -1,12 +1,18 @@
 .board-column {
-    background-color: rgb(238, 229, 229);
+    background-color:  #C7E5FC;
     padding: 1em;
-    border: 2px solid #ccc;
-    border-radius: 8px;
+    border: 2px solid #C7E5FC;
+    border-radius: 20px;
     width: 35vmin;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .board-column-header {
     display: flex;
     justify-content: space-between;
+    color: #1B4B73;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 5px;
+    margin-bottom: 10px;
 }

@@ -19,7 +19,7 @@ const TaskFilter = ({ onFilterUpdate, users }) => {
             <button className="filter-button" onClick={() => setIsOpen(!isOpen)}>
                 <LuFilter />
             </button>
-            <input
+            <input className = "Text"
                 type="text"
                 value={filterText}
                 onChange={(event) => setFilterText(event.target.value)}
@@ -58,7 +58,7 @@ const TaskFilter = ({ onFilterUpdate, users }) => {
                     <button className="filter-close-button" onClick={() => setIsOpen(false)}>Закрыть</button>
                 </div>
             )}
-            <button onClick={handleApplyFilters}>Применить</button>
+            <button className = "Apply" onClick={handleApplyFilters}>Применить</button>
         </div>
     );
 };
