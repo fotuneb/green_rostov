@@ -2,18 +2,23 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background-color: rgb(0, 133, 255);
+    background-color: #6C97BF;
     padding: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-bottom-left-radius: 20px; 
+    border-bottom-right-radius: 20px; 
+  
   }
   
   .nav-button {
     background-color: transparent;
     color: white;
     border: 2px solid white;
-    border-radius: 5px;
-    padding: 10px 15px;
+    border-radius: 15px;
+    padding: 8px 15px;
     font-size: 16px;
+    font-weight: 700;
+    font-family: "Montserrat", sans-serif; 
     cursor: pointer;
     transition: all 0.3s ease;
     margin-right: 10px;
@@ -35,7 +40,7 @@
   
   .nav-button:hover {
     background-color: white;
-    color: rgb(0, 133, 255);
+    color: #6C97BF;
     transform: scale(1.05);
   }
   

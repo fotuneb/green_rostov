@@ -125,7 +125,7 @@ const EditProfile = ({ user, token }) => {
                         onChange={handlePasswordChange}
                     />
                 </div>
-                {curError && <p style={{ color: 'red' }}>{curError}</p>}
+                {curError && <p className="error-message">{curError}</p>}
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
                 <button className="user-profile-save font-inter">Перейти к Telegram-боту</button>
             </form>
