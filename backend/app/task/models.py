@@ -2,6 +2,7 @@ from passlib.hash import bcrypt
 from tortoise import fields
 from tortoise.models import Model
 from app.user.models_user import UserModel
+from app.task.attachment_model import Attachment
 
      
 class Comments(Model):
@@ -45,15 +46,4 @@ class Task(Model):
 
     class Meta:
         table = "tasks"
-
-
-
-
-class Attachment(Model):
-    id = fields.IntField(pk=True)
-    file_path = fields.CharField(max_length=255)  # Путь к файлу или URL
-    uploaded_at = fields.DatetimeField(auto_now_add=True)
-
-    class Meta:
-        table = "attachments"
 
