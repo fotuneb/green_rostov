@@ -18,6 +18,7 @@ const EditProfile = ({closeModal}) => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
     
+    // Получение данных о юзере
     const getMyData = async () => {
         const data = await fetch('/api/get_user/' + getCookie('user_id'), {
             method: "GET"
@@ -28,16 +29,15 @@ const EditProfile = ({closeModal}) => {
 
     // Обработчик перехода к тг-боту
     const handleTgBot = async () => {
-        const data = await fetch('/api/tg-link/?user_id=' + getCookie('user_id'), {
+        const data = await fetch('/api/tg-link/' + getCookie('user_id'), {
             method: "GET"
         })
 
         const response = data.json();
-        console.log(response);
 
-        // response.then((data) => {
-        //     window.open(data.telegram_link)
-        // })
+        response.then((data) => {
+            window.open(data.telegram_link)
+        })
     }
 
     useEffect(() => {

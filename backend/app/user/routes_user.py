@@ -113,7 +113,7 @@ async def generate_token(form_data: OAuth2PasswordRequestForm = Depends()):
 
     return {"access_token": await create_token(user), "id": user.id, "role": user.role}
 
-@router1.get("/api/tg-link/?user_id={user_id}")
+@router1.get("/api/tg-link/{user_id}")
 async def generate_tg_link(user_id: int):
     user = await UserModel.get(id=user_id)
     if not user:

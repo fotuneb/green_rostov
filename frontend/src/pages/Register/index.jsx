@@ -11,6 +11,7 @@ function Register(props) {
   const navigate = useNavigate();
   const [error, setError] = useState('');
 
+  // Обработка отправки формы
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -19,25 +20,15 @@ function Register(props) {
       }
 
       setError('');
-
+  
       const data = await createUser();
-      // Получаем необходимые данные
-      const access_token = data["access_token"];
-      const user_id = data["id"];
-      const role = data["role"];
-      // Задаем токен
-      props.setToken(access_token);
-      // Сохранение данных в куки
-      setCookie("token", access_token);
-      setCookie("user_id", user_id, 7);
-      setCookie("role", role, 7);
-      // Переходим в доску
-      navigate("/board");
+      navigate("/login");
     } catch (error) {
       setError(error)
     }
   };
 
+  // Создание нового юзера
   const createUser = async () => {
     const formData = {
       fullname: fullname,
