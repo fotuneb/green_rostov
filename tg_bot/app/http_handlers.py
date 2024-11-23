@@ -11,10 +11,15 @@ async def send_change_responsible(request):
 
     bot: Bot = request.app["bot"]
 
+    try:
+        temp = datetime.fromisoformat(deadline).strftime('%d.%m.%Y в %H:%M')
+    except:
+        temp = "Не указан"
+
     message = (
         f"🔖 <b>Вы были назначены на задачу</b> \n\n"
         f" Название задачи - {task_title}\n"
-        f" Дедлайн - {datetime.fromisoformat(deadline).strftime('%d.%m.%Y в %H:%M')}\n"
+        f" Дедлайн - {temp}\n"
     )
 
     await bot.send_message(chat_id=telegram_id, text=message, parse_mode="HTML")

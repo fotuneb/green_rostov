@@ -211,9 +211,7 @@ async def create_task(TaskInfo: TaskPublicInfo):
         column = current_column
     )
     assignee = await UserModel.get(id=TaskInfo.id_user)
-    if not assignee.telegram_id or not assignee.notifications:
-            pass
-    else:
+    if assignee.telegram_id and assignee.notifications:
         await notify_new_assignee(assignee.telegram_id, task)
 
     return {
