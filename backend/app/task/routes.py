@@ -123,16 +123,9 @@ async def get_tasks():
             "id": task.id,
             "title": task.title,
             "index": task.index,
-            "description": task.description,
             "author": task.author_id,
             "assignee": task.assignee_id,
-            "column_id": task.column_id,
-            "created_at": task.created_at,
-            "updated_at": task.updated_at,  
-            "deadline": task.deadline,                                      # +
-            "time_track": task.time_track,                                  # +
-            "attachments": attachment_list  # Добавляем вложения в задачу
-
+            "column_id": task.column_id, 
         })
 
     return task_list
