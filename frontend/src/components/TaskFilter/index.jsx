@@ -16,7 +16,7 @@ const TaskFilter = ({ onFilterUpdate, users }) => {
 
     return (
         <div className="filter-container font-inter">
-            <button className="" onClick={() => setIsOpen(!isOpen)}>
+            <button className="filter-button" onClick={() => setIsOpen(!isOpen)}>
                 <LuFilter />
             </button>
             <input
@@ -55,7 +55,7 @@ const TaskFilter = ({ onFilterUpdate, users }) => {
                             }))}
                         </select>
                     </div>
-                    <button onClick={() => setIsOpen(false)}>Закрыть</button>
+                    <button className="filter-close-button" onClick={() => setIsOpen(false)}>Закрыть</button>
                 </div>
             )}
             <button onClick={handleApplyFilters}>Применить</button>
