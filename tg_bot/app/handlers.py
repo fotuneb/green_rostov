@@ -4,6 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandObject, Command, CommandStart
 from config import SECRET_KEY
 import aiohttp
+from datetime import datetime
 from app.keyboards import main_kb, notifications
 
 router = Router()
@@ -63,9 +64,11 @@ async def my_tasks(message: Message):
                 if not tasks:
                     await message.answer("У вас нет активных задач.")
                 else:
-                    task_list = "\n".join(
-                        [f"📌 {task['title']}" for task in tasks]
-                    )
+                    task_list = "\n".join([
+                       f"📌 <i>{task['title']}</i>\n"
+                       f"Дедлайн: {datetime.fromisoformat(task['deadline']).strftime('%d.%m.%Y в %H:%M') if task.get('deadline') else 'Не установлен'}"
+                       for task in tasks])
+                
                     await message.answer(f"🔖 <b>Ваши задачи:</b>\n\n{task_list}", parse_mode="HTML")
             else:
                 await message.answer("Ошибка получения задач. Попробуйте позже.")
@@ -75,7 +78,7 @@ async def notifications_settings(message: Message):
     telegram_id = message.from_user.id
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(f"http://server:8000/api/user/notifications/{telegram_id}") as response:
+        async with session.get(f"http://server:8000/api/user/notifications_get/{telegram_id}") as response:
             if response.status == 200:
                 data = await response.json()
                 current_state = data.get("notifications", True)
@@ -94,7 +97,7 @@ async def toggle_notifications(callback: CallbackQuery):
     telegram_id = callback.from_user.id
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(f"http://server:8000/api/user/notifications/{telegram_id}") as response:
+        async with session.get(f"http://server:8000/api/user/notifications_get/{telegram_id}") as response:
             if response.status == 200:
                 data = await response.json()
                 current_state = data.get("notifications", True)
@@ -110,7 +113,7 @@ async def toggle_notifications(callback: CallbackQuery):
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f"http://server:8000/api/user/notifications/{telegram_id}",
+            f"http://server:8000/api/user/notifications_update/{telegram_id}",
             json={"notifications": new_state}
         ) as response:
             if response.status != 200:

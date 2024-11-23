@@ -140,7 +140,7 @@ async def check_telegram_link(user_id: int):
         return {"telegram_id": user.telegram_id, "username": user.fullname}
     return {"telegram_id": None, "username": None}
 
-@router1.get("/api/user/notifications/{telegram_id}")
+@router1.get("/api/user/notifications_get/{telegram_id}")
 async def get_user_notifications(telegram_id: int):
     user = await UserModel.filter(telegram_id=telegram_id).first()
     if not user:
@@ -148,7 +148,7 @@ async def get_user_notifications(telegram_id: int):
     return {"notifications": user.notifications}
 
 
-@router1.post("/api/user/notifications/{telegram_id}")
+@router1.post("/api/user/notifications_update/{telegram_id}")
 async def update_user_notifications(telegram_id: int, data: dict):
     user = await UserModel.filter(telegram_id=telegram_id).first()
     if not user:
