@@ -5,7 +5,7 @@ import './task_modal.css';
 
 const ws = process.env.REACT_APP_PUBLIC_URL
 
-const formatDate = (dateString) => {
+const formatDate = (dateString, reversed) => {
     const date = new Date(dateString); // Преобразуем строку в объект Date
   
     // Получаем компоненты даты и времени
@@ -18,23 +18,40 @@ const formatDate = (dateString) => {
   
     // Форматируем в нужный вид
     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
-  }
+}
+
+const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
+    const [newValue, setNewValue] = useState('')
+
+    if (isEditing) {
+        return (
+            <>
+            <input
+                type="date"
+                onChange={(e) => setNewValue(e.target.value)}
+            />
+            <button onClick={() => {onEdited(newValue); setIsEditing(false)}}>Z</button>
+            </>
+
+        )
+    }
+
+    return (
+        <p onClick={() => setIsEditing(true)}>
+            {deadlineValue || 'Не установлен (нажмите для редактирования)'}
+        </p>
+    )
+}
 
 export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }) => {
     const [taskData, setTaskData] = useState(task);
     const [isEditing, setIsEditing] = useState(false);
+    const [isEditingDeadline, setIsEditingDeadline] = useState(false);
     const [title, setTitle] = useState(taskData.title);
     const [description, setDescription] = useState(taskData.description || '');
     const [users, setUsers] = useState([]);
-    const [selectedOptions, setSelectedOptions] = useState({
-        author: '',
-        executor: '',
-        status: '',
-    });
 
     const hasRights = localStorage.getItem('role') != 'guest';
-
-
     const quillRef = useRef(null); // Ссылка на редактор
 
     const getTaskDetail = async () => {
@@ -148,6 +165,10 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         })
     }
 
+    const updateDeadline = (deadlineDay) => {
+        console.log(new Date(deadlineDay))
+    }
+
     if (!isOpen) return null;
 
     return (
@@ -190,6 +211,10 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         <li>
                             <p className="font-semibold">Дата изменения</p>
                             <p>{formatDate(taskData.updated_at)}</p>
+                        </li>
+                        <li>
+                            <p className="font-semibold">Дедлайн</p>
+                            <DeadlineRow isEditing={isEditingDeadline} setIsEditing={setIsEditingDeadline} deadlineValue={taskData.deadline} onEdited={(val) => updateDeadline(val)} />
                         </li>
                         <li>
                             <p className="font-semibold">Исполнитель</p>
