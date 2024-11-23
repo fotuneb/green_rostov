@@ -71,6 +71,10 @@ body {
     font-size: 18px;
 }
 
+.register-button:hover {
+    background-color: #392982;
+}
+
 .register-href {
     text-decoration: none;
 }
