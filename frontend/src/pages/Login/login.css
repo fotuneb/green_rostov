@@ -1,70 +1,86 @@
-.login-container {
+/* Подгрузка шрифтов */
+@import url('https://fonts.googleapis.com/css2?family=DynaPuff:wght@400..700&family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    font-family: "Montserrat", sans-serif;
+    line-height: 1.5;
     min-height: 100vh;
+    background: #D6CEFF;
+    flex-direction: column;
+    margin: 0;
+}
+
+.body-wrapper {
+    width: 100vw;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.login-form {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    width: 100%;
-    max-width: 400px;
+.main {
+    background-color: #fff;
+    border-radius: 30px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    padding: 10px 20px;
+    transition: transform 0.2s;
+    width: 500px;
+    text-align: center;
 }
 
 .login-title {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-family: "DynaPuff", serif;
+    font-size: 50px;
+    color: #392982;
+    margin-bottom: 5px;
 }
 
-.input-group {
-    margin-bottom: 15px;
-}
-
-.input-group label {
+.login-label {
     display: block;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    text-align: left;
+    color: #555;
     font-weight: bold;
 }
 
-.input-group input {
+.login-input {
+    display: block;
     width: 100%;
-    padding: 1em 0 0 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    transition: border-color 0.3s;
-}
-
-.input-group input:focus {
-    border-color: #4f46e5;
-    outline: none;
-}
-
-.login-footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.register-link {
-    margin-bottom: 10px;
-    font-size: 14px;
+    margin-bottom: 15px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 10px;
 }
 
 .login-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #4f46e5;
-    color: white;
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
     border: none;
-    border-radius: 4px;
-    font-size: 16px;
+    color: white;
     cursor: pointer;
-    transition: background-color 0.3s;
+    background-color: #392982;
+    width: 85%;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 18px;
 }
 
 .login-button:hover {
-    background-color: #4338ca;
+    background-color: #392982;
+}
+
+.login-href {
+    text-decoration: none;
+}
+
+.wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

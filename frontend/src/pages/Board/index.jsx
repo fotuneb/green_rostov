@@ -3,10 +3,9 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
 import { getCookie } from "../../utilities/cookies.js";
 import TaskFilter from "../../components/TaskFilter";
-import "./board.css";
-
 import Column from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
+import "./board.css";
 
 const ws = process.env.REACT_APP_PUBLIC_URL
 

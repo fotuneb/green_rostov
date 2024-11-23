@@ -11,6 +11,7 @@ function Register(props) {
   const navigate = useNavigate();
   const [error, setError] = useState('');
 
+  // Обработка отправки формы
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -19,25 +20,15 @@ function Register(props) {
       }
 
       setError('');
-
+  
       const data = await createUser();
-      // Получаем необходимые данные
-      const access_token = data["access_token"];
-      const user_id = data["id"];
-      const role = data["role"];
-      // Задаем токен
-      props.setToken(access_token);
-      // Сохранение данных в куки
-      setCookie("token", access_token, 7);
-      setCookie("user_id", user_id, 7);
-      setCookie("role", role, 7);
-      // Переходим в доску
-      navigate("/board");
+      navigate("/login");
     } catch (error) {
       setError(error)
     }
   };
 
+  // Создание нового юзера
   const createUser = async () => {
     const formData = {
       fullname: fullname,
@@ -57,56 +48,67 @@ function Register(props) {
   };
 
   return (
-    <div className="register-container font-inter">
-      <div className="register-form">
-        <h2 className="register-title">Регистрация</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label htmlFor="fullname">ФИО</label>
-            <input
-              id="fullname"
-              name="fullname"
-              required
-              onChange={(event) => setFullname(event.target.value)}
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="username">Логин</label>
-            <input
-              id="username"
-              name="username"
-              onChange={(event) => setUsername(event.target.value)}
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="password">Пароль</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              onChange={(event) => setPassword1(event.target.value)}
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="password2">Подтверждение пароля</label>
-            <input
-              id="password2"
-              name="password2"
-              type="password"
-              required
-              onChange={(event) => setPassword2(event.target.value)}
-            />
-          </div>
-          <div className="register-footer">
-            <div className="login-link">
-              Уже есть аккаунт? <Link to="/login">Войти</Link>
-            </div>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <button type="submit" className="register-button">Зарегистрироваться</button>
-          </div>
-        </form>
+    <>
+      <div className="body-wrapper">
+        <div className="main">
+          <h1 className="register-title">Kaban</h1>
+          <h3>Account registration</h3>
+          <form onSubmit={handleSubmit}>
+              <label htmlFor="fullname" className="register-label">
+                  Full Name:
+              </label>
+              <input type="text" 
+                    id="fullname" 
+                    name="fullname" 
+                    placeholder="Enter your Full Name" 
+                    required 
+                    className="register-input"
+                    onChange={(event) => setFullname(event.target.value)}>
+              </input>
+              <label htmlFor="username" className="register-label">
+                  Username:
+              </label>
+              <input type="text" 
+                    id="username" 
+                    name="username" 
+                    placeholder="Enter your Name" 
+                    required 
+                    className="register-input"
+                    onChange={(event) => setUsername(event.target.value)}>
+              </input>
+              <label htmlFor="password" className="register-label">
+                  Password:
+              </label>
+              <input type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Enter your Password" 
+                    required 
+                    className="register-input"
+                    onChange={(event) => setPassword1(event.target.value)}>
+              </input>
+              <label htmlFor="password2" className="register-label">
+                  Repeat Password:
+              </label>
+              <input type="password" 
+                    id="password2" 
+                    name="password2" 
+                    placeholder="Repeat your Password" 
+                    required 
+                    className="register-input"
+                    onChange={(event) => setPassword2(event.target.value)}>
+              </input>
+              <div class="wrap">
+                  {error && <p style={{ color: 'red' }}>{error}</p>}
+                  <button type="submit" className="register-button">Register</button>
+              </div>
+          </form>
+          <p>You have an account?
+              <Link to="/login" class="register-href"> Log in</Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </> 
   );
 }
 

@@ -2,6 +2,7 @@ from passlib.hash import bcrypt
 from tortoise import fields
 from tortoise.models import Model
 from app.user.models_user import UserModel
+from app.task.attachment_model import Attachment
 
      
 class Comments(Model):
@@ -36,26 +37,13 @@ class Task(Model):
     created_at = fields.DatetimeField(auto_now_add=True)  # Время создания
     updated_at = fields.DatetimeField(auto_now=True)      # Время обновления
     
-    deadline = fields.DatetimeField(null=True)
-    time_track = fields.DatetimeField(null=True)  # Храним время в секундах
-    is_running = fields.BooleanField(default=False)  # Состояние таймера
-    last_started_at = fields.DatetimeField(null=True)  # Когда таймер был запущен
+    deadline = fields.DatetimeField(null=True)          # Время дедлайна
+    time_track = fields.DatetimeField(null=True)        # Храним время в секундах
+    is_running = fields.BooleanField(default=False)     # Состояние таймера
+    last_started_at = fields.DatetimeField(null=True)   # Когда таймер был запущен
   
     attachments = fields.ManyToManyField("models.Attachment", related_name="tasks_attachments", on_delete=fields.CASCADE)
 
-    
-
     class Meta:
         table = "tasks"
-
-
-
-
-class Attachment(Model):
-    id = fields.IntField(pk=True)
-    file_path = fields.CharField(max_length=255)  # Путь к файлу или URL
-    uploaded_at = fields.DatetimeField(auto_now_add=True)
-
-    class Meta:
-        table = "attachments"
 

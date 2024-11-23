@@ -42,12 +42,12 @@ async def change_password(user_id: int, new_password: str, admin_user: UserModel
 
 @router1.get("/api/get_users")
 async def get_users():
-    users = await UserModel.all().values("id", "fullname", "role")
+    users = await UserModel.all().values("id", "fullname", "role", "avatar_id")
     return users
 
 @router1.get("/api/get_user/{user_id}")
 async def get_user(user_id: int):  
-    user = await UserModel.get(id=user_id).values("fullname", "role", "about")
+    user = await UserModel.get(id=user_id).values("fullname", "role", "about", "avatar_id")
     return user
 
 @router1.post("/api/users")
@@ -113,7 +113,7 @@ async def generate_token(form_data: OAuth2PasswordRequestForm = Depends()):
 
     return {"access_token": await create_token(user), "id": user.id, "role": user.role}
 
-@router1.get("/api/tg-link")
+@router1.get("/api/tg-link/{user_id}")
 async def generate_tg_link(user_id: int):
     user = await UserModel.get(id=user_id)
     if not user:
@@ -144,7 +144,7 @@ async def check_telegram_link(tg_id: int):
 async def get_user_notifications(telegram_id: int):
     user = await UserModel.filter(telegram_id=telegram_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
     return {"notifications": user.notifications}
 
 
@@ -152,11 +152,11 @@ async def get_user_notifications(telegram_id: int):
 async def update_user_notifications(telegram_id: int, data: dict):
     user = await UserModel.filter(telegram_id=telegram_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
     
     notifications = data.get("notifications")
     if notifications is None:
-        raise HTTPException(status_code=400, detail="Invalid data")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid data")
     
     user.notifications = notifications
     await user.save()

@@ -16,6 +16,21 @@
     font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
+    margin-right: 10px;
+  }
+
+  .navbar-container {
+    display: flex;
+    width: 60%;
+    align-items: center;
+  }
+
+  .justify-between {
+    justify-content: space-between;
+  }
+
+  .justify-end {
+    justify-content: flex-end;
   }
   
   .nav-button:hover {

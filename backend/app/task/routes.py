@@ -12,11 +12,11 @@ from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
 from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
 from app.task.tg_http import notify_new_assignee
-import pandas
 from pydantic import BaseModel
 import base64
 import os
-
+import uuid
+from app.task.util import validate_image_file
 
 
 
@@ -134,6 +134,7 @@ async def get_tasks():
             "updated_at": task.updated_at,  
             "deadline": task.deadline,                                      # +
             "time_track": task.time_track,                                  # +
+            "is_running": task.is_running,
             "attachments": attachment_list  # Добавляем вложения в задачу
 
         })
@@ -167,6 +168,7 @@ async def get_task_using_id(task_id: int):
         "updated_at": task.updated_at,
         "deadline":task.deadline,                                   # +
         "time_track":task.time_track,                               # +
+        "is_running": task.is_running,
         "attachments": attachment_list  # Добавляем список вложений
     }
 
@@ -456,41 +458,61 @@ async def get_user_tasks(telegram_id: int):
 
 
 
-# Оповещение о дедлайнах задач
-# @router.get("/api/tasks/deadline")
-# async def get_upcoming_deadlines():
-#     now = datetime.now()
-#     deadline_threshold = now + timedelta(days=2)
-    
-#     tasks = await Task.filter(deadline__gte=now, deadline__lte=deadline_threshold).order_by("deadline").all()
-#     result = []
-#     for task in tasks:
-#         result.append({
-#             "title": task.title,
-#             "deadline": task.deadline,
-#             "assignee_id": task.assignee_id,
-#         })
-#     return result
 
 
+@router.post("/api/avatar/")
+async def create_attachment_for_user(user_id: int, file: UploadFile):
+    # Проверяем, что MIME-тип соответствует ожиданиям
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Only JPG and PNG files are allowed")
+
+    # Проверка, существует ли задача
+    try:
+        user = await UserModel.get(id=user_id)
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="User not found")
+
+    # Считываем содержимое файла
+    file_bytes = await file.read()
+
+    # Проверяем содержимое файла на допустимый формат
+    if not validate_image_file(file_bytes):
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
+
+    # Генерируем уникальное имя файла с сохранением расширения
+    file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
+    unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
+
+    # Создаем директорию, если её нет
+    upload_dir = os.path.join("uploads", "avatars")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # Полный путь к файлу
+    file_path = os.path.join(upload_dir, unique_filename)
+
+    # Сохраняем файл
+    try:
+        with open(file_path, "wb") as f:
+            f.write(file_bytes)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
+
+    # Создаем запись о вложении
+    attachment = await Attachment.create(file_path=file_path)
 
 
+    # 128x128 !!!
+    user.avatar = attachment
 
 
+    await user.save()
 
-# Функция проверки формата файла по первым байтам
-def validate_image_file(file_bytes: bytes) -> bool:
-    # Проверяем на PNG (первые 8 байт) и JPEG (первые 2 байта)
-    png_signature = b"\x89PNG\r\n\x1a\n"
-    jpeg_signature = b"\xff\xd8"
-    return file_bytes.startswith(png_signature) or file_bytes.startswith(jpeg_signature)
-
-
+    return {"id": attachment.id, "file_path": attachment.file_path}
 
 
 
 @router.post("/api/attachments/")
-async def create_attachment(task_id: int, file: UploadFile):
+async def create_attachment_for_task(task_id: int, file: UploadFile):
     # Проверяем, что MIME-тип соответствует ожиданиям
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Only JPG and PNG files are allowed")
@@ -508,11 +530,16 @@ async def create_attachment(task_id: int, file: UploadFile):
     if not validate_image_file(file_bytes):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
 
-    # Генерируем уникальный путь для файла
-    upload_dir = os.path.join("uploads", str(task_id))  # Директория для конкретной задачи
-    os.makedirs(upload_dir, exist_ok=True)  # Создаем директорию, если её нет
+    # Генерируем уникальное имя файла с сохранением расширения
+    file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
+    unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
 
-    file_path = os.path.join(upload_dir, file.filename)
+    # Создаем директорию, если её нет
+    upload_dir = os.path.join("uploads", "attachments")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # Полный путь к файлу
+    file_path = os.path.join(upload_dir, unique_filename)
 
     # Сохраняем файл
     try:
@@ -522,7 +549,7 @@ async def create_attachment(task_id: int, file: UploadFile):
         raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
 
     # Создаем запись о вложении
-    attachment = await Attachment.create(file_path=file_path, task=task)
+    attachment = await Attachment.create(file_path=file_path)
 
     # Привязываем вложение к задаче через связь Many-to-Many
     await task.attachments.add(attachment)
