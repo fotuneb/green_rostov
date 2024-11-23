@@ -1,7 +1,7 @@
 from passlib.hash import bcrypt
 from tortoise import fields
 from tortoise.models import Model
-
+from app.task.attachment_model import Attachment
 
 
 class UserModel(Model):    
@@ -14,7 +14,7 @@ class UserModel(Model):
     telegram_id = fields.IntField(max_length=200,null=True, default=None)
     notifications = fields.BooleanField(default=True)
 
-    avatar = fields.ForeignKeyField("models.AvatarModel", related_name="avatar", null = True, on_delete=fields.CASCADE)
+    avatar = fields.ForeignKeyField("models.Attachment", related_name="user_avatar", null = True, on_delete=fields.CASCADE)
 
 
     def verify_password(self, password):
@@ -23,10 +23,3 @@ class UserModel(Model):
     class Meta:
         table: str = "users"
 
-
-class AvatarModel(Model):
-    id = fields.IntField(pk=True)
-    file_path = fields.CharField(max_length=255)  # Путь к файлу или URL
-
-    class Meta:
-        table: str = "AvatarInfo"

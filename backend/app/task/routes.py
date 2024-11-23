@@ -460,10 +460,55 @@ async def get_user_tasks(telegram_id: int):
 
 
 
+@router.post("/api/avatar/")
+async def create_attachment_for_user(user_id: int, file: UploadFile):
+    # Проверяем, что MIME-тип соответствует ожиданиям
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Only JPG and PNG files are allowed")
+
+    # Проверка, существует ли задача
+    try:
+        user = await UserModel.get(id=user_id)
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="User not found")
+
+    # Считываем содержимое файла
+    file_bytes = await file.read()
+
+    # Проверяем содержимое файла на допустимый формат
+    if not validate_image_file(file_bytes):
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
+
+    # Генерируем уникальное имя файла с сохранением расширения
+    file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
+    unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
+
+    # Создаем директорию, если её нет
+    upload_dir = os.path.join("uploads", "avatars")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # Полный путь к файлу
+    file_path = os.path.join(upload_dir, unique_filename)
+
+    # Сохраняем файл
+    try:
+        with open(file_path, "wb") as f:
+            f.write(file_bytes)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
+
+    # Создаем запись о вложении
+    attachment = await Attachment.create(file_path=file_path)
+
+    user.avatar = attachment
+    await user.save()
+
+    return {"id": attachment.id, "file_path": attachment.file_path}
+
 
 
 @router.post("/api/attachments/")
-async def create_attachment(task_id: int, file: UploadFile):
+async def create_attachment_for_task(task_id: int, file: UploadFile):
     # Проверяем, что MIME-тип соответствует ожиданиям
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Only JPG and PNG files are allowed")
@@ -500,7 +545,7 @@ async def create_attachment(task_id: int, file: UploadFile):
         raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
 
     # Создаем запись о вложении
-    attachment = await Attachment.create(file_path=file_path, task=task)
+    attachment = await Attachment.create(file_path=file_path)
 
     # Привязываем вложение к задаче через связь Many-to-Many
     await task.attachments.add(attachment)

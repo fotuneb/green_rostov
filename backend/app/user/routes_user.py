@@ -42,12 +42,12 @@ async def change_password(user_id: int, new_password: str, admin_user: UserModel
 
 @router1.get("/api/get_users")
 async def get_users():
-    users = await UserModel.all().values("id", "fullname", "role")
+    users = await UserModel.all().values("id", "fullname", "role", "avatar_id")
     return users
 
 @router1.get("/api/get_user/{user_id}")
 async def get_user(user_id: int):  
-    user = await UserModel.get(id=user_id).values("fullname", "role", "about")
+    user = await UserModel.get(id=user_id).values("fullname", "role", "about", "avatar_id")
     return user
 
 @router1.post("/api/users")
