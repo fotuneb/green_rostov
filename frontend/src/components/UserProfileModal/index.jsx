@@ -33,10 +33,11 @@ const EditProfile = ({closeModal}) => {
         })
 
         const response = data.json();
+        console.log(response);
 
-        response.then((data) => {
-            window.open(data.telegram_link)
-        })
+        // response.then((data) => {
+        //     window.open(data.telegram_link)
+        // })
     }
 
     useEffect(() => {

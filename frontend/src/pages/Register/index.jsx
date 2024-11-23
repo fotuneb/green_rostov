@@ -28,7 +28,7 @@ function Register(props) {
       // Задаем токен
       props.setToken(access_token);
       // Сохранение данных в куки
-      setCookie("token", access_token, 7);
+      setCookie("token", access_token);
       setCookie("user_id", user_id, 7);
       setCookie("role", role, 7);
       // Переходим в доску
