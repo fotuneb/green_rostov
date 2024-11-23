@@ -44,7 +44,7 @@ function Navbar(props) {
             }
             <button onClick={openModal} className="nav-button">Профиль</button>
             <span className="h-8 w-px mx-6 bg-gray-200" aria-hidden="true" />
-            <Logout setToken={props.setToken} />
+            <Logout setToken={props.setToken}/>
           </div>
         )
         }
