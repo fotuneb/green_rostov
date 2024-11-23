@@ -71,6 +71,10 @@ body {
     font-size: 18px;
 }
 
+.login-button:hover {
+    background-color: #392982;
+}
+
 .login-href {
     text-decoration: none;
 }
