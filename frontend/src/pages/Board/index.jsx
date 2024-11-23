@@ -27,18 +27,22 @@ function Board({ token }) {
 
   async function fetchBoard() {
     const headers = {
-      'Authorization': 'Bearer ' + localStorage.getItem('token')
+      'Authorization': 'Bearer ' + localStorage.getItem('token'),
+      'Accept': 'application/json'
     }
 
-    const headersArg = { headers }
+    const headersArg = {
+      method: "GET",
+      headers
+    }
 
-    const columnReq = await fetch(ws + '/api/columns', headersArg);
+    const columnReq = await fetch('/api/columns', headersArg);
     let columns = await columnReq.json();
 
-    const tasksReq = await fetch(ws + '/api/tasks', headersArg);
+    const tasksReq = await fetch('/api/tasks', headersArg);
     const tasks = await tasksReq.json();
 
-    const usersReq = await fetch(ws + '/api/get_users', headersArg);
+    const usersReq = await fetch('/api/get_users', headersArg);
     const users = await usersReq.json();
 
     setUsers(users);
