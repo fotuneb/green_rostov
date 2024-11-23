@@ -11,12 +11,14 @@ from app.user.authentication import get_current_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
 from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
-from app.task.tg_http import notify_new_assignee
+from app.task.tg_http import notify_new_assignee, send_deadline_notification
 from pydantic import BaseModel
 import base64
 import os
 import uuid
 from app.task.util import validate_image_file
+from PIL import Image
+import io
 
 
 
@@ -76,7 +78,7 @@ async def rename_column(info: ObjectRenameInfo):
 # [+] realisation drag-n-drop for column
 
 # возвращается status ok 200
-@router.put("/api/columns/{ColumnInfoDrag.column_id}/move")
+@router.put("/api/columns/move")
 async def move_column(ColumnInfoDrag: Column_drag):
     async with in_transaction() as conn:
         # Получаем колонку, которую необходимо переместить
@@ -107,35 +109,20 @@ async def move_column(ColumnInfoDrag: Column_drag):
 
 
 
-
-
-@router.get("/api/tasks/")
+@router.get("/api/tasks")
 async def get_tasks():
     tasks = await Task.all()  # Получаем все задачи
 
     task_list = []
     for task in tasks:
-        # Получаем вложения для каждой задачи
-        attachments = await task.attachments.all()  # Получаем все вложения для текущей задачи
-
-        # Формируем список вложений
-        attachment_list = [{"id": attachment.id, "file_path": attachment.file_path, "uploaded_at": attachment.uploaded_at} for attachment in attachments]
-
         # Добавляем задачу с вложениями в список
         task_list.append({
             "id": task.id,
             "title": task.title,
             "index": task.index,
-            "description": task.description,
             "author": task.author_id,
             "assignee": task.assignee_id,
-            "column": task.column_id,
-            "created_at": task.created_at,
-            "updated_at": task.updated_at,  
-            "deadline": task.deadline,                                      # +
-            "time_track": task.time_track,                                  # +
-            "is_running": task.is_running,
-            "attachments": attachment_list  # Добавляем вложения в задачу
+            "column_id": task.column_id, 
 
         })
 
@@ -186,7 +173,7 @@ async def get_columns():
 
 # возвращается id и индекс; содерджимое (description) изначально пусто
 @router.put("/api/task")
-async def create_task(TaskInfo: TaskPublicInfo):
+async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depends(get_current_user)):
     tasks_exist = await Task.exists()
     if tasks_exist:
         # Если колонки существуют, находим максимальный индекс
@@ -204,14 +191,12 @@ async def create_task(TaskInfo: TaskPublicInfo):
         index = new_index,
         title = TaskInfo.title,
         description = TaskInfo.description,
-        author_id = TaskInfo.id_user,
-        assignee_id = TaskInfo.id_user,
+        author_id = current_user.id,
+        assignee_id = current_user.id,
         column = current_column
     )
-    assignee = await UserModel.get(id=TaskInfo.id_user)
-    if not assignee.telegram_id or not assignee.notifications:
-            pass
-    else:
+    assignee = await UserModel.get(id=current_user.id)
+    if assignee.telegram_id and assignee.notifications:
         await notify_new_assignee(assignee.telegram_id, task)
 
     return {
@@ -242,7 +227,7 @@ async def delete_task(id: int):
 
 # POST /api/task/rename - переименовать (передаю id и новое название, жду 200)
 # возвращается ok 200
-@router.post("/api/task/rename/{info.id}")
+@router.post("/api/task/rename")
 async def rename_task(info: ObjectRenameInfo):
     try:
         task = await Task.get(id=info.id)
@@ -258,7 +243,7 @@ async def rename_task(info: ObjectRenameInfo):
 
 # POST /api/task/change_contents - изменить содержимое (как выше, но текст)
 # возвращается ok 200
-@router.post("/api/task/change_contents/{id}")
+@router.post("/api/task/change_contents")
 async def change_task_content(TaskChangeInfo: Task_for_desc):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
@@ -275,14 +260,14 @@ async def change_task_content(TaskChangeInfo: Task_for_desc):
 # POST /api/task/change_responsible - изменить ответственного (передается id пользователя, ожидаю 200)
 # ожидаю 200
 # отправка уведомления в тг при изменении
-@router.post("/api/task/change_responsible/{TaskChangeInfo.id}")
+@router.post("/api/task/change_responsible")
 async def change_responsible(TaskChangeInfo: Task_change_resposible):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
         task.assignee_id = TaskChangeInfo.id_user
         await task.save()
         new_assignee = await UserModel.get(id=TaskChangeInfo.id_user)   # + 
-        if not new_assignee.telegram_id:
+        if not new_assignee.telegram_id :
             return {"msg": "assignee updated successully, but new_assignee have not a tg"}
         elif new_assignee.notifications:
             await notify_new_assignee(new_assignee.telegram_id, task)
@@ -295,7 +280,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
 
 
 # POST /api/task/move - поменять порядок (передаю id, столбец и индекс, в котором должна находиться таска, жду 200)
-@router.put("/api/tasks/{TaskDragInfo.task_id}/move")
+@router.put("/api/tasks/move")
 async def move_task(TaskDragInfo: Task_Drag):
     async with in_transaction() as conn:
         # Получаем задачу, которую необходимо переместить
@@ -395,7 +380,7 @@ async def get_comments(task_id: int):
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comments not found")
 
         # Возвращаем список комментариев
-        return comments     # !!!       передается также еще и описание, нужно изменить 
+        return comments
 
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
@@ -440,15 +425,15 @@ async def export_board_to_excel():
     workbook.save(filepath)
     return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-@router.get("/api/user_tasks")
-async def get_user_tasks(telegram_id: int):
+@router.get("/api/tasks_tg")
+async def get_user_tasks_for_tg(telegram_id: int):
     try:
         tasks = await Task.filter(assignee__telegram_id=telegram_id).all()
         if not tasks:
             return {"tasks": []}
 
         task_list = [
-            {"title": task.title, }
+            {"title": task.title, "deadline": task.deadline}
             for task in tasks
         ]
 
@@ -479,32 +464,38 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
     if not validate_image_file(file_bytes):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
 
-    # Генерируем уникальное имя файла с сохранением расширения
-    file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
-    unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
+       # Открываем изображение с помощью Pillow
+    try:
+        image = Image.open(io.BytesIO(file_bytes))
+    except Exception as e:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail=f"Error processing image: {str(e)}")
 
-    # Создаем директорию, если её нет
+    # Определяем фильтр для ресайза
+    try:
+        resampling_filter = Image.Resampling.LANCZOS  # Для новых версий Pillow
+    except AttributeError:
+        resampling_filter = Image.ANTIALIAS  # Для старых версий Pillow
+
+    # Сжимаем изображение до 128x128
+    image = image.convert("RGB")  # Приводим изображение к RGB (на случай PNG с альфа-каналом)
+    image = image.resize((128, 128), resampling_filter)
+
+    # Генерируем уникальное имя файла с сохранением расширения
+    unique_filename = f"{uuid.uuid4()}.jpg"  # Сохраняем как JPEG
     upload_dir = os.path.join("uploads", "avatars")
     os.makedirs(upload_dir, exist_ok=True)
-
-    # Полный путь к файлу
     file_path = os.path.join(upload_dir, unique_filename)
 
-    # Сохраняем файл
+    # Сохраняем сжатое изображение на диск
     try:
-        with open(file_path, "wb") as f:
-            f.write(file_bytes)
+        image.save(file_path, "JPEG")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving compressed image: {str(e)}")
 
     # Создаем запись о вложении
     attachment = await Attachment.create(file_path=file_path)
 
-
-    # 128x128 !!!
     user.avatar = attachment
-
-
     await user.save()
 
     return {"id": attachment.id, "file_path": attachment.file_path}
@@ -613,4 +604,25 @@ async def create_url_for_file(attachment_id: int):
 
     # Возвращаем файл с указанным MIME-типом
     return FileResponse(file_path, media_type=mime_type)
+
+
+@router.get("/api/tasks/deadline")
+async def get_upcoming_deadlines():
+    try:
+        now = datetime.now()
+        deadline_threshold = now + timedelta(days=2)
+        tasks = await Task.all().filter(
+            deadline__gte=now, deadline__lte=deadline_threshold
+        ).select_related("assignee").order_by("deadline")
+        result = []
+        for task in tasks:
+            if task.assignee and task.assignee.telegram_id:
+                result.append({
+                    "title": task.title,
+                    "deadline": task.deadline,
+                    "telegram_id": task.assignee.telegram_id,
+                })
+        return result
+    except DoesNotExist:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Tasks doesnt collected")
 

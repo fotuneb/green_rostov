@@ -67,7 +67,6 @@ const EditProfile = ({ user, token }) => {
         }
 
         const { newPassword, confirmPassword } = passwords
-        console.log(newPassword, confirmPassword)
         if (newPassword == '') {
             return;
         }
