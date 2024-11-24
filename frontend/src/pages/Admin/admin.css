@@ -1,12 +1,17 @@
 .admin-container {
     padding: 20px;
     background-color: #f9f9f9;
-    color: #333;
+    color: #010101;
+    font-family: "Montserrat", sans-serif;
+
 }
 
-h1 {
+.Admin_page_h {
     text-align: center;
     margin-bottom: 20px;
+    font-family: "Montserrat", sans-serif;
+    color: #1B4B73;
+    font-weight: bold;
 }
 
 .user-table {
@@ -16,28 +21,33 @@ h1 {
 
 .user-table th,
 .user-table td {
-    border: 1px solid #ddd;
+    border: 1px solid #1a4b7a;
     padding: 10px;
     text-align: left;
+    font-family: "Montserrat", sans-serif;
 }
 
 .user-table th {
-    background-color: #f2f2f2;
+    background-color: #6C97BF;
+    color: #0e314d;
+    font-weight: bold;
+    
 }
 
 .user-table tr:hover {
-    background-color: #f1f1f1;
+    background-color: #e9f2f7;
 }
 
 .admin-button {
     padding: 5px 10px;
     background-color: #6C97BF;
-    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-family: "Montserrat", sans-serif;
+    color:#ffffff ;
 }
 
 .admin-button:hover {
-    background-color: #6C97BF;
+    background-color: #89b2d8;
 }
