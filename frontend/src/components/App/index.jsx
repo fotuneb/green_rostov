@@ -5,7 +5,7 @@ import Navbar from "../Navbar"
 import NotFound404 from "../NotFound404";
 import Login from "../../pages/Login";
 import Register from "../../pages/Register";
-import Board from "../../pages/Board";
+import BoardPage from "../../pages/Board";
 import Admin from "../../pages/Admin";
 
 function getToken() {
@@ -32,7 +32,7 @@ function App() {
         {isLogged ? (
           <>
             <Navbar token={token} setToken={setToken} />
-            <Board token={token} />
+            <BoardPage token={token} />
           </>
         ) : (
           <Routes>
@@ -45,7 +45,7 @@ function App() {
               element={
                 <>
                   <Navbar token={token} setToken={setToken} />
-                  <Board token={token} />
+                  <BoardPage token={token} />
                 </>
               }
             />
