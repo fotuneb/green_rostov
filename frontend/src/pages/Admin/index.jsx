@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ManageUserModal } from "../../components/ManageUserModal"
+import { User } from '../../utilities/api';
 import './admin.css';
 
 const fetchUsers = async () => {
-    const ws = process.env.REACT_APP_PUBLIC_URL
-    const response = await fetch(ws + "/api/get_users");
-
-    const users = await response.json();
+    const users = await User.getAll()
     let data = []
 
     for (const user of users) {

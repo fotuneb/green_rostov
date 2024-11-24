@@ -26,15 +26,17 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
-    command: npm run-script start
+    command: npm run start
     env_file: .env
     ports:
       - 3000:3000
     depends_on:
       - server
     volumes:
-      - ./frontend:/app/frontend
-      - /app/frontend/node_modules
+      - ./frontend:/app/frontend:cached  # Монтируем исходный код
+      - /app/frontend/node_modules       # Убираем лишний том для node_modules
+    working_dir: /app/frontend  
+      
 
 
   bot:
