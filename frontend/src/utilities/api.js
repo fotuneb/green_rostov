@@ -63,12 +63,60 @@ export const User = {
             throw new Error('Network response was not ok')
 
         return await res.json()
+    },
+
+    getAll: async () => {
+        const res = await sendAPIRequestJSON('/api/get_users', 'GET')
+        return await res.json()
     }
 }
 
 export const Task = {
+    getAll: async () => {
+        const res = await sendAPIRequestJSON('/api/tasks', 'GET')
+        return await res.json()
+    }
 }
 
 export const Column = {
+    getAll: async () => {
+        const res = await sendAPIRequestJSON('/api/columns', 'GET')
+        return await res.json()
+    }
+}
 
+export var Board = {
+    fetch: async () => {
+        let columns = await Column.getAll()
+        const tasks = await Task.getAll()
+        const users = await User.getAll()
+
+        let idxToCol = {};
+        for (let column of columns) {
+            column.tasks = []
+            column.id = column.id + ''
+            idxToCol[column.id] = column
+        }
+
+        let userIdToName = {}
+        for (const user of users)
+            userIdToName[user.id] = user.fullname
+
+
+        for (let task of tasks) {
+            task.id = task.id + ''
+            task.assigneeName = userIdToName[task.assignee]
+            task.authorName = userIdToName[task.author]
+            let columnData = idxToCol[task.column_id]
+            if (!columnData)
+                continue
+
+            columnData.tasks.push(task);
+        }
+
+        for (let column of columns)
+            column.tasks.sort((a, b) => a.index - b.index)
+
+        return columns
+    }
 }

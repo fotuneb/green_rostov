@@ -5,11 +5,12 @@ import { getCookie } from "../../utilities/cookies.js";
 import TaskFilter from "../../components/TaskFilter";
 import Column from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
+import { User, Board } from "../../utilities/api.js";
 import "./board.css";
 
 const ws = process.env.REACT_APP_PUBLIC_URL
 
-function Board({ token }) {
+function BoardPage({ token }) {
   const [board, setBoard] = useState([]);
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState({
@@ -26,57 +27,10 @@ function Board({ token }) {
   }, []);
 
   async function fetchBoard() {
-    const headers = {
-      'Authorization': 'Bearer ' + getCookie('token'),
-      'Accept': 'application/json'
-    }
-
-    const headersArg = {
-      method: "GET",
-      headers
-    }
-
-    const columnReq = await fetch('/api/columns', headersArg);
-    let columns = await columnReq.json();
-
-    const tasksReq = await fetch('/api/tasks', headersArg);
-    const tasks = await tasksReq.json();
-
-    const usersReq = await fetch('/api/get_users', headersArg);
-    const users = await usersReq.json();
-
+    const users = await User.getAll()
     setUsers(users);
 
-    let idxToCol = {};
-    for (let column of columns) {
-      column.tasks = [];
-      column.id = column.id + ''
-      idxToCol[column.id] = column;
-    }
-
-    let userIdToName = {}
-    for (const user of users) {
-      userIdToName[user.id] = user.fullname;
-    }
-
-    for (let task of tasks) {
-      task.id = task.id + '';
-      task.assigneeName = userIdToName[task.assignee];
-      task.authorName = userIdToName[task.author];
-      let columnData = idxToCol[task.column_id];
-      if (!columnData) {
-        continue;
-      }
-
-      columnData.tasks.push(task);
-    }
-
-    for (let column of columns) {
-      column.tasks.sort((a, b) => a.index - b.index);
-    }
-
-    return columns;
-
+    return await Board.fetch() 
   }
 
   const updateBoard = () => {
@@ -185,4 +139,4 @@ function Board({ token }) {
   )
 }
 
-export default Board;
+export default BoardPage;
