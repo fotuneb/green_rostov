@@ -101,6 +101,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         });
     }
 
+    // 
     const handleTitleChange = (e) => {
         if (e.key === 'Enter') {
             updateTitle()
@@ -108,6 +109,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         }
     };
 
+    // Удаление задачи
     const deleteTask = () => {
         fetch(`${ws}/api/task/${taskData.id}`, {
             method: "DELETE",
@@ -118,7 +120,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
             res.json().then(onRemove)
         })
     }
-
+    
+    // Обновление колонки
     const updateColumn = (idx) => {
         fetch(`${ws}/api/tasks/move`, {
             method: "PUT",
@@ -130,6 +133,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         })
     }
 
+    // Выбор исполнителя
     const updateAssignee = (idx) => {
         fetch(`${ws}/api/tasks/change_responsible`, {
             method: "PUT",
@@ -141,6 +145,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         })
     }
 
+    // Обновление дедлайна
     const updateDeadline = (deadlineDay) => {
         console.log(new Date(deadlineDay))
     }
@@ -172,7 +177,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         modules={Modal.modules}
                         formats={Modal.formats}
                     />
-                    {hasRights && <button className="quill-update-contents font-inter" onClick={updateDescription}>Обновить</button>}
+                    {hasRights && <button className="quill-update-contents font-inter" onClick={updateDescription}>Сохранить изменения</button>}
                 </div>
                 <div className="modal-actions">
                     <ul>

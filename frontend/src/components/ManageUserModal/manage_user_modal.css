@@ -17,7 +17,7 @@
     border-radius: 20px;
     padding: 30px;
     width: 100%;
-    max-width: 400px;
+    max-width: 800px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
@@ -63,7 +63,7 @@
   }
   
   
-  .user-profile-save {
+  .user-profile-save, .user-profile-avatar-btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -78,7 +78,10 @@
     border: none;
     transition: all 0.3s ease;
     margin: 15px 0 0;
-   
+  }
+
+  .user-profile-avatar-btn {
+    margin-bottom: 15px;
   }
   
   .user-profile-save:hover {

@@ -10,6 +10,7 @@ const EditProfile = ({closeModal}) => {
         fullname: '',
         about: '',
     });
+
     const [passwords, setPasswords] = useState({
         currentPassword: '',
         newPassword: '',
@@ -23,6 +24,23 @@ const EditProfile = ({closeModal}) => {
         const data = await User.getTelegramLink(getCookie('user_id'))
         window.open(data.telegram_link)
     }
+
+    // Получение аватарки пользователя по эндпоинту
+    const fetchAvatar = async () => {
+        const data = await fetch('/api/avatar/?user_id=' + getCookie('user_id'), {
+            method: "GET"
+        })
+
+        return await data.json();
+    }
+
+    // Получение пути к аватарке пользователя 
+    const getAvatarPath = async () => {
+        const data = await fetchAvatar();
+        console.log(data);
+    }
+
+    getAvatarPath();
 
     useEffect(() => {
         if (userInfo.fullname !== '' || userInfo.about !== '')
@@ -73,6 +91,12 @@ const EditProfile = ({closeModal}) => {
         <div className="font-inter">
             <h1 className="text-center">Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
+                <div className="avatar">
+                    <button className="user-profile-save user-profile-avatar-btn font-inter" type="submit">
+                        Установить аватарку
+                    </button>
+                    {/* <img src={getAvatarPath} alt="Аватарочка...." /> */}
+                </div>
                 <div className="input-group">
                     <label className="user-profile-label">ФИО:</label>
                     <input
@@ -131,7 +155,7 @@ const EditProfile = ({closeModal}) => {
                 </div>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
-                <button className="user-profile-save font-inter" onClick={handleTgBot}>Перейти к Telegram-боту</button>
+                <button className="user-profile-save font-inter" style={{marginBottom: "15px"}} onClick={handleTgBot}>Перейти к Telegram-боту</button>
             </form>
         </div>
     );
