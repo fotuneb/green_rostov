@@ -1,5 +1,5 @@
-const publicURL = process.env.REACT_APP_PUBLIC_URL;
 import { getCookie } from './cookies'
+const publicURL = process.env.REACT_APP_PUBLIC_URL;
 
 
 const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body = undefined) => {
