@@ -20,7 +20,7 @@ function AddTask(props) {
     fetch(`/api/task`, {
       method: "PUT",
       headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Authorization': 'Bearer ' + getCookie('token'),
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
