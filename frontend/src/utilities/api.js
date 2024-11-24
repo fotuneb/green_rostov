@@ -68,6 +68,38 @@ export const User = {
     getAll: async () => {
         const res = await sendAPIRequestJSON('/api/get_users', 'GET')
         return await res.json()
+    },
+
+    getById: async (userId) => {
+        const res = await sendAPIRequestJSON('/api/get_user/' + userId, 'GET')
+        return await res.json()
+    },
+
+    getTelegramLink: async (userId) => {
+        const res = await sendAPIRequestJSON('/api/tg-link/' + userId, 'GET')
+        return await res.json()
+    },
+
+    changePublicInfo: async (newInfo) => {
+        const res = await sendAPIRequestJSON('/api/users/change-info', 'POST', true, newInfo)
+        return await res.json()
+    },
+    
+    changePassword: async (currentPassword, newPassword) => {
+        const res = await sendAPIRequestJSON('/api/users/change-password', 'POST', true, {
+            current_password: currentPassword,
+            new_password: newPassword,
+        })
+
+        if (res.status === 403)
+            throw new Error('Текущий пароль введен неправильно!')
+
+        if (res.status !== 200) {
+            const data = await res.json()
+            throw new Error(data.detail)
+        }
+
+        return await res.json()
     }
 }
 
