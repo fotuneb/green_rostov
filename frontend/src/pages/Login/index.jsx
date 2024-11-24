@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { User } from "../../utilities/api";
 import { setCookie } from "../../utilities/cookies.js";
 import './login.css'; // Импортируем стили
 
@@ -13,7 +14,7 @@ const Login = (props) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const data = await loginUser();
+      const data = await User.login(email, password);
       // Получаем необходимые данные
       const access_token = data["access_token"];
       const user_id = data["id"];
@@ -29,30 +30,6 @@ const Login = (props) => {
     } catch (error) {
       setError(error + '');
     }
-  };
-
-  const loginUser = async () => {
-    const searchParams = new URLSearchParams();
-    searchParams.append("username", email);
-    searchParams.append("password", password);
-
-    const response = await fetch(process.env.REACT_APP_PUBLIC_URL + "/api/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: searchParams.toString(),
-    });
-
-    if (response.status == 401) {
-      throw new Error('Неправильный логин или пароль!')
-    }
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    return await response.json();
   };
 
   return (
