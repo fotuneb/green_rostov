@@ -154,7 +154,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content task-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-main">
                     {isEditing ? (
                         <input
@@ -166,7 +166,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             autoFocus
                         />
                     ) : (
-                        <h2 onClick={() => setIsEditing(true)}>{title}</h2>
+                        <h2 style={{marginTop: "5px"}} onClick={() => setIsEditing(true)}>{title}</h2>
                     )}
 
                     <ReactQuill
@@ -177,7 +177,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         modules={Modal.modules}
                         formats={Modal.formats}
                     />
-                    {hasRights && <button className="quill-update-contents font-inter" onClick={updateDescription}>Сохранить изменения</button>}
+                    {hasRights && <button className="task-button font-inter" onClick={updateDescription}>Сохранить изменения</button>}
                 </div>
                 <div className="modal-actions">
                     <ul>
@@ -230,7 +230,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             </select>
                         </li>
                         {hasRights && <li>
-                            <button className="quill-update-contents font-inter" onClick={deleteTask}>Удалить</button>
+                            <button className="task-button font-inter" onClick={deleteTask}>Удалить таск</button>
                         </li>}
 
                     </ul>

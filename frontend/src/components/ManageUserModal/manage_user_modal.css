@@ -12,16 +12,13 @@
     align-items: center;
   }
   
-  .modal-content {
+  .manage-user-modal {
     background-color: #fff;
     border-radius: 20px;
     padding: 30px;
     width: 100%;
     max-width: 800px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .manage-user-modal {
     display: flex;
     flex-direction: column;
     gap: 20px;

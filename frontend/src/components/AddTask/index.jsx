@@ -40,8 +40,7 @@ function AddTask(props) {
           className="add-task font-inter font-semibold"
           onClick={() => setShowNewTaskButton(false)}
         >
-          <LuPlus />
-          Добавить задачу
+          <LuPlus /> Добавить задачу
         </button>
       ) : (
         <input

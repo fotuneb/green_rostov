@@ -56,8 +56,6 @@ const EditProfile = ({closeModal}) => {
         console.log(data);
     }
 
-    getAvatarPath();
-
     useEffect(() => {
         if (userInfo.fullname !== '' || userInfo.about !== '')
             return
@@ -199,7 +197,7 @@ const EditProfile = ({closeModal}) => {
 
 export const UserProfileModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
-
+    
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content user-profile-modal" onClick={(e) => e.stopPropagation()}>
