@@ -103,6 +103,23 @@ export const User = {
     }
 }
 
+export const UserAdmin = {
+    changeFullname: async (userId, fullname) => {
+        const res = await sendAPIRequestJSON(`/api/users/admin/change-fullname/${userId}?new_fullname=${fullname}`, 'POST')
+        return await res.json()
+    },
+
+    changeRole: async (userId, newRole) => {
+        const res = sendAPIRequestJSON(`/api/users/admin/change-role/${userId}?new_role=${newRole}`, 'POST')
+        return await res.json()
+    },
+
+    changePassword: async (userId, newPassword) => {
+        const res = sendAPIRequestJSON(`/api/users/admin/change-password/${userId}?new_password=${newPassword}`, 'POST')
+        return await res.json()
+    }
+}
+
 export const Task = {
     getAll: async () => {
         const res = await sendAPIRequestJSON('/api/tasks', 'GET')

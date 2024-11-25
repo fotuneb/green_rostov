@@ -1,44 +1,7 @@
 
 import React, { useState } from 'react';
+import { UserAdmin } from '../../utilities/api';
 import "./manage_user_modal.css";
-
-const ws = process.env.REACT_APP_PUBLIC_URL;
-
-const updateFullname = async (token, userId, fullname) => {
-    const response = await fetch(ws + "/api/users/admin/change-fullname/" + userId + '?new_fullname=' + fullname, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        },
-    });
-
-    return await response.json()
-}
-
-const updateRole = async (token, userId, role) => {
-    const response = await fetch(ws + "/api/users/admin/change-role/" + userId + '?new_role=' + role, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        },
-    });
-
-    return await response.json()
-}
-
-const updatePassword = async (token, userId, password) => {
-    const response = await fetch(ws + "/api/users/admin/change-password/" + userId + '?new_password=' + password, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        }
-    });
-
-    return await response.json();
-}
 
 const EditProfile = ({ user, token }) => {
     const [role, setRole] = useState(user.role);
@@ -58,13 +21,11 @@ const EditProfile = ({ user, token }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (user.fullname !== userFullname) {
-            updateFullname(token, user.id, userFullname);
-        }
+        if (user.fullname !== userFullname)
+            UserAdmin.changeFullname(user.id, userFullname)
 
-        if (user.role !== role) {
-            updateRole(token, user.id, role);
-        }
+        if (user.role !== role)
+            UserAdmin.changeRole(user.id, role)
 
         const { newPassword, confirmPassword } = passwords
         if (newPassword == '') {
@@ -76,7 +37,8 @@ const EditProfile = ({ user, token }) => {
         }
 
         setCurError('');
-        updatePassword(token, user.id, newPassword);
+
+        UserAdmin.changePassword(user.id, newPassword)
     };
 
     return (
