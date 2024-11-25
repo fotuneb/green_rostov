@@ -17,8 +17,10 @@ import base64
 import os
 import uuid
 from app.task.util import validate_image_file
+from openpyxl.drawing.image import Image as OpenpyxlImage
 from PIL import Image
 import io
+from starlette.background import BackgroundTask
 
 
 
@@ -359,21 +361,18 @@ async def get_comments(task_id: int):
 # генерация эксель файла
 @router.get("/export/board")
 async def export_board_to_excel():
-    # Получаем все колонки с задачами
     columns = await Column.all().prefetch_related('column')
     if not columns:
         return "Не удалось экспортировать доску, проверьте, существует ли она"
-    # Создаем новый Excel-файл
+
     workbook = Workbook()
-    workbook.remove(workbook.active)  # Удаляем стандартный пустой лист
-    
+    workbook.remove(workbook.active)
+
     for column in columns:
-        # Создаем лист для каждой колонки
-        worksheet = workbook.create_sheet(title=column.title[:30])  # Ограничиваем название до 30 символов
+        worksheet = workbook.create_sheet(title=column.title[:30])
         worksheet.append(["ID", "Название задачи", "Описание", "Автор", "Назначенный пользователь", "Дата создания", "Дата обновления"])
 
-        # Добавляем задачи на лист
-        tasks = await Task.filter(column=column.id).prefetch_related("author", "assignee")
+        tasks = await Task.filter(column=column.id).select_related("author", "assignee__avatar")
         for task in tasks:
             worksheet.append([
                 task.id,
@@ -385,12 +384,33 @@ async def export_board_to_excel():
                 task.updated_at.strftime("%Y-%m-%d %H:%M:%S") if task.updated_at else "Нет данных"
             ])
 
-    # Сохраняем файл
-    #filename = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
-    filepath = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+            # Вставка изображений в Excel (если необходимо)
+            # Получаем путь к изображению для задачи (например, если есть avatar)
+            if task.assignee and task.assignee.avatar:
+                image_path = (
+                    task.assignee.avatar.file_path if task.assignee and task.assignee.avatar else "Нет аватара"
+                )
+                image = Image.open(image_path)
+                img_stream = io.BytesIO()
+                image.save(img_stream, format="PNG")
+                img_stream.seek(0)
+                img = openpyxl.drawing.image.Image(img_stream)
+                worksheet.add_image(img, "H1")  # Добавляем изображение в ячейку H1 (можно изменить)
+
+    # Сохраняем файл в Docker volume
+    filepath = f"/backend/uploads/board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
     
     workbook.save(filepath)
-    return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    def cleanup_file():
+        if os.path.exists(filepath):
+            os.remove(filepath)
+    return FileResponse(
+        filepath, 
+        filename=filepath.split("/")[-1],  # Передаем только имя файла
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        background=BackgroundTask(cleanup_file)  # Указываем задачу для удаления
+    )
+
 
 @router.get("/api/tasks_tg")
 async def get_user_tasks_for_tg(telegram_id: int):
