@@ -1,7 +1,6 @@
 .filter-container {
     display: flex;
     align-items: center; 
-    position: relative;
     gap: 10px; 
 }
 
@@ -30,8 +29,8 @@
     z-index: 1000;
     color: white; 
     width: 170px; 
-    top: 100%; 
-    left: 0; 
+    top: 18%; 
+    left: 1%; 
     margin-top: 10px; 
 }
 

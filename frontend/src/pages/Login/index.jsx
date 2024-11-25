@@ -37,10 +37,10 @@ const Login = (props) => {
       <div className="body-wrapper">
         <div className="main">
             <h1 className="login-title">Kaban</h1>
-            <h3>Log in to your account</h3>
+            <h3>Вход в аккаунт</h3>
             <form onSubmit={handleSubmit}>
                 <label htmlFor="username" className="login-label">
-                    Username:
+                    Логин:
                 </label>
                 <input 
                       className="login-input"
@@ -49,16 +49,16 @@ const Login = (props) => {
                       name="username" 
                       required
                       onChange={(event) => setEmail(event.target.value)}
-                      placeholder="Enter your login">
+                      placeholder="Введите логин">
                 </input>
                 <label htmlFor="password" className="login-label">
-                    Password:
+                    Пароль:
                 </label>
                 <input className="login-input"
                   id="password"
                   name="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Введите пароль"
                   required
                   onChange={(event) => setPassword(event.target.value)}>
                 </input>
@@ -67,8 +67,8 @@ const Login = (props) => {
                 </div>
             </form>
             <p>{error && <p style={{ color: 'red' }}>{error}</p>}
-                Not registered?
-                <Link to="/signup" className="login-href"> Create an account</Link>
+                Ещё нет аккаунта?
+                <Link to="/signup" className="login-href"> Зарегистрироваться</Link>
             </p>
         </div>
       </div> 
