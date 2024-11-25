@@ -75,15 +75,28 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     useEffect(async () => {
         if (!isOpen) return;
 
-        const users = await User.getAll()
-        setUsers(users)
+        fetch(`${ws}/api/get_users`).then((res) => {
+            res.json().then((data) => {
+                setUsers(data)
+            })
+        })
     }, [isOpen])
 
+    const updateTitle = () => {
+        fetch(`/api/task/rename`, {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + getCookie('token')
+            }
+        });
+    }
+
+    // Обновление описания таски
     const updateDescription = () => {
         Task.changeDescription(taskData.id, description)
     }
 
-    // 
+    // Хэндлер для изменения заголовка таски
     const handleTitleChange = (e) => {
         if (e.key === 'Enter') {
             Task.rename(taskData.id, title)
@@ -139,6 +152,12 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         formats={Modal.formats}
                     />
                     {hasRights && <button className="task-button font-inter" onClick={updateDescription}>Сохранить изменения</button>}
+                    <h3>Вложения</h3>
+                    <div className="attachments-container">
+                        <img src="" alt="" className="attachment" />
+                        <img src="" alt="" className="attachment" />
+                        <img src="" alt="" className="attachment" />
+                    </div>
                 </div>
                 <div className="modal-actions">
                     <ul>

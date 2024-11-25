@@ -243,7 +243,7 @@ async def rename_task(info: ObjectRenameInfo):
 
 # POST /api/task/change_contents - изменить содержимое (как выше, но текст)
 # возвращается ok 200
-@router.post("/api/task/change_contents")
+@router.post("/api/task/change_contents/")
 async def change_task_content(TaskChangeInfo: Task_for_desc):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
@@ -260,7 +260,7 @@ async def change_task_content(TaskChangeInfo: Task_for_desc):
 # POST /api/task/change_responsible - изменить ответственного (передается id пользователя, ожидаю 200)
 # ожидаю 200
 # отправка уведомления в тг при изменении
-@router.post("/api/task/change_responsible")
+@router.post("/api/task/change_responsible/")
 async def change_responsible(TaskChangeInfo: Task_change_resposible):
     try:
         task = await Task.get(id=TaskChangeInfo.id)

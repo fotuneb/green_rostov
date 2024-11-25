@@ -90,9 +90,10 @@ const EditProfile = ({closeModal}) => {
             <h1 className="text-center">Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
                 <div className="avatar">
-                    <button className="user-profile-save user-profile-avatar-btn font-inter" type="submit">
-                        Установить аватарку
-                    </button>
+                    <input type="file" 
+                           className="user-profile-save user-profile-avatar-btn font-inter" 
+                           placeholder="Изменить аватарку">
+                    </input>
                     {/* <img src={getAvatarPath} alt="Аватарочка...." /> */}
                 </div>
                 <div className="input-group">

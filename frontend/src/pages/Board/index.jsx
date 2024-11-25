@@ -5,6 +5,7 @@ import { getCookie } from "../../utilities/cookies.js";
 import TaskFilter from "../../components/TaskFilter";
 import ColumnCompotent from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
+import Navbar from "../../components/Navbar";
 import { User, Board, Task, Column } from "../../utilities/api.js";
 import "./board.css";
 
