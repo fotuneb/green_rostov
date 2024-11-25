@@ -476,13 +476,48 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving compressed image: {str(e)}")
 
-    # Создаем запись о вложении
-    attachment = await Attachment.create(file_path=file_path)
+    # удаление и создание нового вложения для юзера (норм работает)
+    # if user.avatar:
+    #     try:
+    #         old_avatar_id = user.avatar_id
+    #         old_attachment = await Attachment.get(id=old_avatar_id)
+        
+    #         os.remove(old_attachment.file_path)  # Удаляем файл с сервера
+    #         await old_attachment.delete()
 
-    user.avatar = attachment
-    await user.save()
+    #     except Exception as e:
+    #         raise HTTPException(status_code=500, detail=f"Error deleting old avatar: {str(e)}")
 
-    return {"id": attachment.id, "file_path": attachment.file_path}
+
+    # # Создаем запись о вложении
+    # attachment = await Attachment.create(file_path=file_path)
+    # user.avatar = attachment
+
+    if user.avatar:
+        try:
+            print("file_path:", file_path)
+            old_avatar_id = user.avatar_id
+            old_attachment = await Attachment.get(id=old_avatar_id)
+            old_path = old_attachment.file_path
+            print("old_path:", old_path)
+
+            old_attachment.file_path = file_path
+            await old_attachment.save()
+
+            os.remove(old_path)  # Удаляем файл с сервера
+            
+            await user.save()
+            return {"id": old_attachment.id, "file_path": old_attachment.file_path}
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error deleting old avatar: {str(e)}")
+    else:
+        # Создаем запись о вложении
+        attachment = await Attachment.create(file_path=file_path)
+        user.avatar = attachment
+
+        await user.save()
+        return {"id": attachment.id, "file_path": attachment.file_path}
 
 
 
