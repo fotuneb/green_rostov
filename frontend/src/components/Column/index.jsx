@@ -2,19 +2,15 @@ import React from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { LuTrash2 } from "react-icons/lu";
 import { getCookie } from "../../utilities/cookies.js";
+import { Column } from "../../utilities/api.js";
 import Task from "../Task";
 import AddTask from "../AddTask";
 import "./column.css"
 
-const ws = process.env.REACT_APP_PUBLIC_URL
-
-function Column(props) {
-  function deleteColumn(columnId, index) {
-    fetch(`${ws}/api/column/${columnId}`, {
-      method: "DELETE"
-    }).then((req) => {
-      req.json().then(props.onUpdateNeeded)
-    })
+function ColumnCompotent(props) {
+  async function deleteColumn(columnId, index) {
+    await Column.delete(columnId)
+    props.onUpdateNeeded()
   }
 
   let filter = props.filter;
@@ -107,4 +103,4 @@ function Column(props) {
   );
 }
 
-export default Column;
+export default ColumnCompotent;

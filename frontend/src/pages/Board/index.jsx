@@ -3,9 +3,9 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
 import { getCookie } from "../../utilities/cookies.js";
 import TaskFilter from "../../components/TaskFilter";
-import Column from "../../components/Column"
+import ColumnCompotent from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
-import { User, Board } from "../../utilities/api.js";
+import { User, Board, Task, Column } from "../../utilities/api.js";
 import "./board.css";
 
 const ws = process.env.REACT_APP_PUBLIC_URL
@@ -55,38 +55,13 @@ function BoardPage({ token }) {
     }
 
     if (type === 'task') {
-      const task_id = parseInt(parseDraggableId(draggableId, 1))
-      const new_column_id = parseInt(parseDraggableId(destination.droppableId, 0))
-
-      fetch(`${ws}/api/tasks/move`, {
-        method: "PUT",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          task_id: task_id,
-          new_column_id: new_column_id,
-          new_index: destination.index
-        })
-      }).then((req) => {
-        req.json().then(updateBoard)
-      })
+      const taskId = parseInt(parseDraggableId(draggableId, 1))
+      const newColumnId = parseInt(parseDraggableId(destination.droppableId, 0))
+      Task.move(taskId, newColumnId, destination.index).then(updateBoard)
     }
 
-    if (type === 'column') {
-      fetch(`api/columns/move`, {
-        method: "PUT",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          column_id: draggableId,
-          new_index: destination.index
-        })
-      }).then((req) => {
-        req.json().then(updateBoard)
-      })
-    }
+    if (type === 'column')
+      Column.move(draggableId, destination.index).then(updateBoard)
   }
 
   return (
@@ -109,7 +84,7 @@ function BoardPage({ token }) {
                   >
                     {board.map((column) => {
                       return (
-                        <Column
+                        <ColumnCompotent
                           key={column.id}
                           board={board}
                           column={column}
