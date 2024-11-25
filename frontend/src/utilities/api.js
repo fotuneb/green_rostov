@@ -132,7 +132,7 @@ export const Task = {
     },
 
     rename: async (taskId, newTitle) => {
-        const res = await sendAPIRequestJSON('/api/task/rename', 'POST', true, {
+        const res = await sendAPIRequestJSON('/api/task/rename/', 'POST', true, {
             id: taskId,
             new_title: newTitle
         })
@@ -141,7 +141,7 @@ export const Task = {
     },
 
     changeDescription: async (taskId, newDesc) => {
-        const res = await sendAPIRequestJSON('/api/task/change_contents', 'POST', true, {
+        const res = await sendAPIRequestJSON('/api/task/change_contents/', 'POST', true, {
             id: taskId,
             desc: newDesc
         })
@@ -150,7 +150,7 @@ export const Task = {
     },
 
     changeResponsible: async (taskId, responsibleUserId) => {
-        const res = await sendAPIRequestJSON('/api/task/change_responsible', 'POST', true, {
+        const res = await sendAPIRequestJSON('/api/task/change_responsible/', 'POST', true, {
             id: taskId,
             id_user: responsibleUserId
         })
