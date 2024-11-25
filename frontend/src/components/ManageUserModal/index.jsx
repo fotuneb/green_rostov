@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { UserAdmin } from '../../utilities/api';
 import "./manage_user_modal.css";
 
-const EditProfile = ({ user, token }) => {
+const EditProfile = ({ user, token, isAdminPage }) => {
     const [role, setRole] = useState(user.role);
     const [userFullname, setUserFullname] = useState(user.fullname);
     const [curError, setCurError] = useState('');
+
 
     const [passwords, setPasswords] = useState({
         newPassword: '',
@@ -89,20 +90,22 @@ const EditProfile = ({ user, token }) => {
                 </div>
                 {curError && <p className="error-message">{curError}</p>}
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
-                <button className="user-profile-save font-inter">Перейти к Telegram-боту</button>
+                {
+                    !isAdminPage && <button className="user-profile-save font-inter">Перейти к Telegram-боту</button>
+                }
             </form>
         </div>
     );
 };
 
 
-export const ManageUserModal = ({ isOpen, onClose, selectedUser, token }) => {
+export const ManageUserModal = ({ isOpen, onClose, selectedUser, token, isAdminPage }) => {
     if (!isOpen) return null;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content manage-user-modal" onClick={(e) => e.stopPropagation()}>
-                <EditProfile user={selectedUser} token={token} />
+                <EditProfile user={selectedUser} token={token} isAdminPage={isAdminPage} />
             </div>
         </div>
     );
