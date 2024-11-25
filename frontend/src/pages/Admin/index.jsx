@@ -44,13 +44,13 @@ const Admin = ({ token }) => {
         <>
             <div className="admin-container font-inter">
             <ManageUserModal isOpen={isModalOpen} selectedUser={selectedUser} token={token} onClose={closeModal} />
-            <h1>Страница администрирования</h1>
+            <h1 className = "Admin_page_h">Страница администрирования</h1>
             <table className="user-table">
                 <thead>
                     <tr>
-                        <th>ФИО</th>
-                        <th>Роль</th>
-                        <th>Действия</th>
+                        <th>ФИО:</th>
+                        <th>Роль:</th>
+                        <th>Действия:</th>
                     </tr>
                 </thead>
                 <tbody>

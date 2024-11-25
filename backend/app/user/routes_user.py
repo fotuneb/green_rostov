@@ -135,9 +135,9 @@ async def link_telegram(data: dict):
     return {"status": "nice", "message": "Телеграмм успешно подключен"}
 
 # используется у тг-бота
-@router1.get("/api/check_telegram_link/{user_id}")
-async def check_telegram_link(user_id: int):
-    user = await UserModel.filter(id=user_id).first()
+@router1.get("/api/check_telegram_link/{telegram_id}")
+async def check_telegram_link(telegram_id: int):
+    user = await UserModel.filter(telegram_id=telegram_id).first()
     if user.telegram_id:
         return {"telegram_id": user.telegram_id, "username": user.fullname}
     return {"telegram_id": None, "username": None}

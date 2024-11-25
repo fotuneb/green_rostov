@@ -2,9 +2,11 @@ body {
     font-family: "Montserrat", sans-serif;
     line-height: 1.5;
     min-height: 100vh;
-    background: white;
+    background: #ffffff;
     flex-direction: column;
+    overflow-x: scroll;
     margin: 0;
+    padding-top: 70px;
 }
 
 .board {
@@ -18,6 +20,5 @@ body {
 .board-columns {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     gap: 1em;
 }
