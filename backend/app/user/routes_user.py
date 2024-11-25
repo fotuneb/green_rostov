@@ -46,8 +46,9 @@ async def get_users():
     return users
 
 @router1.get("/api/get_user/{user_id}")
-async def get_user(user_id: int):  
+async def get_user(user_id: int):
     user = await UserModel.get(id=user_id).values("fullname", "role", "about", "avatar_id")
+    print(user)
     return user
 
 @router1.post("/api/users")

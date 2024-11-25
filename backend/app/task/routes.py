@@ -446,7 +446,7 @@ async def get_user_tasks_for_tg(telegram_id: int):
 
 
 @router.post("/api/avatar/")
-async def create_attachment_for_user(user_id: int, file: UploadFile):
+async def create_attachment_for_user(user_id: int, file: UploadFile):        # needed to change
     # Проверяем, что MIME-тип соответствует ожиданиям
     if file.content_type not in ["image/jpeg", "image/png"]:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Only JPG and PNG files are allowed")
@@ -556,7 +556,7 @@ async def get_attachments():
 
 
 @router.delete("/api/attachments/{attachment_id}")
-async def delete_attachment(attachment_id: int):
+async def delete_attachment(attachment_id: int):         # needed to change
     # Находим вложение по id
     try:
         attachment = await Attachment.get(id=attachment_id)
@@ -584,7 +584,7 @@ async def delete_attachment(attachment_id: int):
 
 
 
-@router.get("/api/attachments/{attachment_id}/")
+@router.get("/api/attachments/{attachment_id}/")        # needed to change
 async def create_url_for_file(attachment_id: int):
     # Ищем вложение по id
     try:
