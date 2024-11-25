@@ -1,105 +1,109 @@
-import React, { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { getCookie } from "../../utilities/cookies.js";
-import RouteSaver from "../RouteSaver";
-import RedirectToLastRoute from "../RedirectToLastRoute";
 import NotFound404 from "../NotFound404";
 import Login from "../../pages/Login";
 import Register from "../../pages/Register";
 import BoardPage from "../../pages/Board";
 import Admin from "../../pages/Admin";
 import Navbar from "../Navbar";
-import LayoutWithNavbar from "../../layouts/LayoutWithNavbar.jsx";
 
+// Получить токен пользователя
 function getToken() {
   return getCookie("token");
+}
+
+// Получить user_id
+function getUserID() {
+  return getCookie("user_id");
 }
 
 // Основной компонент приложения
 function App() {
   const [token, setToken] = useState(() => getToken());
+  const [isLogged, setIsLogged] = useState(() => !!getToken() && !!getUserID());
 
-  // Проверка, залогинен ли пользователь
-  const verifyLogin = () => {
-      return getCookie("token") && getCookie("user_id")
-  }
-  
-  // Устанавливаем флаг
-  const isLogged = verifyLogin()
+  // Эффект для обновления isLogged при изменении token
+  useEffect(() => {
+    setIsLogged(!!token && !!getUserID());
+  }, [token]);
+
+  // Обертка для защищенных маршрутов
+  const ProtectedRoute = ({ isLogged, children, redirectTo }) => {
+    return isLogged ? children : <Navigate to={redirectTo} replace />;
+  };
+
+  // Обертка для маршрутов неавторизованных пользователей
+  const PublicRoute = ({ isLogged, children, redirectTo }) => {
+    return !isLogged ? children : <Navigate to={redirectTo} replace />;
+  };
 
   // Если флаг true, при запуске отправляем юзера на доску
   // Если флаг false, пользователь должен пройти авторизацию
   return (
     <div className="App">
-      <BrowserRouter>
-      {isLogged ? (
-        <>
-          <Routes>
-            {/* Базовый маршрут для /board */}
-            <Route path="/board" element={
+     <BrowserRouter>
+      <Routes>
+        {/* Маршрут для логина (доступ только для неавторизованных пользователей) */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute isLogged={isLogged} redirectTo="/board">
+              <Login setToken={setToken} />
+            </PublicRoute>
+          }
+        />
+
+        {/* Маршрут для регистрации */}
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute isLogged={isLogged} redirectTo="/board">
+              <Register setToken={setToken} />
+            </PublicRoute>
+          }
+        />
+
+        {/* Маршрут для главной доски (доступ только для авторизованных пользователей) */}
+        <Route
+          path="/board"
+          element={
+            <ProtectedRoute isLogged={isLogged} redirectTo="/login">
               <>
                 <Navbar token={token} setToken={setToken} />
                 <BoardPage token={token} />
               </>
-            }/>
+            </ProtectedRoute>
+          }
+        />
 
-            {/* Маршрут для /admin */}
-            <Route path="/admin" element={
+        {/* Маршрут для админки */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute isLogged={isLogged} redirectTo="/login">
               <>
                 <Navbar token={token} setToken={setToken} />
                 <Admin token={token} />
               </>
-            }/>
+            </ProtectedRoute>
+          }
+        />
 
-            {/* Маршрут для страницы 404 */}
-            <Route 
-              path="/404" 
-              element={
-                <NotFound404 />
-              }/>
+         {/* Главный маршрут */}
+        <Route
+          path="/"
+          element={
+            isLogged ? <Navigate to="/board" replace /> : <Navigate to="/login" replace />
+          }
+        />
 
-            {/* Перенаправление на /404, если маршрут не найден */}
-            <Route path="*" element={
-              <Navigate to="/404" replace />
-            }/>
-          </Routes>
-        </>
-      ) : (
-        <>
-          <Routes>
-            {/* Сохранение и восстановление маршрута */}
-            <Route path="*" element={
-              <>
-                <RouteSaver />
-                <RedirectToLastRoute />
-              </>
-            }/>
+        {/* Страница 404 */}
+        <Route path="/404" element={<NotFound404 />} />
 
-            {/* Базовый маршрут для логина */}
-            <Route path="/" element={
-              <Login setToken={setToken} />
-            }/>
-
-             {/* Маршруты для /board и /admin и layour для общего компонента Navbar */}
-            <Route element={<LayoutWithNavbar token={token} setToken={setToken} />}>
-              <Route path="/board" element={<BoardPage token={token} />} />
-              <Route path="/admin" element={<Admin token={token} />} />
-            </Route>
-
-            {/* Маршрут для логина */}
-            <Route
-              path="/login"
-              element={
-                <Login setToken={setToken} />
-              }/>
-
-            {/* Базовый маршрут для логина */}
-            <Route path="/signup" element={
-              <Register setToken={setToken} />
-            }/>
-          </Routes>
-        </>
-      )}
+        {/* Обработка неизвестных маршрутов */}
+        <Route path="*" element={<Navigate to="/404" replace />} />
+      </Routes>
     </BrowserRouter>
     </div>
   );

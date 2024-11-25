@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const RedirectToLastRoute = () => {
 
   // Список доступных маршрутов приложения
-  const availableRoutes = ["/board", "/admin", "/login", "/signup", "/api"]
+  const availableRoutes = ["/", "/board", "/admin", "/login", "/signup", "/api"]
   const navigate = useNavigate();
   
   // Если последний маршрут существует, то перенаправляем на него
