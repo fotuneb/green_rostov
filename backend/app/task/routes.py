@@ -506,12 +506,12 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
 #         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
 
     # Генерируем уникальное имя файла с сохранением расширения
-    file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
-    unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
+    # file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
+    # unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
 
-    # Создаем директорию, если её нет
-    upload_dir = os.path.join("uploads", "attachments")
-    os.makedirs(upload_dir, exist_ok=True)
+    # # Создаем директорию, если её нет
+    # upload_dir = os.path.join("uploads", "attachments")
+    # os.makedirs(upload_dir, exist_ok=True)
 
 #     # Полный путь к файлу
 #     file_path = os.path.join(upload_dir, unique_filename)
