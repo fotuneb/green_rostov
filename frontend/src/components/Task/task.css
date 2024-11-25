@@ -1,12 +1,37 @@
 .task {
-    background-color: rgb(220, 211, 211);
-    border-radius: 4px;
+    background-color: white;
+    font-family: "Montserrat", sans-serif; 
+    border-radius: 20px;
     text-align: justify;
     margin: 1em 0;
     width: 100%;
+    color: black;
+    font-weight: 500;
 }
 
+
 .task-pad {
-    overflow: hidden;
-    padding: 0.5em;
+    display: flex;
+    align-items: center; 
+    padding: 0.5em; 
+    gap: 0.5em;
+}
+
+.task-creator-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px; 
+  }
+  
+  .task-creator-name {
+    font-size: 14px; 
+    color: #333; 
+  }
+
+.task-avatar {
+    width: 32px; 
+    height: 32px;
+    background-color: #e0e0e0; 
+    border-radius: 50%; 
 }

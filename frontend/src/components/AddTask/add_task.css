@@ -1,11 +1,9 @@
 .add-task {
     margin-top: auto;
-    background-color: #d8f1ff;
-    color: #1B4B73;
     font-family: "Montserrat", sans-serif; 
-    font-weight: bold;
+    font-weight: 800;
     padding: 8px 30px;
-    font-size: 16px; 
+    font-size: 18px; 
     width: 100%; 
     border-radius: 15px;
     border: none;

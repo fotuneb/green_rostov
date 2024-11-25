@@ -32,8 +32,7 @@ function AddTask(props) {
           }}
           onClick={() => setShowNewTaskButton(false)}
         >
-          <LuPlus />
-          Добавить задачу
+          <LuPlus /> Добавить задачу
         </button>
       ) : (
         <input

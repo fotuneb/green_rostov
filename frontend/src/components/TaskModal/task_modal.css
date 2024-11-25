@@ -8,20 +8,24 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: "Montserrat", sans-serif; 
 }
 
 .modal-content {
     display: flex;
-    width: 80vw;
     /* Ограничение ширины до 50% от высоты экрана */
     height: 80%;
     /* Максимальная высота модального окна */
     overflow: auto;
     /* Прокрутка для модального окна */
     background: white;
-    border-radius: 8px;
+    border-radius: 20px;
     padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.task-modal {
+    width: 80vw;
 }
 
 .modal-main {
@@ -32,7 +36,7 @@
 .modal-actions {
     flex: 1;
     border-left: 1px solid #ccc;
-    padding-left: 20px;
+    padding-left: 10px;
 }
 
 .modal-actions ul {
@@ -43,8 +47,34 @@
 .modal-actions li {
     display: flex;
     flex-direction: column;
-    margin: 10px 0;
+    margin: 5px 0 15px 0;
 }
+
+.modal-actions li p {
+    margin: 5px 0;
+}
+
+.task-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    height: auto;
+    padding: 15px;
+    background-color: #6C97BF; 
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+    margin: 15px 0 0;
+  }
+
+  .task-button:hover{
+    background-color: #a4d3ff;
+  }
 
 .quill {
     overflow: auto;
@@ -56,10 +86,31 @@
     margin: 1em 0;
     border: none;
     padding: 1em;
-    background-color: rgb(0, 133, 255);
+    background-color: #a4d3ff;
     cursor: pointer;
 }
 
 .quill-update-contents:hover {
-    background-color: rgb(20, 112, 198);
+    background-color: #a4d3ff;
 }
+
+.task_modal_choice, .task-deadline-input {
+    border-radius: 20px; 
+    padding: 0.5em; 
+    border: 1px solid #ccc; 
+    background-color: #f9f9f9; 
+    font-size: 1rem; 
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; 
+}
+
+.task_modal_choice, .task-deadline-input:hover {
+    border-color: #ffffff; 
+    box-shadow: 0 0 5px #a4d3ff; 
+}
+
+.task_modal_choice, .task-deadline-input:focus {
+    outline: none; 
+    border-color: #ffffff; 
+    box-shadow: 0 0 8px #a4d3ff; 
+}
+

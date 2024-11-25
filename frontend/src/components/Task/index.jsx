@@ -1,6 +1,5 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
-import { LuText } from "react-icons/lu"
 import { Modal } from "../TaskModal"
 import "./task.css"
 
@@ -30,9 +29,9 @@ function Task(props) {
             <p className="font-regular task-pad">
               {props.task.title}
             </p>
-            <div className="task-pad">
-              <LuText />
-              {props.task.assigneeName}
+            <div className="task-pad task-creator-container">
+              <span className="task-creator-name">{props.task.assigneeName}</span>
+              <div className="task-avatar"></div>
             </div>
           </div>
         )}

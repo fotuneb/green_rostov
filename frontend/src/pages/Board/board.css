@@ -2,7 +2,7 @@ body {
     font-family: "Montserrat", sans-serif;
     line-height: 1.5;
     min-height: 100vh;
-    background: white;
+    background: #ffffff;
     flex-direction: column;
     margin: 0;
 }
@@ -18,5 +18,6 @@ body {
 .board-columns {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 1em;
 }

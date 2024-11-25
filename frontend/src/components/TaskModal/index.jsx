@@ -30,6 +30,7 @@ const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
             <>
             <input
                 type="date"
+                className="task-deadline-input"
                 onChange={(e) => setNewValue(e.target.value)}
             />
             <button onClick={() => {onEdited(newValue); setIsEditing(false)}}>Z</button>
@@ -82,6 +83,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         Task.changeDescription(taskData.id, description)
     }
 
+    // 
     const handleTitleChange = (e) => {
         if (e.key === 'Enter') {
             Task.rename(taskData.id, title)
@@ -99,11 +101,18 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         onUpdateNeeded()
     }
 
-    const updateAssignee = async (idx) => {
-        await Task.changeResponsible(taskData.id, idx)
-        onUpdateNeeded()
+    const updateAssignee = (idx) => {
+        fetch(`${ws}/api/tasks/change_responsible`, {
+            method: "PUT",
+            headers: {
+                'Authorization': 'Bearer ' + getCookie('token')
+            }
+        }).then((res) => {
+            res.json().then(onUpdateNeeded)
+        })
     }
 
+    // Обновление дедлайна
     const updateDeadline = (deadlineDay) => {
         console.log(new Date(deadlineDay))
     }
@@ -112,7 +121,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content task-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-main">
                     {isEditing ? (
                         <input
@@ -124,7 +133,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             autoFocus
                         />
                     ) : (
-                        <h2 onClick={() => setIsEditing(true)}>{title}</h2>
+                        <h2 style={{marginTop: "5px"}} onClick={() => setIsEditing(true)}>{title}</h2>
                     )}
 
                     <ReactQuill
@@ -135,29 +144,29 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         modules={Modal.modules}
                         formats={Modal.formats}
                     />
-                    {hasRights && <button className="quill-update-contents font-inter" onClick={updateDescription}>Обновить</button>}
+                    {hasRights && <button className="task-button font-inter" onClick={updateDescription}>Сохранить изменения</button>}
                 </div>
                 <div className="modal-actions">
                     <ul>
                         <li>
-                            <p className="font-semibold">Автор</p>
+                            <p className="font-semibold">Автор:</p>
                             <p>{taskData.authorName}</p>
                         </li>
                         <li>
-                            <p className="font-semibold">Дата создания</p>
+                            <p className="font-semibold">Дата создания:</p>
                             <p>{formatDate(taskData.created_at)}</p>
                         </li>
                         <li>
-                            <p className="font-semibold">Дата изменения</p>
+                            <p className="font-semibold">Дата изменения:</p>
                             <p>{formatDate(taskData.updated_at)}</p>
                         </li>
                         <li>
-                            <p className="font-semibold">Дедлайн</p>
+                            <p className="font-semibold">Дедлайн:</p>
                             <DeadlineRow isEditing={isEditingDeadline} setIsEditing={setIsEditingDeadline} deadlineValue={taskData.deadline} onEdited={(val) => updateDeadline(val)} />
                         </li>
                         <li>
-                            <p className="font-semibold">Исполнитель</p>
-                            <select
+                            <p className="font-semibold">Исполнитель:</p>
+                            <select className = "task_modal_choice"
                                 id="user"
                                 value={taskData.assignee}
                                 onChange={(e) => updateAssignee(e.target.value)}
@@ -172,8 +181,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             </select>
                         </li>
                         <li>
-                            <p className="font-semibold">Статус задачи</p>
-                            <select
+                            <p className="font-semibold">Статус задачи:</p>
+                            <select className = "task_modal_choice"
                                 id="role"
                                 value={taskData.column}
                                 onChange={(e) => updateColumn(e.target.value)}
@@ -188,7 +197,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             </select>
                         </li>
                         {hasRights && <li>
-                            <button className="quill-update-contents font-inter" onClick={deleteTask}>Удалить</button>
+                            <button className="task-button font-inter" onClick={deleteTask}>Удалить таск</button>
                         </li>}
 
                     </ul>
