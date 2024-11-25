@@ -110,12 +110,12 @@ export const UserAdmin = {
     },
 
     changeRole: async (userId, newRole) => {
-        const res = sendAPIRequestJSON(`/api/users/admin/change-role/${userId}?new_role=${newRole}`, 'POST')
+        const res = await sendAPIRequestJSON(`/api/users/admin/change-role/${userId}?new_role=${newRole}`, 'POST')
         return await res.json()
     },
 
     changePassword: async (userId, newPassword) => {
-        const res = sendAPIRequestJSON(`/api/users/admin/change-password/${userId}?new_password=${newPassword}`, 'POST')
+        const res = await sendAPIRequestJSON(`/api/users/admin/change-password/${userId}?new_password=${newPassword}`, 'POST')
         return await res.json()
     }
 }
