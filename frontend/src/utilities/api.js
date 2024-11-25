@@ -158,6 +158,11 @@ export const Task = {
         return await res.json()
     },
 
+    changeDeadline: async (taskId, newDeadline) => {
+        const res = await sendAPIRequestJSON(`/api/tasks/${taskId}/deadline?new_deadline=${newDeadline}`, 'POST')
+        return await res.json()
+    },
+
     delete: async (taskId) => {
         const res = await sendAPIRequestJSON('/api/task/' + taskId, 'DELETE')
         return await res.json()
