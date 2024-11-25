@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getCookie } from '../../utilities/cookies.js';
 import ReactQuill from 'react-quill';
+import { Task, User } from '../../utilities/api.js';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
 
@@ -55,85 +56,50 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const hasRights = getCookie('role') != 'guest';
     const quillRef = useRef(null); // Ссылка на редактор
 
-    const getTaskDetail = async () => {
-        const det = await fetch(`${ws}/api/task/${task.id}`)
-        return await det.json();
-    }
-
-    useEffect(() => {
+    useEffect(async () => {
         if (!isOpen) return;
-        getTaskDetail().then((data) => {
-            data.assigneeName = task.assigneeName
-            data.authorName = task.authorName
+        
+        const detail = await Task.getById(task.id)
+        detail.assigneeName = task.assigneeName
+        detail.authorName = task.authorName
 
-            setTaskData(data);
-            setTitle(data.title);
-            setDescription(data.description || '');
-        });
+        console.log(detail)
+
+        setTaskData(detail);
+        setTitle(detail.title);
+        setDescription(detail.description || '');
     }, [isOpen]);
 
 
-    useEffect(() => {
+    useEffect(async () => {
         if (!isOpen) return;
 
-        fetch(`${ws}/api/get_users`).then((res) => {
-            res.json().then((data) => {
-                setUsers(data)
-            })
-        })
+        const users = await User.getAll()
+        setUsers(users)
     }, [isOpen])
 
-    const updateTitle = () => {
-        fetch(`/api/task/rename`, {
-            method: "POST",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        });
-    }
-
     const updateDescription = () => {
-        fetch(`/api/task/change_contents`, {
-            method: "POST",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        });
+        Task.changeDescription(taskData.id, description)
     }
 
     // 
     const handleTitleChange = (e) => {
         if (e.key === 'Enter') {
-            updateTitle()
+            Task.rename(taskData.id, title)
             setIsEditing(false);
         }
     };
 
-    // Удаление задачи
-    const deleteTask = () => {
-        fetch(`${ws}/api/task/${taskData.id}`, {
-            method: "DELETE",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        }).then((res) => {
-            res.json().then(onRemove)
-        })
-    }
-    
-    // Обновление колонки
-    const updateColumn = (idx) => {
-        fetch(`${ws}/api/tasks/move`, {
-            method: "PUT",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        }).then((res) => {
-            res.json().then(onUpdateNeeded)
-        })
+    const deleteTask = async () => {
+        await Task.delete(taskData.id)
+        onRemove()
     }
 
-    // Выбор исполнителя
+    const updateColumn = async (idx) => {
+        await Task.move(taskData.id, idx, 0)
+        onUpdateNeeded()
+    }
+
     const updateAssignee = (idx) => {
         fetch(`${ws}/api/tasks/change_responsible`, {
             method: "PUT",
@@ -201,7 +167,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             <p className="font-semibold">Исполнитель</p>
                             <select
                                 id="user"
-                                value={taskData.assignee_id}
+                                value={taskData.assignee}
                                 onChange={(e) => updateAssignee(e.target.value)}
                             >
                                 {users.map((user) => {

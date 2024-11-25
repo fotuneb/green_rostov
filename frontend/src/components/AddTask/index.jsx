@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getCookie } from "../../utilities/cookies.js";
+import { Task } from "../../utilities/api";
 import { LuPlus } from "react-icons/lu"
 import "./add_task.css"
 
@@ -16,21 +16,9 @@ function AddTask(props) {
     }
   }
 
-  function addNewTask(content, columnId) {
-    fetch(`/api/task`, {
-      method: "PUT",
-      headers: {
-        'Authorization': 'Bearer ' + getCookie('token'),
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        title: content,
-        id_column: parseInt(columnId),
-        description: ""
-      })
-    }).then((req) => {
-      req.json().then(props.onTaskAdded)
-    })
+  async function addNewTask(content, columnId) {
+    await Task.create(content, parseInt(columnId))
+    props.onTaskAdded()
   }
 
   return (
@@ -38,6 +26,10 @@ function AddTask(props) {
       {showNewTaskButton ? (
         <button
           className="add-task font-inter font-semibold"
+          style={{
+            backgroundColor: props.bgColor,
+            color: props.textColor
+          }}
           onClick={() => setShowNewTaskButton(false)}
         >
           <LuPlus /> Добавить задачу

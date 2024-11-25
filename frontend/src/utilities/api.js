@@ -103,9 +103,83 @@ export const User = {
     }
 }
 
+export const UserAdmin = {
+    changeFullname: async (userId, fullname) => {
+        const res = await sendAPIRequestJSON(`/api/users/admin/change-fullname/${userId}?new_fullname=${fullname}`, 'POST')
+        return await res.json()
+    },
+
+    changeRole: async (userId, newRole) => {
+        const res = await sendAPIRequestJSON(`/api/users/admin/change-role/${userId}?new_role=${newRole}`, 'POST')
+        return await res.json()
+    },
+
+    changePassword: async (userId, newPassword) => {
+        const res = await sendAPIRequestJSON(`/api/users/admin/change-password/${userId}?new_password=${newPassword}`, 'POST')
+        return await res.json()
+    }
+}
+
 export const Task = {
     getAll: async () => {
         const res = await sendAPIRequestJSON('/api/tasks', 'GET')
+        return await res.json()
+    },
+
+    getById: async (taskId) => {
+        const res = await sendAPIRequestJSON('/api/task/' + taskId, 'GET')
+        return await res.json()
+    },
+
+    rename: async (taskId, newTitle) => {
+        const res = await sendAPIRequestJSON('/api/task/rename', 'POST', true, {
+            id: taskId,
+            new_title: newTitle
+        })
+
+        return await res.json()
+    },
+
+    changeDescription: async (taskId, newDesc) => {
+        const res = await sendAPIRequestJSON('/api/task/change_contents', 'POST', true, {
+            id: taskId,
+            desc: newDesc
+        })
+
+        return await res.json()
+    },
+
+    changeResponsible: async (taskId, responsibleUserId) => {
+        const res = await sendAPIRequestJSON('/api/task/change_responsible', 'POST', true, {
+            id: taskId,
+            id_user: responsibleUserId
+        })
+
+        return await res.json()
+    },
+
+    delete: async (taskId) => {
+        const res = await sendAPIRequestJSON('/api/task/' + taskId, 'DELETE')
+        return await res.json()
+    },
+
+    move: async (taskId, newColumnId, newIndex) => {
+        const res = await sendAPIRequestJSON('/api/tasks/move', 'PUT', true, {
+            task_id: taskId,
+            new_column_id: newColumnId,
+            new_index: newIndex,
+        })
+
+        return await res.json()
+    },
+
+    create: async (title, columnId) => {
+        const res = await sendAPIRequestJSON('/api/task', 'PUT', true, {
+            title,
+            id_column: columnId,
+            description: ''
+        })
+
         return await res.json()
     }
 }
@@ -113,6 +187,25 @@ export const Task = {
 export const Column = {
     getAll: async () => {
         const res = await sendAPIRequestJSON('/api/columns', 'GET')
+        return await res.json()
+    },
+
+    delete: async (columnId) => {
+        const res = await sendAPIRequestJSON('/api/column/' + columnId, 'DELETE')
+        return await res.json()
+    },
+
+    create: async (title) => {
+        const res = await sendAPIRequestJSON('/api/column/?title=' + title, 'PUT')
+        return await res.json()
+    },
+
+    move: async (columnId, newIndex) => {
+        const res = await sendAPIRequestJSON('/api/columns/move', 'PUT', true, {
+            column_id: columnId,
+            new_index: newIndex
+        })
+
         return await res.json()
     }
 }
