@@ -101,15 +101,9 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         onUpdateNeeded()
     }
 
-    const updateAssignee = (idx) => {
-        fetch(`${ws}/api/tasks/change_responsible`, {
-            method: "PUT",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        }).then((res) => {
-            res.json().then(onUpdateNeeded)
-        })
+    const updateAssignee = async (idx) => {
+        await Task.changeResponsible(taskData.id, idx)
+        onUpdateNeeded()
     }
 
     // Обновление дедлайна
