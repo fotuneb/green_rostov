@@ -30,6 +30,7 @@ const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
             <>
             <input
                 type="date"
+                className="task-deadline-input"
                 onChange={(e) => setNewValue(e.target.value)}
             />
             <button onClick={() => {onEdited(newValue); setIsEditing(false)}}>Z</button>
@@ -148,24 +149,24 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                 <div className="modal-actions">
                     <ul>
                         <li>
-                            <p className="font-semibold">Автор</p>
+                            <p className="font-semibold">Автор:</p>
                             <p>{taskData.authorName}</p>
                         </li>
                         <li>
-                            <p className="font-semibold">Дата создания</p>
+                            <p className="font-semibold">Дата создания:</p>
                             <p>{formatDate(taskData.created_at)}</p>
                         </li>
                         <li>
-                            <p className="font-semibold">Дата изменения</p>
+                            <p className="font-semibold">Дата изменения:</p>
                             <p>{formatDate(taskData.updated_at)}</p>
                         </li>
                         <li>
-                            <p className="font-semibold">Дедлайн</p>
+                            <p className="font-semibold">Дедлайн:</p>
                             <DeadlineRow isEditing={isEditingDeadline} setIsEditing={setIsEditingDeadline} deadlineValue={taskData.deadline} onEdited={(val) => updateDeadline(val)} />
                         </li>
                         <li>
-                            <p className="font-semibold">Исполнитель</p>
-                            <select
+                            <p className="font-semibold">Исполнитель:</p>
+                            <select className = "task_modal_choice"
                                 id="user"
                                 value={taskData.assignee}
                                 onChange={(e) => updateAssignee(e.target.value)}
@@ -180,8 +181,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             </select>
                         </li>
                         <li>
-                            <p className="font-semibold">Статус задачи</p>
-                            <select
+                            <p className="font-semibold">Статус задачи:</p>
+                            <select className = "task_modal_choice"
                                 id="role"
                                 value={taskData.column}
                                 onChange={(e) => updateColumn(e.target.value)}

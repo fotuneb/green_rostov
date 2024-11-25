@@ -1,13 +1,15 @@
 .task {
-    background-color: #d8f1ff;
-    border-radius: 4px;
+    background-color: white;
+    font-family: "Montserrat", sans-serif; 
+    border-radius: 20px;
     text-align: justify;
     margin: 1em 0;
     width: 100%;
-    color: #1B4B73;
+    color: black;
+    font-weight: 500;
 }
 
 .task-pad {
     overflow: hidden;
-    padding: 0.5em;
+    padding: 0.5em;  
 }
