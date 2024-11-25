@@ -82,24 +82,10 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }, [isOpen]);
 
 
-    useEffect(async () => {
+    useEffect(() => {
         if (!isOpen) return;
-
-        fetch(`${ws}/api/get_users`).then((res) => {
-            res.json().then((data) => {
-                setUsers(data)
-            })
-        })
+        User.getAll().then(setUsers)
     }, [isOpen])
-
-    const updateTitle = () => {
-        fetch(`/api/task/rename`, {
-            method: "POST",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        });
-    }
 
     // Обновление описания таски
     const updateDescription = () => {
