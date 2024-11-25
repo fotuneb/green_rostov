@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { setCookie } from "../../utilities/cookies.js"
 import { Link, useNavigate } from "react-router-dom";
+import { User } from "../../utilities/api";
 import './register.css'; // Импортируем стили
 
 function Register(props) {
@@ -21,30 +21,11 @@ function Register(props) {
 
       setError('');
   
-      const data = await createUser();
+      const data = await User.create(fullname, username, password1);
       navigate("/login");
     } catch (error) {
       setError(error)
     }
-  };
-
-  // Создание нового юзера
-  const createUser = async () => {
-    const formData = {
-      fullname: fullname,
-      login: username,
-      password1: password1,
-    };
-
-    const response = await fetch(process.env.REACT_APP_PUBLIC_URL + "/api/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    return await response.json();
   };
 
   return (

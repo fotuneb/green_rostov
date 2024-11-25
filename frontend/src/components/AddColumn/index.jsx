@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { getCookie } from "../../utilities/cookies.js";
+import { Column } from "../../utilities/api.js";
 import "./add_column.css"
-
-const ws = process.env.REACT_APP_PUBLIC_URL
 
 function AddColumn(props) {
   const [showNewColumnButton, setShowNewColumnButton] = useState(true);
@@ -18,14 +16,8 @@ function AddColumn(props) {
   }
 
   async function addColumn(title) {
-    fetch(ws + '/api/column/?title=' + title, {
-      method: "PUT",
-      headers: {
-        'Authorization': 'Bearer ' + getCookie('token')
-      }
-    }).then((req) => {
-      req.json().then(props.onColumnAdded)
-    })
+    await Column.create(title)
+    props.onColumnAdded()
   }
 
   return (

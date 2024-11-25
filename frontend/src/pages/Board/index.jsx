@@ -3,13 +3,14 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
 import { getCookie } from "../../utilities/cookies.js";
 import TaskFilter from "../../components/TaskFilter";
-import Column from "../../components/Column"
+import ColumnCompotent from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
+import { User, Board, Task, Column } from "../../utilities/api.js";
 import "./board.css";
 
 const ws = process.env.REACT_APP_PUBLIC_URL
 
-function Board({ token }) {
+function BoardPage({ token }) {
   const [board, setBoard] = useState([]);
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState({
@@ -26,57 +27,10 @@ function Board({ token }) {
   }, []);
 
   async function fetchBoard() {
-    const headers = {
-      'Authorization': 'Bearer ' + getCookie('token'),
-      'Accept': 'application/json'
-    }
-
-    const headersArg = {
-      method: "GET",
-      headers
-    }
-
-    const columnReq = await fetch('/api/columns', headersArg);
-    let columns = await columnReq.json();
-
-    const tasksReq = await fetch('/api/tasks', headersArg);
-    const tasks = await tasksReq.json();
-
-    const usersReq = await fetch('/api/get_users', headersArg);
-    const users = await usersReq.json();
-
+    const users = await User.getAll()
     setUsers(users);
 
-    let idxToCol = {};
-    for (let column of columns) {
-      column.tasks = [];
-      column.id = column.id + ''
-      idxToCol[column.id] = column;
-    }
-
-    let userIdToName = {}
-    for (const user of users) {
-      userIdToName[user.id] = user.fullname;
-    }
-
-    for (let task of tasks) {
-      task.id = task.id + '';
-      task.assigneeName = userIdToName[task.assignee];
-      task.authorName = userIdToName[task.author];
-      let columnData = idxToCol[task.column_id];
-      if (!columnData) {
-        continue;
-      }
-
-      columnData.tasks.push(task);
-    }
-
-    for (let column of columns) {
-      column.tasks.sort((a, b) => a.index - b.index);
-    }
-
-    return columns;
-
+    return await Board.fetch() 
   }
 
   const updateBoard = () => {
@@ -101,38 +55,13 @@ function Board({ token }) {
     }
 
     if (type === 'task') {
-      const task_id = parseInt(parseDraggableId(draggableId, 1))
-      const new_column_id = parseInt(parseDraggableId(destination.droppableId, 0))
-
-      fetch(`${ws}/api/tasks/move`, {
-        method: "PUT",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          task_id: task_id,
-          new_column_id: new_column_id,
-          new_index: destination.index
-        })
-      }).then((req) => {
-        req.json().then(updateBoard)
-      })
+      const taskId = parseInt(parseDraggableId(draggableId, 1))
+      const newColumnId = parseInt(parseDraggableId(destination.droppableId, 0))
+      Task.move(taskId, newColumnId, destination.index).then(updateBoard)
     }
 
-    if (type === 'column') {
-      fetch(`api/columns/move`, {
-        method: "PUT",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          column_id: draggableId,
-          new_index: destination.index
-        })
-      }).then((req) => {
-        req.json().then(updateBoard)
-      })
-    }
+    if (type === 'column')
+      Column.move(draggableId, destination.index).then(updateBoard)
   }
 
   return (
@@ -155,7 +84,7 @@ function Board({ token }) {
                   >
                     {board.map((column) => {
                       return (
-                        <Column
+                        <ColumnCompotent
                           key={column.id}
                           board={board}
                           column={column}
@@ -185,4 +114,4 @@ function Board({ token }) {
   )
 }
 
-export default Board;
+export default BoardPage;

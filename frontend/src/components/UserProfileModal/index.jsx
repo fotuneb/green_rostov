@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
 import { Link, useNavigate } from 'react-router-dom';
+import { User } from '../../utilities/api.js'
 
 const EditProfile = ({closeModal}) => {
     const [userInfo, setUserInfo] = useState({
@@ -17,35 +18,17 @@ const EditProfile = ({closeModal}) => {
 
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    
-    // Получение данных о юзере
-    const getMyData = async () => {
-        const data = await fetch('/api/get_user/' + getCookie('user_id'), {
-            method: "GET"
-        })
 
-        return await data.json()
-    }
-
-    // Обработчик перехода к тг-боту
     const handleTgBot = async () => {
-        const data = await fetch('/api/tg-link/' + getCookie('user_id'), {
-            method: "GET"
-        })
-
-        const response = data.json();
-
-        response.then((data) => {
-            window.open(data.telegram_link)
-        })
+        const data = await User.getTelegramLink(getCookie('user_id'))
+        window.open(data.telegram_link)
     }
 
     useEffect(() => {
         if (userInfo.fullname !== '' || userInfo.about !== '')
             return
 
-        getMyData().then((myData) => {
-
+        User.getById(getCookie('user_id')).then((myData) => {
             setUserInfo({
                 fullname: myData.fullname,
                 about: myData.about
@@ -63,17 +46,10 @@ const EditProfile = ({closeModal}) => {
         setPasswords((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        fetch('/api/users/change-info', {
-            method: "POST",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token'),
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(userInfo)
-        })
+        User.changePublicInfo(userInfo)
 
         if (passwords.newPassword === '')
             return closeModal()
@@ -83,25 +59,14 @@ const EditProfile = ({closeModal}) => {
             return
         }
 
-        const processResponse = async (res) => {
-            if (res.status === 200)
-                return closeModal()
-
-            const json = await res.json()
-            setError(json.detail)
+        try {
+            await User.changePassword(passwords.currentPassword, passwords.newPassword)
+            setError('')
         }
-
-        fetch('/api/users/change-password', {
-            method: "POST",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token'),
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                current_password: passwords.currentPassword,
-                new_password: passwords.newPassword
-            })
-        }).then(processResponse)
+        catch (error) {
+            console.log((111))
+            setError(error + '');
+        }
     };
 
     return (
