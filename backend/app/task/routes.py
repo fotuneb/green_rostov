@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from tortoise.transactions import in_transaction
 from tortoise.exceptions import DoesNotExist
-from app.user.authentication import get_current_user
+from app.user.authentication import get_current_user, get_privileged_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
 from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
@@ -27,11 +27,7 @@ router = APIRouter()
 
 # возвращается id и index
 @router.put("/api/column")
-async def create_column(title: str, current_user: UserModel = Depends(get_current_user)):
-    # проверка на текущего пользователя
-    if current_user.role == "guest":
-        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="You haven't sufficient permission")
-
+async def create_column(title: str, current_user: UserModel = Depends(get_privileged_user)):
     columns_exist = await Column.exists()
     if columns_exist:
         max_index_record = await Column.all().order_by("-index").values("index")
@@ -52,7 +48,7 @@ async def create_column(title: str, current_user: UserModel = Depends(get_curren
 
 # возвращается HTTP STATUS 200 OK в случае успеха
 @router.delete("/api/column/{id}")
-async def delete_column(id: int):
+async def delete_column(id: int, current_user: UserModel = Depends(get_privileged_user)):
     try:
         column = await Column.get(id=id)
         await column.delete()
@@ -64,7 +60,7 @@ async def delete_column(id: int):
 
 # возвращается ok 200
 @router.post("/api/column/rename/{info.id}")
-async def rename_column(info: ObjectRenameInfo):
+async def rename_column(info: ObjectRenameInfo, current_user: UserModel = Depends(get_privileged_user)):
     try:
         column = await Column.get(id=info.id)
         column.title = info.new_title
@@ -73,13 +69,9 @@ async def rename_column(info: ObjectRenameInfo):
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Column not found")
 
-
-
-# [+] realisation drag-n-drop for column
-
 # возвращается status ok 200
 @router.put("/api/columns/move")
-async def move_column(ColumnInfoDrag: Column_drag):
+async def move_column(ColumnInfoDrag: Column_drag, current_user: UserModel = Depends(get_privileged_user)):
     async with in_transaction() as conn:
         # Получаем колонку, которую необходимо переместить
         column = await Column.get_or_none(id=ColumnInfoDrag.column_id)
@@ -159,21 +151,15 @@ async def get_task_using_id(task_id: int):
         "attachments": attachment_list  # Добавляем список вложений
     }
 
-
 # вывод всех колонок 
 @router.get("/api/columns")
 async def get_columns():
     column = await Column.all()
     return column
 
-
-
-
-# [+] создание task'a
-
 # возвращается id и индекс; содерджимое (description) изначально пусто
 @router.put("/api/task")
-async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depends(get_current_user)):
+async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depends(get_privileged_user)):
     tasks_exist = await Task.exists()
     if tasks_exist:
         # Если колонки существуют, находим максимальный индекс
@@ -210,12 +196,9 @@ async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depend
         "time_track":task.time_track        # +
     }
 
-
-
-
 # возвращается ok 200
 @router.delete("/api/task/{id}")
-async def delete_task(id: int):
+async def delete_task(id: int, current_user: UserModel = Depends(get_privileged_user)):
     try:
         task = await Task.get(id=id)
         await task.delete()
@@ -224,11 +207,9 @@ async def delete_task(id: int):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
 
 
-
-# POST /api/task/rename - переименовать (передаю id и новое название, жду 200)
 # возвращается ok 200
 @router.post("/api/task/rename")
-async def rename_task(info: ObjectRenameInfo):
+async def rename_task(info: ObjectRenameInfo, current_user: UserModel = Depends(get_privileged_user)):
     try:
         task = await Task.get(id=info.id)
         task.title = info.new_title
@@ -237,14 +218,9 @@ async def rename_task(info: ObjectRenameInfo):
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
 
-
-
-
-
-# POST /api/task/change_contents - изменить содержимое (как выше, но текст)
 # возвращается ok 200
 @router.post("/api/task/change_contents")
-async def change_task_content(TaskChangeInfo: Task_for_desc):
+async def change_task_content(TaskChangeInfo: Task_for_desc, current_user: UserModel = Depends(get_privileged_user)):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
         task.description = TaskChangeInfo.desc
@@ -253,12 +229,6 @@ async def change_task_content(TaskChangeInfo: Task_for_desc):
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="description not found")
 
-
-
-
-
-# POST /api/task/change_responsible - изменить ответственного (передается id пользователя, ожидаю 200)
-# ожидаю 200
 # отправка уведомления в тг при изменении
 @router.post("/api/task/change_responsible")
 async def change_responsible(TaskChangeInfo: Task_change_resposible):
@@ -281,7 +251,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
 
 # POST /api/task/move - поменять порядок (передаю id, столбец и индекс, в котором должна находиться таска, жду 200)
 @router.put("/api/tasks/move")
-async def move_task(TaskDragInfo: Task_Drag):
+async def move_task(TaskDragInfo: Task_Drag, current_user: UserModel = Depends(get_privileged_user)):
     async with in_transaction() as conn:
         # Получаем задачу, которую необходимо переместить
         task = await Task.get_or_none(id=TaskDragInfo.task_id)
@@ -327,9 +297,6 @@ async def move_task(TaskDragInfo: Task_Drag):
     return {"success": "ok"}
 
 
-    
-
-# POST /api/task/comments/ создать (передается text, user_id, task_id, возвращается id коммента)
 @router.post("/api/comments")
 async def create_comment(CommentInfo: CommentPublicInfo):
     # проверка на существование задачи
