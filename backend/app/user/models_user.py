@@ -15,9 +15,8 @@ class UserModel(Model):
     notifications = fields.BooleanField(default=True)
 
     avatar = fields.ForeignKeyField("models.Attachment", related_name="user_avatar", null = True, on_delete=fields.CASCADE)
-    avatar_url = fields.CharField(max_length = 200, null=True, default=None)    # прописать при удалении аватарки чтобы не отправлялось, тогда будет идти только перезапись
-
-
+    
+    
     def verify_password(self, password):
         return bcrypt.verify(password, self.password)
 

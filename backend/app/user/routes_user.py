@@ -5,6 +5,8 @@ import re
 from app.user.authentication import authenticate_user, create_token, get_current_user, get_admin_user,generate_telegram_link
 from app.user.models_user import UserModel
 from app.user.schemas_user import User, UserIn, UserPublicInfo, UserPasswordSchema
+from app.task.attachment_model import Attachment
+
 
 router1 = APIRouter()
 admin_router = APIRouter()
@@ -42,14 +44,44 @@ async def change_password(user_id: int, new_password: str, admin_user: UserModel
 
 @router1.get("/api/get_users")
 async def get_users():
-    users = await UserModel.all().values("id", "fullname", "role", "avatar_id")
+    # Получаем всех пользователей и их аватарки
+    users = await UserModel.all().prefetch_related("avatar").values(
+        "id", "fullname", "role", "avatar_id"
+    )
+
+    # Обрабатываем список пользователей
+    for user in users:
+        if user.get("avatar_id"):
+            try:
+                avatar = await Attachment.get(id=user["avatar_id"])
+                user["avatar_url"] = avatar.file_path  # Добавляем ссылку на аватарку
+            except DoesNotExist:
+                user["avatar_url"] = None  # На случай отсутствия записи в Attachment
+        else:
+            user["avatar_url"] = None  # Если аватарки у пользователя нет
+
     return users
 
 @router1.get("/api/get_user/{user_id}")
 async def get_user(user_id: int):
-    user = await UserModel.get(id=user_id).values("fullname", "role", "about", "avatar_id")
-    print(user)
+    # Получаем пользователя вместе с его аватаркой
+    user = await UserModel.get(id=user_id).prefetch_related("avatar").values("fullname", "role", "about", "avatar_id")
+
+    # Проверяем наличие аватарки
+    if user.get("avatar_id"):
+        try:
+            avatar = await Attachment.get(id=user["avatar_id"])
+            user["avatar_url"] = avatar.file_path  # Добавляем ссылку на аватарку
+        except DoesNotExist:
+            user["avatar_url"] = None  # На случай, если запись в Attachment отсутствует
+    else:
+        user["avatar_url"] = None  # Если аватарки у пользователя нет
+
     return user
+# async def get_user(user_id: int):
+#     user = await UserModel.get(id=user_id).values("fullname", "role", "about", "avatar_id")
+#     # {'fullname': 'Admin User', 'role': 'admin', 'about': 'System administrator', 'avatar_id': None}
+#     return user
 
 @router1.post("/api/users")
 async def create_user(user_in: UserIn):
