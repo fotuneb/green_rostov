@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ManageUserModal } from "../../components/ManageUserModal"
 import { User } from '../../utilities/api';
+import Navbar from "../../components/Navbar";
 import './admin.css';
 
 const fetchUsers = async () => {
@@ -22,6 +23,7 @@ const Admin = ({ token }) => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState({});
 
+    // Получение данных о юзере
     useEffect(() => {
         const getUsers = async () => {
             const userList = await fetchUsers();
@@ -39,7 +41,8 @@ const Admin = ({ token }) => {
     const closeModal = () => setModalOpen(false);
 
     return (
-        <div className="admin-container font-inter">
+        <>
+            <div className="admin-container font-inter">
             <ManageUserModal isOpen={isModalOpen} selectedUser={selectedUser} token={token} onClose={closeModal} />
             <h1>Страница администрирования</h1>
             <table className="user-table">
@@ -63,6 +66,8 @@ const Admin = ({ token }) => {
                 </tbody>
             </table>
         </div>
+        </>
+       
     );
 };
 

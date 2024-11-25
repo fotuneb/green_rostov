@@ -1,13 +1,16 @@
 import { React, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Logout from "../Logout";
 import { UserProfileModal } from "../UserProfileModal"
 import { getCookie } from "../../utilities/cookies.js"
 import "./navbar.css";
 
 function Navbar(props) {
-
   const [isModalOpen, setModalOpen] = useState(false);
+  const location = useLocation();
+
+  // Проверяем, находится ли пользователь на странице /admin
+  const isAdminPage = location.pathname === "/admin";
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
@@ -36,10 +39,16 @@ function Navbar(props) {
           </div>
         ) : (
           <div className={`navbar-container justify-end`}>
-            {/* Кнопка "Админка" отображается только при логине в админ-аккаунт */}
+            {/* Кнопка "Админка" отображается только при логине в админ-аккаунт и если НЕ маршрут /admin */}
             {
-              getCookie('role') == 'admin' && <Link to="/admin">
+              !isAdminPage && getCookie('role') == 'admin' && <Link to="/admin">
                 <button className="nav-button">Админка</button>
+              </Link>
+            }
+            {/* Кнопка "Моя доска" отображается только при логине в админ-аккаунт и если маршрут /admin */}
+            {
+              isAdminPage && getCookie('role') == 'admin' && <Link to="/board">
+                <button className="nav-button">Моя доска</button>
               </Link>
             }
             <button onClick={openModal} className="nav-button">Профиль</button>
