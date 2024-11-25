@@ -60,6 +60,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         return await det.json();
     }
 
+    // Получение данных о текущей таске
     useEffect(() => {
         if (!isOpen) return;
         getTaskDetail().then((data) => {
@@ -69,22 +70,26 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
             setTaskData(data);
             setTitle(data.title);
             setDescription(data.description || '');
+        }).catch((error) => {
+            console.error('Ошибка при получении данных о таске:', error);
         });
     }, [isOpen]);
 
-
+    // Определение текущего юзера
     useEffect(() => {
         if (!isOpen) return;
 
         fetch(`${ws}/api/get_users`).then((res) => {
             res.json().then((data) => {
                 setUsers(data)
-            })
+            }).catch((error) => {
+                console.error('Ошибка при определении текущего юзера:', error);
+            });
         })
     }, [isOpen])
 
     const updateTitle = () => {
-        fetch(`/api/task/rename`, {
+        fetch(`${ws}/api/task/rename`, {
             method: "POST",
             headers: {
                 'Authorization': 'Bearer ' + getCookie('token')
@@ -92,8 +97,9 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         });
     }
 
+    // Обновление описания таски
     const updateDescription = () => {
-        fetch(`/api/task/change_contents`, {
+        fetch(`/api/task/change_contents/${taskData.id}`, {
             method: "POST",
             headers: {
                 'Authorization': 'Bearer ' + getCookie('token')
@@ -101,7 +107,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         });
     }
 
-    // 
+    // Хэндлер для изменения заголовка таски
     const handleTitleChange = (e) => {
         if (e.key === 'Enter') {
             updateTitle()
@@ -118,7 +124,9 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
             }
         }).then((res) => {
             res.json().then(onRemove)
-        })
+        }).catch((error) => {
+            console.error('Ошибка при удалении задачи:', error);
+        });
     }
     
     // Обновление колонки
@@ -130,19 +138,23 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
             }
         }).then((res) => {
             res.json().then(onUpdateNeeded)
-        })
+        }).catch((error) => {
+            console.error('Ошибка при обновлении колонки:', error);
+        });
     }
 
     // Выбор исполнителя
     const updateAssignee = (idx) => {
-        fetch(`${ws}/api/tasks/change_responsible`, {
-            method: "PUT",
+        fetch(`${ws}/api/task/change_responsible`, {
+            method: "POST",
             headers: {
                 'Authorization': 'Bearer ' + getCookie('token')
             }
         }).then((res) => {
             res.json().then(onUpdateNeeded)
-        })
+        }).catch((error) => {
+            console.error('Ошибка при обновлении исполнителя:', error);
+        });
     }
 
     // Обновление дедлайна
@@ -178,6 +190,12 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         formats={Modal.formats}
                     />
                     {hasRights && <button className="task-button font-inter" onClick={updateDescription}>Сохранить изменения</button>}
+                    <h3>Вложения</h3>
+                    <div className="attachments-container">
+                        <img src="" alt="" className="attachment" />
+                        <img src="" alt="" className="attachment" />
+                        <img src="" alt="" className="attachment" />
+                    </div>
                 </div>
                 <div className="modal-actions">
                     <ul>
