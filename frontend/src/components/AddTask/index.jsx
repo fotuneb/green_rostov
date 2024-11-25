@@ -26,6 +26,10 @@ function AddTask(props) {
       {showNewTaskButton ? (
         <button
           className="add-task font-inter font-semibold"
+          style={{
+            backgroundColor: props.bgColor,
+            color: props.textColor
+          }}
           onClick={() => setShowNewTaskButton(false)}
         >
           <LuPlus />
