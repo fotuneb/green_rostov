@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getCookie } from '../../utilities/cookies.js';
 import ReactQuill from 'react-quill';
+import { Task, User } from '../../utilities/api.js';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
 
@@ -55,41 +56,33 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const hasRights = getCookie('role') != 'guest';
     const quillRef = useRef(null); // Ссылка на редактор
 
-    const getTaskDetail = async () => {
-        const det = await fetch(`${ws}/api/task/${task.id}`)
-        return await det.json();
-    }
-
-    // Получение данных о текущей таске
-    useEffect(() => {
+    useEffect(async () => {
         if (!isOpen) return;
-        getTaskDetail().then((data) => {
-            data.assigneeName = task.assigneeName
-            data.authorName = task.authorName
+        
+        const detail = await Task.getById(task.id)
+        detail.assigneeName = task.assigneeName
+        detail.authorName = task.authorName
 
-            setTaskData(data);
-            setTitle(data.title);
-            setDescription(data.description || '');
-        }).catch((error) => {
-            console.error('Ошибка при получении данных о таске:', error);
-        });
+        console.log(detail)
+
+        setTaskData(detail);
+        setTitle(detail.title);
+        setDescription(detail.description || '');
     }, [isOpen]);
 
-    // Определение текущего юзера
-    useEffect(() => {
+
+    useEffect(async () => {
         if (!isOpen) return;
 
         fetch(`${ws}/api/get_users`).then((res) => {
             res.json().then((data) => {
                 setUsers(data)
-            }).catch((error) => {
-                console.error('Ошибка при определении текущего юзера:', error);
-            });
+            })
         })
     }, [isOpen])
 
     const updateTitle = () => {
-        fetch(`${ws}/api/task/rename`, {
+        fetch(`/api/task/rename`, {
             method: "POST",
             headers: {
                 'Authorization': 'Bearer ' + getCookie('token')
@@ -99,62 +92,30 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
     // Обновление описания таски
     const updateDescription = () => {
-        fetch(`/api/task/change_contents/${taskData.id}`, {
-            method: "POST",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        });
+        Task.changeDescription(taskData.id, description)
     }
 
     // Хэндлер для изменения заголовка таски
     const handleTitleChange = (e) => {
         if (e.key === 'Enter') {
-            updateTitle()
+            Task.rename(taskData.id, title)
             setIsEditing(false);
         }
     };
 
-    // Удаление задачи
-    const deleteTask = () => {
-        fetch(`${ws}/api/task/${taskData.id}`, {
-            method: "DELETE",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        }).then((res) => {
-            res.json().then(onRemove)
-        }).catch((error) => {
-            console.error('Ошибка при удалении задачи:', error);
-        });
-    }
-    
-    // Обновление колонки
-    const updateColumn = (idx) => {
-        fetch(`${ws}/api/tasks/move`, {
-            method: "PUT",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        }).then((res) => {
-            res.json().then(onUpdateNeeded)
-        }).catch((error) => {
-            console.error('Ошибка при обновлении колонки:', error);
-        });
+    const deleteTask = async () => {
+        await Task.delete(taskData.id)
+        onRemove()
     }
 
-    // Выбор исполнителя
-    const updateAssignee = (idx) => {
-        fetch(`${ws}/api/task/change_responsible`, {
-            method: "POST",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        }).then((res) => {
-            res.json().then(onUpdateNeeded)
-        }).catch((error) => {
-            console.error('Ошибка при обновлении исполнителя:', error);
-        });
+    const updateColumn = async (idx) => {
+        await Task.move(taskData.id, idx, 0)
+        onUpdateNeeded()
+    }
+
+    const updateAssignee = async (idx) => {
+        await Task.changeResponsible(taskData.id, idx)
+        onUpdateNeeded()
     }
 
     // Обновление дедлайна
@@ -219,7 +180,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             <p className="font-semibold">Исполнитель</p>
                             <select
                                 id="user"
-                                value={taskData.assignee_id}
+                                value={taskData.assignee}
                                 onChange={(e) => updateAssignee(e.target.value)}
                             >
                                 {users.map((user) => {
