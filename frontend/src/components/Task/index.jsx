@@ -31,8 +31,7 @@ function Task(props) {
               {props.task.title}
             </p>
             <div className="task-pad">
-              <LuText />
-              {props.task.assigneeName}
+              <LuText /> {props.task.assigneeName}
             </div>
           </div>
         )}

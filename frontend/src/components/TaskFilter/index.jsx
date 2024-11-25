@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { LuFilter } from "react-icons/lu"
 import './task_filter.css'; // Импортируем стили
 
-const TaskFilter = ({ onFilterUpdate, users }) => {
+const TaskFilter = ({ onFilterUpdate, users }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -16,7 +16,9 @@ const TaskFilter = ({ onFilterUpdate, users }) => {
 
     return (
         <div className="filter-container font-inter">
-            <button className="filter-button" onClick={() => setIsOpen(!isOpen)}>
+            <button className="filter-button" onClick={() => 
+                setIsOpen(!isOpen)
+            }>
                 <LuFilter />
             </button>
             <input className = "Text"
@@ -51,7 +53,7 @@ const TaskFilter = ({ onFilterUpdate, users }) => {
                         >
                             <option value=''>Все</option>
                             {users.map((user => {
-                                return (<option value={user.id}>{user.fullname}</option>)
+                                return (<option key={user.id} value={user.id}>{user.fullname}</option>)
                             }))}
                         </select>
                     </div>
