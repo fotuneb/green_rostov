@@ -14,6 +14,16 @@ router = Router()
 async def start_command(message: Message, command: CommandObject):
     telegram_id = message.from_user.id
 
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"http://server:8000/api/check_telegram_link/{telegram_id}"
+        ) as response:
+            if response.status == 200:
+                user_data = await response.json()
+                if user_data.get("telegram_id") == telegram_id:
+                    await message.answer(f"Добро пожаловать обратно, {user_data['username']}👋🏻!", reply_markup=main_kb)
+                    return
+
     args = command.args
 
     if not args:
@@ -26,17 +36,6 @@ async def start_command(message: Message, command: CommandObject):
     except BadSignature:
         await message.answer("Некорректный токен. Попробуйте снова.")
         return
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"http://server:8000/api/check_telegram_link/{user_id}"
-        ) as response:
-            if response.status == 200:
-                user_data = await response.json()
-                if user_data.get("telegram_id") == telegram_id:
-                    await message.answer(f"Добро пожаловать обратно, {user_data['username']}👋🏻!", reply_markup=main_kb)
-                    return
-
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
