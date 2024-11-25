@@ -449,10 +449,7 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
 
     # Генерируем уникальное имя файла с сохранением расширения
     unique_filename = f"{uuid.uuid4()}.jpg"  # Сохраняем как JPEG
-    upload_dir = os.path.join("uploads", "avatars")
-    os.makedirs(upload_dir, exist_ok=True)
-    file_path = os.path.join(upload_dir, unique_filename)
-
+    file_path = os.path.join("/backend/uploads", unique_filename)
     # Сохраняем сжатое изображение на диск
     try:
         image.save(file_path, "JPEG")
@@ -491,10 +488,6 @@ async def create_attachment_for_task(task_id: int, file: UploadFile):
     # Генерируем уникальное имя файла с сохранением расширения
     file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
     unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
-
-    # Создаем директорию, если её нет
-    #upload_dir = os.path.join("uploads", "attachments")
-    #os.makedirs(upload_dir, exist_ok=True)
 
     # Полный путь к файлу
     file_path = os.path.join("/backend/uploads", unique_filename)
