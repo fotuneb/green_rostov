@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from tortoise.transactions import in_transaction
 from tortoise.exceptions import DoesNotExist
-from app.user.authentication import get_current_user
+from app.user.authentication import get_current_user, get_privileged_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
 from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
@@ -17,8 +17,10 @@ import base64
 import os
 import uuid
 from app.task.util import validate_image_file
+from openpyxl.drawing.image import Image as OpenpyxlImage
 from PIL import Image
 import io
+from starlette.background import BackgroundTask
 
 
 
@@ -27,11 +29,7 @@ router = APIRouter()
 
 # возвращается id и index
 @router.put("/api/column")
-async def create_column(title: str, current_user: UserModel = Depends(get_current_user)):
-    # проверка на текущего пользователя
-    if current_user.role == "guest":
-        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="You haven't sufficient permission")
-
+async def create_column(title: str, current_user: UserModel = Depends(get_privileged_user)):
     columns_exist = await Column.exists()
     if columns_exist:
         max_index_record = await Column.all().order_by("-index").values("index")
@@ -52,7 +50,7 @@ async def create_column(title: str, current_user: UserModel = Depends(get_curren
 
 # возвращается HTTP STATUS 200 OK в случае успеха
 @router.delete("/api/column/{id}")
-async def delete_column(id: int):
+async def delete_column(id: int, current_user: UserModel = Depends(get_privileged_user)):
     try:
         column = await Column.get(id=id)
         await column.delete()
@@ -64,7 +62,7 @@ async def delete_column(id: int):
 
 # возвращается ok 200
 @router.post("/api/column/rename/{info.id}")
-async def rename_column(info: ObjectRenameInfo):
+async def rename_column(info: ObjectRenameInfo, current_user: UserModel = Depends(get_privileged_user)):
     try:
         column = await Column.get(id=info.id)
         column.title = info.new_title
@@ -73,13 +71,9 @@ async def rename_column(info: ObjectRenameInfo):
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Column not found")
 
-
-
-# [+] realisation drag-n-drop for column
-
 # возвращается status ok 200
 @router.put("/api/columns/move")
-async def move_column(ColumnInfoDrag: Column_drag):
+async def move_column(ColumnInfoDrag: Column_drag, current_user: UserModel = Depends(get_privileged_user)):
     async with in_transaction() as conn:
         # Получаем колонку, которую необходимо переместить
         column = await Column.get_or_none(id=ColumnInfoDrag.column_id)
@@ -159,21 +153,15 @@ async def get_task_using_id(task_id: int):
         "attachments": attachment_list  # Добавляем список вложений
     }
 
-
 # вывод всех колонок 
 @router.get("/api/columns")
 async def get_columns():
     column = await Column.all()
     return column
 
-
-
-
-# [+] создание task'a
-
 # возвращается id и индекс; содерджимое (description) изначально пусто
 @router.put("/api/task")
-async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depends(get_current_user)):
+async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depends(get_privileged_user)):
     tasks_exist = await Task.exists()
     if tasks_exist:
         # Если колонки существуют, находим максимальный индекс
@@ -210,12 +198,9 @@ async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depend
         "time_track":task.time_track        # +
     }
 
-
-
-
 # возвращается ok 200
 @router.delete("/api/task/{id}")
-async def delete_task(id: int):
+async def delete_task(id: int, current_user: UserModel = Depends(get_privileged_user)):
     try:
         task = await Task.get(id=id)
         await task.delete()
@@ -224,11 +209,9 @@ async def delete_task(id: int):
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
 
 
-
-# POST /api/task/rename - переименовать (передаю id и новое название, жду 200)
 # возвращается ok 200
 @router.post("/api/task/rename")
-async def rename_task(info: ObjectRenameInfo):
+async def rename_task(info: ObjectRenameInfo, current_user: UserModel = Depends(get_privileged_user)):
     try:
         task = await Task.get(id=info.id)
         task.title = info.new_title
@@ -237,14 +220,9 @@ async def rename_task(info: ObjectRenameInfo):
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
 
-
-
-
-
-# POST /api/task/change_contents - изменить содержимое (как выше, но текст)
 # возвращается ok 200
 @router.post("/api/task/change_contents")
-async def change_task_content(TaskChangeInfo: Task_for_desc):
+async def change_task_content(TaskChangeInfo: Task_for_desc, current_user: UserModel = Depends(get_privileged_user)):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
         task.description = TaskChangeInfo.desc
@@ -253,12 +231,6 @@ async def change_task_content(TaskChangeInfo: Task_for_desc):
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="description not found")
 
-
-
-
-
-# POST /api/task/change_responsible - изменить ответственного (передается id пользователя, ожидаю 200)
-# ожидаю 200
 # отправка уведомления в тг при изменении
 @router.post("/api/task/change_responsible")
 async def change_responsible(TaskChangeInfo: Task_change_resposible):
@@ -281,7 +253,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
 
 # POST /api/task/move - поменять порядок (передаю id, столбец и индекс, в котором должна находиться таска, жду 200)
 @router.put("/api/tasks/move")
-async def move_task(TaskDragInfo: Task_Drag):
+async def move_task(TaskDragInfo: Task_Drag, current_user: UserModel = Depends(get_privileged_user)):
     async with in_transaction() as conn:
         # Получаем задачу, которую необходимо переместить
         task = await Task.get_or_none(id=TaskDragInfo.task_id)
@@ -327,9 +299,6 @@ async def move_task(TaskDragInfo: Task_Drag):
     return {"success": "ok"}
 
 
-    
-
-# POST /api/task/comments/ создать (передается text, user_id, task_id, возвращается id коммента)
 @router.post("/api/comments")
 async def create_comment(CommentInfo: CommentPublicInfo):
     # проверка на существование задачи
@@ -392,21 +361,18 @@ async def get_comments(task_id: int):
 # генерация эксель файла
 @router.get("/export/board")
 async def export_board_to_excel():
-    # Получаем все колонки с задачами
     columns = await Column.all().prefetch_related('column')
     if not columns:
         return "Не удалось экспортировать доску, проверьте, существует ли она"
-    # Создаем новый Excel-файл
+
     workbook = Workbook()
-    workbook.remove(workbook.active)  # Удаляем стандартный пустой лист
-    
+    workbook.remove(workbook.active)
+
     for column in columns:
-        # Создаем лист для каждой колонки
-        worksheet = workbook.create_sheet(title=column.title[:30])  # Ограничиваем название до 30 символов
+        worksheet = workbook.create_sheet(title=column.title[:30])
         worksheet.append(["ID", "Название задачи", "Описание", "Автор", "Назначенный пользователь", "Дата создания", "Дата обновления"])
 
-        # Добавляем задачи на лист
-        tasks = await Task.filter(column=column.id).prefetch_related("author", "assignee")
+        tasks = await Task.filter(column=column.id).select_related("author", "assignee__avatar")
         for task in tasks:
             worksheet.append([
                 task.id,
@@ -418,12 +384,33 @@ async def export_board_to_excel():
                 task.updated_at.strftime("%Y-%m-%d %H:%M:%S") if task.updated_at else "Нет данных"
             ])
 
-    # Сохраняем файл
-    #filename = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
-    filepath = f"board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+            # Вставка изображений в Excel (если необходимо)
+            # Получаем путь к изображению для задачи (например, если есть avatar)
+            if task.assignee and task.assignee.avatar:
+                image_path = (
+                    task.assignee.avatar.file_path if task.assignee and task.assignee.avatar else "Нет аватара"
+                )
+                image = Image.open(image_path)
+                img_stream = io.BytesIO()
+                image.save(img_stream, format="PNG")
+                img_stream.seek(0)
+                img = openpyxl.drawing.image.Image(img_stream)
+                worksheet.add_image(img, "H1")  # Добавляем изображение в ячейку H1 (можно изменить)
+
+    # Сохраняем файл в Docker volume
+    filepath = f"/backend/uploads/board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
     
     workbook.save(filepath)
-    return FileResponse(filepath, filename=filepath, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    def cleanup_file():
+        if os.path.exists(filepath):
+            os.remove(filepath)
+    return FileResponse(
+        filepath, 
+        filename=filepath.split("/")[-1],  # Передаем только имя файла
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        background=BackgroundTask(cleanup_file)  # Указываем задачу для удаления
+    )
+
 
 @router.get("/api/tasks_tg")
 async def get_user_tasks_for_tg(telegram_id: int):
@@ -482,10 +469,7 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
 
     # Генерируем уникальное имя файла с сохранением расширения
     unique_filename = f"{uuid.uuid4()}.jpg"  # Сохраняем как JPEG
-    upload_dir = os.path.join("uploads", "avatars")
-    os.makedirs(upload_dir, exist_ok=True)
-    file_path = os.path.join(upload_dir, unique_filename)
-
+    file_path = os.path.join("/backend/uploads", unique_filename)
     # Сохраняем сжатое изображение на диск
     try:
         image.save(file_path, "JPEG")
@@ -521,13 +505,13 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
 #     if not validate_image_file(file_bytes):
 #         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
 
-#     # Генерируем уникальное имя файла с сохранением расширения
-#     file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
-#     unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
+    # Генерируем уникальное имя файла с сохранением расширения
+    file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
+    unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
 
-#     # Создаем директорию, если её нет
-#     upload_dir = os.path.join("uploads", "attachments")
-#     os.makedirs(upload_dir, exist_ok=True)
+    # Создаем директорию, если её нет
+    upload_dir = os.path.join("uploads", "attachments")
+    os.makedirs(upload_dir, exist_ok=True)
 
 #     # Полный путь к файлу
 #     file_path = os.path.join(upload_dir, unique_filename)

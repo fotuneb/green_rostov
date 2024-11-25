@@ -79,7 +79,12 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }, [isOpen])
 
     const updateDescription = () => {
-        Task.changeDescription(taskData.id, description)
+        fetch(`/api/task/change_contents`, {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + getCookie('token')
+            }
+        });
     }
 
     // 
@@ -90,19 +95,40 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         }
     };
 
-    const deleteTask = async () => {
-        await Task.delete(taskData.id)
-        onRemove()
+    // Удаление задачи
+    const deleteTask = () => {
+        fetch(`${ws}/api/task/${taskData.id}`, {
+            method: "DELETE",
+            headers: {
+                'Authorization': 'Bearer ' + getCookie('token')
+            }
+        }).then((res) => {
+            res.json().then(onRemove)
+        })
+    }
+    
+    // Обновление колонки
+    const updateColumn = (idx) => {
+        fetch(`${ws}/api/tasks/move`, {
+            method: "PUT",
+            headers: {
+                'Authorization': 'Bearer ' + getCookie('token')
+            }
+        }).then((res) => {
+            res.json().then(onUpdateNeeded)
+        })
     }
 
-    const updateColumn = async (idx) => {
-        await Task.move(taskData.id, idx, 0)
-        onUpdateNeeded()
-    }
-
-    const updateAssignee = async (idx) => {
-        await Task.changeResponsible(taskData.id, idx)
-        onUpdateNeeded()
+    // Выбор исполнителя
+    const updateAssignee = (idx) => {
+        fetch(`${ws}/api/tasks/change_responsible`, {
+            method: "PUT",
+            headers: {
+                'Authorization': 'Bearer ' + getCookie('token')
+            }
+        }).then((res) => {
+            res.json().then(onUpdateNeeded)
+        })
     }
 
     // Обновление дедлайна
