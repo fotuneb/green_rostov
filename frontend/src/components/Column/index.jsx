@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { LuTrash2 } from "react-icons/lu";
 import { getCookie } from "../../utilities/cookies.js";
-import { Column, User } from "../../utilities/api.js";
+import { Column, Avatar } from "../../utilities/api.js";
 import Task from "../Task";
 import AddTask from "../AddTask";
 import "./column.css"
@@ -77,13 +77,13 @@ function ColumnCompotent(props) {
     return true;
   })
 
-  // Метод для получения пути для аватарки
-  const getUser = async () => {
-    return User.getById(getCookie('user_id'));
+  // Получение аватарки пользователя по эндпоинту
+  const fetchAvatar = async () => {
+    return await Avatar.getFile();
   }
 
-  // Устанавливаем аватарку
-  getUser().then((obj) => setAvatarPath(obj.avatar_url))
+  // Устанавливаем в стейте путь к аватарке
+  fetchAvatar().then((data) => setAvatarPath(data.url))
 
 
   // Установка прав

@@ -61,17 +61,8 @@ const EditProfile = ({closeModal}) => {
         const file = fileRef.current.files[0];
         const data = await Avatar.sendFile(userID, file);
 
-        // Получение аватарки пользователя по эндпоинту
-        const fetchAvatar = async () => {
-            return await Avatar.getFile();
-        }
-
-        fetchAvatar().then((data) => console.log("Дата на каждом фетче:", data))
-
-        // console.log("Объект, содержащий сгенерированную на бэкэнде ссылку:", data);
-        // console.log("Аватарка:", fetchAvatar());
-        // console.log("Изменения сохранены");
-
+        // Изменение названия файла в sandbox
+        setFileName(file.name);
 
         User.changePublicInfo(userInfo)
 

@@ -1,10 +1,9 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Modal } from "../TaskModal";
-import { getCookie } from "../../utilities/cookies";
+import { getCookie } from "../../utilities/cookies.js";
 import { User } from "../../utilities/api.js";
 import "./task.css"
-import { getCookie } from "../../utilities/cookies";
 
 function Task(props) {
   const [isModalOpen, setModalOpen] = useState(false);
