@@ -6,6 +6,7 @@ function AddColumn(props) {
   const [showNewColumnButton, setShowNewColumnButton] = useState(true);
   const [value, setValue] = useState("");
 
+  // Обработка события завершения ввода
   function handleInputComplete(event) {
     if (event.key === "Enter") {
       addColumn(event.target.value);
@@ -15,6 +16,7 @@ function AddColumn(props) {
     }
   }
 
+  // Добавление новой колонки
   async function addColumn(title) {
     await Column.create(title)
     props.onColumnAdded()

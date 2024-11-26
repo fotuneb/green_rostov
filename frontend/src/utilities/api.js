@@ -288,3 +288,19 @@ export var Attachment = {
         return `/api/attachments/${attachmentId}`
     }
 }
+
+// Работа с комментами
+export var Comments = {
+    getAll: async (task_id) => {
+        const res = await sendAPIRequestJSON(`api/comments/?task_id=${task_id}`, 'GET');
+        return res;
+    },
+    addNewComment: async (text, id_user, id_task) => {
+        const res = await sendAPIRequestJSON(`/api/comments`, 'POST', true, {
+            text: text,
+            id_user: id_user,
+            id_task: id_task
+        })
+        return await res.json();
+    }
+}

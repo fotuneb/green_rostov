@@ -8,9 +8,11 @@ import "./task.css"
 function Task(props) {
   const [isModalOpen, setModalOpen] = useState(false);
 
+  // Открытие и закрытие окна
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
+  // Обработка события удаления
   const onRemove = () => {
     closeModal();
     props.onTaskDeleted()

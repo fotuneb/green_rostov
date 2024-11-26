@@ -12,13 +12,16 @@ function Navbar({setIsLogged}) {
   // Проверяем, находится ли пользователь на странице /admin
   const isAdminPage = location.pathname === "/admin";
 
+  // Открытие/закрытие модального окна
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
+  // Функционал кнопки "Экспорт в Excel"
   const excelExport = () => {
     window.location.href = process.env.REACT_APP_PUBLIC_URL + '/export/board';
   }
 
+  // Проверка, задан ли токен (авторизованность пользователя)
   const isLogged = isCookieExists('token')
 
   return (
