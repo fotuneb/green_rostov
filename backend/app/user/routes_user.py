@@ -171,9 +171,9 @@ async def link_telegram(data: dict):
 @router1.get("/api/check_telegram_link/{telegram_id}")
 async def check_telegram_link(telegram_id: int):
     user = await UserModel.filter(telegram_id=telegram_id).first()
-    if user.telegram_id:
-        return {"telegram_id": user.telegram_id, "username": user.fullname}
-    return {"telegram_id": None, "username": None}
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"telegram_id": user.telegram_id, "username": user.fullname}
 
 # используется у тг-бота
 @router1.get("/api/user/notifications_get/{telegram_id}")
