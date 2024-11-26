@@ -15,19 +15,3 @@
     padding: 5px;
 }
 
-.h-full {
-    max-height: 50vh; 
-    overflow-y: auto; 
-    padding-right: 10px; 
-    scrollbar-width: thin; 
-}
-
-.h-full::-webkit-scrollbar {
-    width: 8px; 
-}
-
-.h-full::-webkit-scrollbar-thumb {
-    background-color: #ffffff; 
-    border-radius: 5px; 
-}
-
