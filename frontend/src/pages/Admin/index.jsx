@@ -42,6 +42,11 @@ const Admin = () => {
     };
     const closeModal = () => setModalOpen(false);
 
+    // Функционал кнопки "Экспорт в Excel"
+    const excelExport = () => {
+        window.location.href = process.env.REACT_APP_PUBLIC_URL + '/export/board';
+    }
+
     // Проверяем, находится ли пользователь на странице /admin
     const isAdminPage = location.pathname === "/admin";
 
@@ -74,6 +79,9 @@ const Admin = () => {
                     ))}
                 </tbody>
             </table>
+            <div className="admin-custom-actions">
+                <button className="admin-button" onClick={excelExport}>Экспортировать доску в Excel</button>
+            </div>
         </div>
         </>
        
