@@ -250,3 +250,31 @@ export var Board = {
         return columns
     }
 }
+
+export var Avatar = {
+    sendFile: async (usedId, fileName) => {
+        const searchParams = new URLSearchParams();
+        const headers = {
+            'Content-Type': 'multipart/form-data'
+        }
+
+        // Параметры для запроса
+        const relativeURL = "/api/avatar/";
+        const method = "POST";
+        const body = {
+            "file": fileName,
+            "type": "image/png"
+        }
+        
+        // Заполнение параметров из body
+        for (const key in body)
+            searchParams.append(key, body[key])
+
+        // Отправка запроса
+        return await fetch(publicURL + relativeURL + "?user_id=" + usedId, {
+            method,
+            headers,
+            body: searchParams.toString()
+        })
+    }
+}

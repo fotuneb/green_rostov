@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
 import { Link, useNavigate } from 'react-router-dom';
-import { User } from '../../utilities/api.js'
+import { User } from '../../utilities/api.js';
+import AvatarInput from "../AvatarInput";
 
 const EditProfile = ({closeModal}) => {
     const [userInfo, setUserInfo] = useState({
@@ -86,15 +87,11 @@ const EditProfile = ({closeModal}) => {
     };
 
     return (
-        <div className="font-inter">
+        <div className="font-inter model-content-wrapper">
             <h1 className="text-center">Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
                 <div className="avatar">
-                    <input type="file" 
-                           className="user-profile-save user-profile-avatar-btn font-inter" 
-                           placeholder="Изменить аватарку">
-                    </input>
-                    {/* <img src={getAvatarPath} alt="Аватарочка...." /> */}
+                    <AvatarInput />
                 </div>
                 <div className="input-group">
                     <label className="user-profile-label">ФИО:</label>
