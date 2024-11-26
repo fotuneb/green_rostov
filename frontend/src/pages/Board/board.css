@@ -8,8 +8,30 @@ body {
     overflow-y: auto;
     margin: 0;
     padding-top: 70px;
+   scrollbar-width: thin;
+   scrollbar-color: #b9ddff #ffffff ;
+
 }
 
+
+::-webkit-scrollbar {
+   width: 8px;
+   height: 8px;
+}
+
+::-webkit-scrollbar-track {
+   background: #ffffff;
+   border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+   background: #ffffff;
+   border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+   background: #b9ddff;
+}
 .board {
     margin-top: 1em;
 }
