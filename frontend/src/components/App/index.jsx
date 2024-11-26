@@ -7,9 +7,8 @@ import Register from "../../pages/Register";
 import BoardPage from "../../pages/Board";
 import Admin from "../../pages/Admin";
 import Navbar from "../Navbar";
-import FileHandler from "../FileHandler";
+import FileHandler from "../FileHandler/";
 
-//
 // Получить токен пользователя
 function getToken() {
   return getCookie("token");
@@ -51,7 +50,7 @@ function App() {
           path="/login"
           element={
             <PublicRoute isLogged={isLogged} redirectTo="/board">
-              <Login setToken={setToken} />
+              <Login setIsLogged={setIsLogged} />
             </PublicRoute>
           }
         />
@@ -61,7 +60,7 @@ function App() {
           path="/signup"
           element={
             <PublicRoute isLogged={isLogged} redirectTo="/board">
-              <Register setToken={setToken} />
+              <Register setIsLogged={setIsLogged} />
             </PublicRoute>
           }
         />
@@ -72,11 +71,17 @@ function App() {
           element={
             <ProtectedRoute isLogged={isLogged} redirectTo="/login">
               <>
-                <Navbar token={token} setToken={setToken} />
-                <BoardPage token={token} />
+                <Navbar setIsLogged={setIsLogged} />
+                <BoardPage />
               </>
             </ProtectedRoute>
           }
+        />
+
+        {/* Поддержка статических файлов в роутинге */}
+        <Route
+          path="/backend/uploads/:filePath"
+          element={<FileHandler />}
         />
 
         {/* Маршрут для админки */}
@@ -85,8 +90,8 @@ function App() {
           element={
             <ProtectedRoute isLogged={isLogged} redirectTo="/login">
               <>
-                <Navbar token={token} setToken={setToken} />
-                <Admin token={token} />
+                <Navbar setIsLogged={setIsLogged} />
+                <Admin />
               </>
             </ProtectedRoute>
           }

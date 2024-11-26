@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import "./user_profile_modal.css"
-import { getCookie } from '../../utilities/cookies.js';
-import { Link, useNavigate } from 'react-router-dom';
+import { getCookie, setCookie } from '../../utilities/cookies.js';
 import { User, Avatar } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
 
 const EditProfile = ({closeModal}) => {
+    const fileRef = useRef(null);
     const fileRef = useRef(null);
     const [fileName, setFileName] = useState("Файл не выбран");
     const [userInfo, setUserInfo] = useState({
@@ -100,7 +100,7 @@ const EditProfile = ({closeModal}) => {
             <h1 className="text-center">Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
                 <div className="avatar">
-                    <AvatarInput ref={fileRef} fileName={fileName} setFileName={setFileName} />
+                    <AvatarInput fileName={fileName} setFileName={setFileName} ref={fileRef} />
                 </div>
                 <div className="input-group">
                     <label className="user-profile-label">ФИО:</label>

@@ -3,7 +3,9 @@ const publicURL = process.env.REACT_APP_PUBLIC_URL;
 
 
 const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body = undefined, contentType = undefined) => {
-    const headers = {}
+    const headers = {
+        'accept': 'application/json'
+    }
 
     if (authorized)
         headers['Authorization'] = 'Bearer ' + getCookie('token')
@@ -42,12 +44,12 @@ const sendAPIRequestURLEncoded = async (relativeUrl, method, authorized = true, 
     })
 }
 
-// Метод для отправки по API на сервер медиа
+
 const sendAPIRequestMedia = async (relativeUrl, method, body, authorized = true) => {
     const headers = {}
 
     if (authorized)
-        headers['Authorization'] = 'Bearer ' + getCookie('token');
+        headers['Authorization'] = 'Bearer ' + getCookie('token')
 
     return await fetch(publicURL + relativeUrl, {
         method,
@@ -275,9 +277,9 @@ export var Board = {
 
 // Работа с аватарками
 export var Avatar = {
-    sendFile: async (userId, fileName) => {
+    sendFile: async (userId, file) => {
         const formData = new FormData();
-        formData.append('file', fileName);
+        formData.append('file', file);
 
         const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
 

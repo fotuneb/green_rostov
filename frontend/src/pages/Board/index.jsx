@@ -1,17 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
-import { getCookie } from "../../utilities/cookies.js";
+import { getCookie, isCookieExists } from "../../utilities/cookies.js";
 import TaskFilter from "../../components/TaskFilter";
 import ColumnCompotent from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
-import Navbar from "../../components/Navbar";
 import { User, Board, Task, Column } from "../../utilities/api.js";
 import "./board.css";
 
-const ws = process.env.REACT_APP_PUBLIC_URL
-
-function BoardPage({ token }) {
+function BoardPage() {
   const [board, setBoard] = useState([]);
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState({
@@ -22,6 +19,7 @@ function BoardPage({ token }) {
   });
 
   const hasRights = getCookie('role') != 'guest';
+  const isLogged = isCookieExists('token')
 
   useEffect(() => {
     fetchBoard().then((data) => { setBoard(data) });
@@ -79,7 +77,7 @@ function BoardPage({ token }) {
     <div className="board-main">
       <TaskFilter users={users} onFilterUpdate={(f) => setFilter(f)} />
       <div className="board board-columns font-inter">
-        {token ? (
+        {isLogged ? (
           <>
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable

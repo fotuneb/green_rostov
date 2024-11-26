@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from "react";
+import React, { forwardRef } from "react";
 
 const AvatarInput = forwardRef(({ fileName, setFileName }, ref) => {
   
@@ -22,6 +22,7 @@ const AvatarInput = forwardRef(({ fileName, setFileName }, ref) => {
         className="user-profile-avatar-input"
         accept="image/*"
         onChange={handleFileChanges}
+        ref={ref}
         style={{ display: "none" }} // Скрыть стандартный input (если нужно)
         ref={ref}
       />
