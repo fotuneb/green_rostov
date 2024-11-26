@@ -7,7 +7,7 @@ import './task_modal.css';
 
 const ws = process.env.REACT_APP_PUBLIC_URL
 
-const formatDate = (dateString, reversed) => {
+const formatDate = (dateString, reversed, dayOnly) => {
     const date = new Date(dateString); // Преобразуем строку в объект Date
   
     // Получаем компоненты даты и времени
@@ -17,22 +17,33 @@ const formatDate = (dateString, reversed) => {
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Месяцы в JS начинаются с 0
     const year = date.getUTCFullYear();
+
+    if (dayOnly)
+        return `${year}-${month}-${day}`
   
     // Форматируем в нужный вид
     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 }
 
 const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
-    const [newValue, setNewValue] = useState('')
+    const val = formatDate(deadlineValue, undefined, true)
+    const [newValue, setNewValue] = useState(val)
 
     if (isEditing) {
         return (
             <>
             <input
                 type="date"
+                className="task-deadline-input"
+                value={newValue}
                 onChange={(e) => setNewValue(e.target.value)}
             />
-            <button onClick={() => {onEdited(newValue); setIsEditing(false)}}>Z</button>
+            <button className="task-button font-inter" onClick={() => {
+                onEdited(newValue); 
+                setIsEditing(false)}
+                }>
+                    Сохранить
+            </button>
             </>
 
         )
@@ -40,7 +51,7 @@ const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
 
     return (
         <p onClick={() => setIsEditing(true)}>
-            {deadlineValue || 'Не установлен (нажмите для редактирования)'}
+            {deadlineValue && formatDate(deadlineValue) || 'Не установлен (нажмите для редактирования)'}
         </p>
     )
 }
@@ -52,6 +63,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [title, setTitle] = useState(taskData.title);
     const [description, setDescription] = useState(taskData.description || '');
     const [users, setUsers] = useState([]);
+    const [deadline, setDeadline] = useState('')
 
     const hasRights = getCookie('role') != 'guest';
     const quillRef = useRef(null); // Ссылка на редактор
@@ -63,21 +75,19 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         detail.assigneeName = task.assigneeName
         detail.authorName = task.authorName
 
-        console.log(detail)
-
         setTaskData(detail);
         setTitle(detail.title);
         setDescription(detail.description || '');
+        setDeadline(detail.deadline || '')
     }, [isOpen]);
 
 
-    useEffect(async () => {
+    useEffect(() => {
         if (!isOpen) return;
-
-        const users = await User.getAll()
-        setUsers(users)
+        User.getAll().then(setUsers)
     }, [isOpen])
 
+    // Обновление описания таски
     const updateDescription = () => {
         fetch(`/api/task/change_contents`, {
             method: "POST",
@@ -87,7 +97,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         });
     }
 
-    // 
+    // Хэндлер для изменения заголовка таски
     const handleTitleChange = (e) => {
         if (e.key === 'Enter') {
             Task.rename(taskData.id, title)
@@ -95,45 +105,32 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         }
     };
 
-    // Удаление задачи
-    const deleteTask = () => {
-        fetch(`${ws}/api/task/${taskData.id}`, {
-            method: "DELETE",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        }).then((res) => {
-            res.json().then(onRemove)
-        })
-    }
-    
-    // Обновление колонки
-    const updateColumn = (idx) => {
-        fetch(`${ws}/api/tasks/move`, {
-            method: "PUT",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        }).then((res) => {
-            res.json().then(onUpdateNeeded)
-        })
+    const deleteTask = async () => {
+        await Task.delete(taskData.id)
+        onRemove()
     }
 
-    // Выбор исполнителя
-    const updateAssignee = (idx) => {
-        fetch(`${ws}/api/tasks/change_responsible`, {
-            method: "PUT",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        }).then((res) => {
-            res.json().then(onUpdateNeeded)
-        })
+    const updateColumn = async (idx) => {
+        await Task.move(taskData.id, idx, 0)
+        onUpdateNeeded()
+        taskData.column_id = idx
+        setTaskData(taskData)
+    }
+
+    const updateAssignee = async (idx) => {
+        await Task.changeResponsible(taskData.id, idx)
+        onUpdateNeeded()
+        taskData.assignee = idx
+        setTaskData(taskData)
     }
 
     // Обновление дедлайна
-    const updateDeadline = (deadlineDay) => {
-        console.log(new Date(deadlineDay))
+    const updateDeadline = async (deadlineDay) => {
+        const [yyyy, mm, dd] = deadlineDay.split('-')
+        const apiDeadlineString = `${dd}.${mm}.${yyyy} 00:00:00`
+
+        await Task.changeDeadline(taskData.id, apiDeadlineString)
+        setDeadline(`${yyyy}-${mm}-${dd}T00:00:00`)
     }
 
     if (!isOpen) return null;
@@ -164,28 +161,34 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         formats={Modal.formats}
                     />
                     {hasRights && <button className="task-button font-inter" onClick={updateDescription}>Сохранить изменения</button>}
+                    <h3>Вложения</h3>
+                    <div className="attachments-container">
+                        <img src="" alt="" className="attachment" />
+                        <img src="" alt="" className="attachment" />
+                        <img src="" alt="" className="attachment" />
+                    </div>
                 </div>
                 <div className="modal-actions">
                     <ul>
                         <li>
-                            <p className="font-semibold">Автор</p>
+                            <p className="font-semibold">Автор:</p>
                             <p>{taskData.authorName}</p>
                         </li>
                         <li>
-                            <p className="font-semibold">Дата создания</p>
+                            <p className="font-semibold">Дата создания:</p>
                             <p>{formatDate(taskData.created_at)}</p>
                         </li>
                         <li>
-                            <p className="font-semibold">Дата изменения</p>
+                            <p className="font-semibold">Дата изменения:</p>
                             <p>{formatDate(taskData.updated_at)}</p>
                         </li>
                         <li>
-                            <p className="font-semibold">Дедлайн</p>
-                            <DeadlineRow isEditing={isEditingDeadline} setIsEditing={setIsEditingDeadline} deadlineValue={taskData.deadline} onEdited={(val) => updateDeadline(val)} />
+                            <p className="font-semibold">Дедлайн:</p>
+                            <DeadlineRow isEditing={isEditingDeadline} setIsEditing={setIsEditingDeadline} deadlineValue={deadline} onEdited={updateDeadline} />
                         </li>
                         <li>
-                            <p className="font-semibold">Исполнитель</p>
-                            <select
+                            <p className="font-semibold">Исполнитель:</p>
+                            <select className = "task_modal_choice"
                                 id="user"
                                 value={taskData.assignee}
                                 onChange={(e) => updateAssignee(e.target.value)}
@@ -200,8 +203,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             </select>
                         </li>
                         <li>
-                            <p className="font-semibold">Статус задачи</p>
-                            <select
+                            <p className="font-semibold">Статус задачи:</p>
+                            <select className = "task_modal_choice"
                                 id="role"
                                 value={taskData.column}
                                 onChange={(e) => updateColumn(e.target.value)}

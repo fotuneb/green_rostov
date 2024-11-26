@@ -16,6 +16,11 @@ export const getCookie = (key) => {
     return null;
 };
 
+// используется для проверки, залогинен ли пользователь
+export const isCookieExists = (key) => {
+    return getCookie(key) !== null
+}
+
 // Удаление куки
 export const deleteCookie = (key) => {
     document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;

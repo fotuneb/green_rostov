@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ManageUserModal } from "../../components/ManageUserModal"
+import { ManageUserModal } from "../../components/ManageUserModal";
+import { useLocation } from "react-router-dom";
 import { User } from '../../utilities/api';
+
 import './admin.css';
 
 const fetchUsers = async () => {
@@ -18,10 +20,12 @@ const fetchUsers = async () => {
     return data
 }
 
-const Admin = ({ token }) => {
+const Admin = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState({});
+    const location = useLocation();
 
+    // Получение данных о юзере
     useEffect(() => {
         const getUsers = async () => {
             const userList = await fetchUsers();
@@ -38,16 +42,24 @@ const Admin = ({ token }) => {
     };
     const closeModal = () => setModalOpen(false);
 
+    // Проверяем, находится ли пользователь на странице /admin
+    const isAdminPage = location.pathname === "/admin";
+
     return (
-        <div className="admin-container font-inter">
-            <ManageUserModal isOpen={isModalOpen} selectedUser={selectedUser} token={token} onClose={closeModal} />
-            <h1>Страница администрирования</h1>
+        <>
+            <div className="admin-container font-inter">
+                <ManageUserModal 
+                isOpen={isModalOpen} 
+                selectedUser={selectedUser} 
+                onClose={closeModal}
+                isAdminPage={isAdminPage} />
+            <h1 className = "Admin_page_h">Страница администрирования</h1>
             <table className="user-table">
                 <thead>
                     <tr>
-                        <th>ФИО</th>
-                        <th>Роль</th>
-                        <th>Действия</th>
+                        <th>ФИО:</th>
+                        <th>Роль:</th>
+                        <th>Действия:</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,6 +75,8 @@ const Admin = ({ token }) => {
                 </tbody>
             </table>
         </div>
+        </>
+       
     );
 };
 

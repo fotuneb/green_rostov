@@ -46,6 +46,10 @@
     transition: border-color 0.3s ease;
 }
 
+.model-content-wrapper {
+  height: 100%;
+}
+
 .input-group input:focus, 
 .input-group select:focus {
     border-color: #1B4B73; 
@@ -60,7 +64,7 @@
   }
   
   
-  .user-profile-save, .user-profile-avatar-btn {
+  .user-profile-save {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -75,10 +79,6 @@
     border: none;
     transition: all 0.3s ease;
     margin: 15px 0 0;
-  }
-
-  .user-profile-avatar-btn {
-    margin-bottom: 15px;
   }
   
   .user-profile-save:hover {

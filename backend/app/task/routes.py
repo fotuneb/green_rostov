@@ -232,7 +232,7 @@ async def change_task_content(TaskChangeInfo: Task_for_desc, current_user: UserM
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="description not found")
 
 # отправка уведомления в тг при изменении
-@router.post("/api/task/change_responsible")
+@router.post("/api/task/change_responsible/")
 async def change_responsible(TaskChangeInfo: Task_change_resposible):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
@@ -432,7 +432,7 @@ async def get_user_tasks_for_tg(telegram_id: int):
 
 
 
-@router.post("/api/avatar/")
+@router.post("/api/avatar")
 async def create_attachment_for_user(user_id: int, file: UploadFile):
     # Проверяем, что MIME-тип соответствует ожиданиям
     if file.content_type not in ["image/jpeg", "image/png"]:
@@ -476,60 +476,99 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving compressed image: {str(e)}")
 
-    # Создаем запись о вложении
-    attachment = await Attachment.create(file_path=file_path)
+    # удаление и создание нового вложения для юзера (норм работает)
+    # if user.avatar:
+    #     try:
+    #         old_avatar_id = user.avatar_id
+    #         old_attachment = await Attachment.get(id=old_avatar_id)
+        
+    #         os.remove(old_attachment.file_path)  # Удаляем файл с сервера
+    #         await old_attachment.delete()
 
-    user.avatar = attachment
-    await user.save()
-
-    return {"id": attachment.id, "file_path": attachment.file_path}
+    #     except Exception as e:
+    #         raise HTTPException(status_code=500, detail=f"Error deleting old avatar: {str(e)}")
 
 
+    # # Создаем запись о вложении
+    # attachment = await Attachment.create(file_path=file_path)
+    # user.avatar = attachment
 
-@router.post("/api/attachments/")
-async def create_attachment_for_task(task_id: int, file: UploadFile):
-    # Проверяем, что MIME-тип соответствует ожиданиям
-    if file.content_type not in ["image/jpeg", "image/png"]:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Only JPG and PNG files are allowed")
+    if user.avatar:
+        try:
+            print("file_path:", file_path)
+            old_avatar_id = user.avatar_id
+            old_attachment = await Attachment.get(id=old_avatar_id)
+            old_path = old_attachment.file_path
+            print("old_path:", old_path)
 
-    # Проверка, существует ли задача
-    try:
-        task = await Task.get(id=task_id)
-    except DoesNotExist:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+            old_attachment.file_path = file_path
+            await old_attachment.save()
 
-    # Считываем содержимое файла
-    file_bytes = await file.read()
+            os.remove(old_path)  # Удаляем файл с сервера
+            
+            await user.save()
+            return {"id": old_attachment.id, "file_path": old_attachment.file_path}
 
-    # Проверяем содержимое файла на допустимый формат
-    if not validate_image_file(file_bytes):
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error deleting old avatar: {str(e)}")
+    else:
+        # Создаем запись о вложении
+        attachment = await Attachment.create(file_path=file_path)
+        user.avatar = attachment
+
+        await user.save()
+        return {"id": attachment.id, "file_path": attachment.file_path}
+
+
+
+# @router.post("/api/attachments/")
+# async def create_attachment_for_task(task_id: int, file: UploadFile):
+#     # Проверяем, что MIME-тип соответствует ожиданиям
+#     if file.content_type not in ["image/jpeg", "image/png"]:
+#         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Only JPG and PNG files are allowed")
+
+#     # Проверка, существует ли задача
+#     try:
+#         task = await Task.get(id=task_id)
+#     except DoesNotExist:
+#         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+
+#     # Считываем содержимое файла
+#     file_bytes = await file.read()
+
+#     # Проверяем содержимое файла на допустимый формат
+#     if not validate_image_file(file_bytes):
+#         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
 
     # Генерируем уникальное имя файла с сохранением расширения
-    file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
-    unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
+    # file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
+    # unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
 
-    # Полный путь к файлу
-    file_path = os.path.join("/backend/uploads", unique_filename)
+    # # Создаем директорию, если её нет
+    # upload_dir = os.path.join("uploads", "attachments")
+    # os.makedirs(upload_dir, exist_ok=True)
 
-    # Сохраняем файл
-    try:
-        with open(file_path, "wb") as f:
-            f.write(file_bytes)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
+#     # Полный путь к файлу
+#     file_path = os.path.join(upload_dir, unique_filename)
 
-    # Создаем запись о вложении
-    attachment = await Attachment.create(file_path=file_path)
+#     # Сохраняем файл
+#     try:
+#         with open(file_path, "wb") as f:
+#             f.write(file_bytes)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
 
-    # Привязываем вложение к задаче через связь Many-to-Many
-    await task.attachments.add(attachment)
+#     # Создаем запись о вложении
+#     attachment = await Attachment.create(file_path=file_path)
 
-    return {"id": attachment.id, "file_path": attachment.file_path}
+#     # Привязываем вложение к задаче через связь Many-to-Many
+#     await task.attachments.add(attachment)
+
+#     return {"id": attachment.id, "file_path": attachment.file_path}
 
 
 
-@router.get("/api/attachments/")
+@router.get("/api/attachments")
 async def get_attachments():
     attachments = await Attachment.all()
     return attachments
@@ -564,7 +603,7 @@ async def delete_attachment(attachment_id: int):
 
 
 
-@router.get("/api/attachments/{attachment_id}/")
+@router.get("/api/attachments/{attachment_id}")
 async def create_url_for_file(attachment_id: int):
     # Ищем вложение по id
     try:

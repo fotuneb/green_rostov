@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
-import { Link, useNavigate } from 'react-router-dom';
-import { User } from '../../utilities/api.js'
+import { User, Avatar } from '../../utilities/api.js';
+import AvatarInput from "../AvatarInput";
 
 const EditProfile = ({closeModal}) => {
+    const [fileName, setFileName] = useState("Файл не выбран");
     const [userInfo, setUserInfo] = useState({
         fullname: '',
         about: '',
@@ -18,8 +19,8 @@ const EditProfile = ({closeModal}) => {
     });
 
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
+    // Обработка перехода на тг-бота
     const handleTgBot = async () => {
         const data = await User.getTelegramLink(getCookie('user_id'))
         window.open(data.telegram_link)
@@ -52,18 +53,29 @@ const EditProfile = ({closeModal}) => {
         })
     }, [userInfo])
 
+    // Обработка смены информации о юзере
     const handleUserInfoChange = (e) => {
         const { name, value } = e.target;
         setUserInfo((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Обработка смены пароля
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
         setPasswords((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Обработка сохранения изменений в форме
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Отправка аватарки
+        const userID = getCookie('user_id');
+        const data = await Avatar.sendFile(userID, fileName);
+        
+        console.log(data);
+        console.log("Изменения сохранены");
+
 
         User.changePublicInfo(userInfo)
 
@@ -86,14 +98,11 @@ const EditProfile = ({closeModal}) => {
     };
 
     return (
-        <div className="font-inter">
+        <div className="font-inter model-content-wrapper">
             <h1 className="text-center">Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
                 <div className="avatar">
-                    <button className="user-profile-save user-profile-avatar-btn font-inter" type="submit">
-                        Установить аватарку
-                    </button>
-                    {/* <img src={getAvatarPath} alt="Аватарочка...." /> */}
+                    <AvatarInput fileName={fileName} setFileName={setFileName} />
                 </div>
                 <div className="input-group">
                     <label className="user-profile-label">ФИО:</label>

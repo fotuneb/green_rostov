@@ -5,7 +5,7 @@ import { setCookie } from "../../utilities/cookies.js";
 import './login.css'; // Импортируем стили
 
 
-const Login = (props) => {
+const Login = ({setIsLogged}) => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
@@ -19,12 +19,13 @@ const Login = (props) => {
       const access_token = data["access_token"];
       const user_id = data["id"];
       const role = data["role"];
-      // Задаем токен
-      props.setToken(access_token);
       // Сохранение данных в куки
       setCookie("token", access_token);
       setCookie("user_id", user_id);
       setCookie("role", role);
+      
+      setIsLogged(true)
+
       // Переходим в доску
       navigate("/board");
     } catch (error) {
