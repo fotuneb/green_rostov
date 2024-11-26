@@ -7,7 +7,6 @@ import AvatarInput from "../AvatarInput";
 
 const EditProfile = ({closeModal}) => {
     const fileRef = useRef(null);
-    const fileRef = useRef(null);
     const [fileName, setFileName] = useState("Файл не выбран");
     const [userInfo, setUserInfo] = useState({
         fullname: '',
@@ -21,7 +20,6 @@ const EditProfile = ({closeModal}) => {
     });
 
     // Получение аватарки
-
     const [error, setError] = useState('');
 
     // Обработка перехода на тг-бота

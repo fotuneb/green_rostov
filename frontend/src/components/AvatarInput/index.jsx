@@ -24,7 +24,6 @@ const AvatarInput = forwardRef(({ fileName, setFileName }, ref) => {
         onChange={handleFileChanges}
         ref={ref}
         style={{ display: "none" }} // Скрыть стандартный input (если нужно)
-        ref={ref}
       />
     </>
   );
