@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { getCookie } from '../../utilities/cookies.js';
 import ReactQuill from 'react-quill';
 import { Task, User } from '../../utilities/api.js';
+import TaskComment from '../TaskComment/';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
 
@@ -65,7 +66,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [title, setTitle] = useState(taskData.title);
     const [description, setDescription] = useState(taskData.description || '');
     const [users, setUsers] = useState([]);
-    const [deadline, setDeadline] = useState('')
+    const [deadline, setDeadline] = useState('');
+    const [comments, setComments] = useState([]);
 
     const hasRights = getCookie('role') != 'guest';
     const quillRef = useRef(null); // Ссылка на редактор
@@ -134,6 +136,12 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setDeadline(`${yyyy}-${mm}-${dd}T00:00:00`)
     }
 
+    // Получение комментариев
+    useEffect(() => {
+        if (!isOpen) return;
+        User.getAll().then(setUsers)
+    }, [isOpen])
+
     if (!isOpen) return null;
 
     return (
@@ -162,10 +170,9 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         formats={Modal.formats}
                     />
                     {hasRights && <button className="task-button font-inter" onClick={updateDescription}>Сохранить изменения</button>}
-                    <div className="attachments-container">
-                        <img src="" alt="" className="attachment" />
-                        <img src="" alt="" className="attachment" />
-                        <img src="" alt="" className="attachment" />
+                    <div className="comments">
+                        <h3>Комментарии</h3>
+
                     </div>
                 </div>
                 <div className="modal-actions">

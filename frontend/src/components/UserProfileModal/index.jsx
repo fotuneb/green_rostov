@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import "./user_profile_modal.css"
 import { getCookie, setCookie } from '../../utilities/cookies.js';
 import { User, Avatar } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
+import "./user_profile_modal.css"
 
 const EditProfile = ({closeModal}) => {
     const fileRef = useRef(null);
