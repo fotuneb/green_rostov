@@ -7,7 +7,6 @@ import Register from "../../pages/Register";
 import BoardPage from "../../pages/Board";
 import Admin from "../../pages/Admin";
 import Navbar from "../Navbar";
-import FileHandler from "../FileHandler/";
 
 // Получить токен пользователя
 function getToken() {
@@ -39,8 +38,7 @@ function App() {
     return !isLogged ? children : <Navigate to={redirectTo} replace />;
   };
 
-  // Если флаг true, при запуске отправляем юзера на доску
-  // Если флаг false, пользователь должен пройти авторизацию
+  // Настройки маршрутизации
   return (
     <div className="App">
      <BrowserRouter>
@@ -78,12 +76,6 @@ function App() {
           }
         />
 
-        {/* Поддержка статических файлов в роутинге */}
-        <Route
-          path="/backend/uploads/:filePath"
-          element={<FileHandler />}
-        />
-
         {/* Маршрут для админки */}
         <Route
           path="/admin"
@@ -103,12 +95,6 @@ function App() {
           element={
             isLogged ? <Navigate to="/board" replace /> : <Navigate to="/login" replace />
           }
-        />
-
-         {/* Статические файлы */}
-        <Route
-          path="/backend/uploads/:filePath"
-          element={<FileHandler />}
         />
 
         {/* Страница 404 */}

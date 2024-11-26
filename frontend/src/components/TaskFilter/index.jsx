@@ -9,6 +9,7 @@ const TaskFilter = ({ onFilterUpdate, users }, ref) => {
     const [filterText, setFilterText] = useState("");
     const [responsiblePerson, setResponsiblePerson] = useState(''); // Заглушка
 
+    // Обработка применения фильтров
     const handleApplyFilters = () => {
         onFilterUpdate({ startDate, endDate, responsiblePerson, filterText });
         setIsOpen(false);

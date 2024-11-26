@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { UserAdmin } from '../../utilities/api';
 import "./manage_user_modal.css";
@@ -8,17 +7,19 @@ const EditProfile = ({ user, isAdminPage }) => {
     const [userFullname, setUserFullname] = useState(user.fullname);
     const [curError, setCurError] = useState('');
 
-
+    // Стейт для установки паролей
     const [passwords, setPasswords] = useState({
         newPassword: '',
         confirmPassword: '',
     });
 
+    // Обработка смены пароля
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
         setPasswords((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Обработка сохранения изменений
     const handleSubmit = (e) => {
         e.preventDefault();
 

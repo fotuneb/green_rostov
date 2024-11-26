@@ -13,6 +13,7 @@ const EditProfile = ({closeModal}) => {
         about: '',
     });
 
+    // Установление паролей
     const [passwords, setPasswords] = useState({
         currentPassword: '',
         newPassword: '',
@@ -28,6 +29,7 @@ const EditProfile = ({closeModal}) => {
         window.open(data.telegram_link)
     }
 
+    // Установление данных о юзере
     useEffect(() => {
         if (userInfo.fullname !== '' || userInfo.about !== '')
             return
@@ -74,6 +76,7 @@ const EditProfile = ({closeModal}) => {
             return
         }
 
+        // Смена пароля пользователя
         try {
             await User.changePassword(passwords.currentPassword, passwords.newPassword)
             setError('')

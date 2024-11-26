@@ -25,6 +25,7 @@ const formatDate = (dateString, reversed, dayOnly) => {
     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 }
 
+// Функционал дедлайнов
 const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
     const val = formatDate(deadlineValue, undefined, true)
     const [newValue, setNewValue] = useState(val)
@@ -56,6 +57,7 @@ const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
     )
 }
 
+// Основной компонент модального окна
 export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }) => {
     const [taskData, setTaskData] = useState(task);
     const [isEditing, setIsEditing] = useState(false);
@@ -68,6 +70,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const hasRights = getCookie('role') != 'guest';
     const quillRef = useRef(null); // Ссылка на редактор
 
+    // Получаем основные данные о таске
     useEffect(async () => {
         if (!isOpen) return;
         
@@ -81,20 +84,15 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setDeadline(detail.deadline || '')
     }, [isOpen]);
 
-
+    // Установление юзера, прикрепленного к таске
     useEffect(() => {
         if (!isOpen) return;
         User.getAll().then(setUsers)
     }, [isOpen])
 
     // Обновление описания таски
-    const updateDescription = () => {
-        fetch(`/api/task/change_contents`, {
-            method: "POST",
-            headers: {
-                'Authorization': 'Bearer ' + getCookie('token')
-            }
-        });
+    const updateDescription = async () => {
+        await Task.changeDescription(task.id, description);
     }
 
     // Хэндлер для изменения заголовка таски
@@ -105,11 +103,13 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         }
     };
 
+    // Удаление таски
     const deleteTask = async () => {
         await Task.delete(taskData.id)
         onRemove()
     }
 
+    // Обновление колонки
     const updateColumn = async (idx) => {
         await Task.move(taskData.id, idx, 0)
         onUpdateNeeded()
@@ -117,6 +117,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setTaskData(taskData)
     }
 
+    // Обновление назначенного таске юзера
     const updateAssignee = async (idx) => {
         await Task.changeResponsible(taskData.id, idx)
         onUpdateNeeded()
@@ -161,7 +162,6 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         formats={Modal.formats}
                     />
                     {hasRights && <button className="task-button font-inter" onClick={updateDescription}>Сохранить изменения</button>}
-                    <h3>Вложения</h3>
                     <div className="attachments-container">
                         <img src="" alt="" className="attachment" />
                         <img src="" alt="" className="attachment" />
