@@ -5,7 +5,13 @@ const RouteSaver = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Сохраняем текущий маршрут в localStorage
+    // Список маршрутов для исключения из записи
+    const exclude = ["/404"]
+
+    // Не сохраняем, если содержит маршрут из списка исключенных
+    if (exclude.includes(location.pathname)) return;
+
+    // Доступные маршруты записываем в localStorage
     localStorage.setItem("lastVisitedRoute", location.pathname);
   }, [location]);
 

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ManageUserModal } from "../../components/ManageUserModal"
+import { ManageUserModal } from "../../components/ManageUserModal";
+import { useLocation } from "react-router-dom";
 import { User } from '../../utilities/api';
-import Navbar from "../../components/Navbar";
+
 import './admin.css';
 
 const fetchUsers = async () => {
@@ -22,6 +23,7 @@ const fetchUsers = async () => {
 const Admin = ({ token }) => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState({});
+    const location = useLocation();
 
     // Получение данных о юзере
     useEffect(() => {
@@ -40,10 +42,18 @@ const Admin = ({ token }) => {
     };
     const closeModal = () => setModalOpen(false);
 
+    // Проверяем, находится ли пользователь на странице /admin
+    const isAdminPage = location.pathname === "/admin";
+
     return (
         <>
             <div className="admin-container font-inter">
-            <ManageUserModal isOpen={isModalOpen} selectedUser={selectedUser} token={token} onClose={closeModal} />
+                <ManageUserModal 
+                isOpen={isModalOpen} 
+                selectedUser={selectedUser} 
+                token={token} 
+                onClose={closeModal}
+                isAdminPage={isAdminPage} />
             <h1 className = "Admin_page_h">Страница администрирования</h1>
             <table className="user-table">
                 <thead>

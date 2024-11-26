@@ -34,6 +34,16 @@ function BoardPage({ token }) {
     return await Board.fetch() 
   }
 
+  const updateScroll = () => {
+    const overflowState = {
+      overflowX: "hidden"
+    }
+
+    
+
+    return overflowState
+  }
+
   const updateBoard = () => {
     fetchBoard().then((data) => { setBoard(data) })
   }

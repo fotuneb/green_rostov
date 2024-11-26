@@ -89,7 +89,12 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
     // Обновление описания таски
     const updateDescription = () => {
-        Task.changeDescription(taskData.id, description)
+        fetch(`/api/task/change_contents`, {
+            method: "POST",
+            headers: {
+                'Authorization': 'Bearer ' + getCookie('token')
+            }
+        });
     }
 
     // Хэндлер для изменения заголовка таски

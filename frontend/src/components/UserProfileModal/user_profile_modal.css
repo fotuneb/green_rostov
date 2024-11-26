@@ -6,11 +6,48 @@
     margin-bottom: 0.2em;
 }
 
-.user-profile-save {
-    width: 100%;
-    padding: 1em;
-    background-color: rgb(0, 133, 255);
-    border: none;
-    border-radius: 6px;
+ .user-profile-avatar-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
+    width: 95%;
+    background-color: #1B4B73; 
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+    margin: 15px 0 0;
+  }
+
+  .avatar-file-name-display {
+    margin-left: 10px;
+    font-style: italic;
+    color: #ffff;
+  }
+
+  .user-profile-avatar-btn {
+    margin-bottom: 15px;
+  }
+  
+  .user-profile-save:hover {
+    background-color: #1B4B73;
+  }
+  
+  .user-profile-save:last-child {
+    background-color: #4022D7;
+  }
+  
+  .user-profile-save:last-child:hover {
+    background-color: #4022D7;
+  }
+  
+
+/* Скрываем реальный input */
+.user-profile-avatar-input {
+    display: none;
 }
+
