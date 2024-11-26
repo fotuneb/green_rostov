@@ -47,6 +47,11 @@ async def get_admin_user(current_user: UserModel = Depends(get_current_user)):
         )
     return current_user
 
+async def get_privileged_user(current_user: UserModel = Depends(get_current_user)):
+    if current_user.role == "guest":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You haven't sufficient permission")
+    return current_user
+
 async def generate_telegram_link(user_id: int):
     serializer = URLSafeTimedSerializer(settings.secret_key)
     token = serializer.dumps(user_id)

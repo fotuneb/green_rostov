@@ -15,8 +15,8 @@ class UserModel(Model):
     notifications = fields.BooleanField(default=True)
 
     avatar = fields.ForeignKeyField("models.Attachment", related_name="user_avatar", null = True, on_delete=fields.CASCADE)
-
-
+    
+    
     def verify_password(self, password):
         return bcrypt.verify(password, self.password)
 

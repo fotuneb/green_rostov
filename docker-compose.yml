@@ -21,6 +21,7 @@ services:
       - database
     volumes:
       - ./backend:/app/api
+      - /backend/uploads
 
   client:
     build:
