@@ -43,24 +43,18 @@ async def change_password(user_id: int, new_password: str, admin_user: UserModel
     return {"msg": "Role updated successfully"}
 
 @router1.get("/api/get_users")
-async def get_users():
-    # Получаем всех пользователей и их аватарки
-    users = await UserModel.all().prefetch_related("avatar").values(
-        "id", "fullname", "role", "avatar_id"
-    )
-
-    return users
+async def get_users(current_user: UserModel = Depends(get_current_user)):
+    if current_user.role == "admin":
+        return await UserModel.all().prefetch_related("avatar").values("id", "fullname", "role", "avatar_id", "login")
+    else:
+        return await UserModel.all().prefetch_related("avatar").values("id", "fullname", "role", "avatar_id")
 
 @router1.get("/api/get_user/{user_id}")
-async def get_user(user_id: int):
-    # Получаем пользователя вместе с его аватаркой
-    user = await UserModel.get(id=user_id).prefetch_related("avatar").values("fullname", "role", "about", "avatar_id")
-
-    return user
-# async def get_user(user_id: int):
-#     user = await UserModel.get(id=user_id).values("fullname", "role", "about", "avatar_id")
-#     # {'fullname': 'Admin User', 'role': 'admin', 'about': 'System administrator', 'avatar_id': None}
-#     return user
+async def get_user(user_id: int, current_user: UserModel = Depends(get_current_user)):
+    if current_user.role == "admin":
+        return await UserModel.get(id=user_id).prefetch_related("avatar").values("id", "fullname", "role", "avatar_id", "login")
+    else:
+        return await UserModel.get(id=user_id).prefetch_related("avatar").values("id", "fullname", "role", "avatar_id")
 
 @router1.post("/api/users")
 async def create_user(user_in: UserIn):

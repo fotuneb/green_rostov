@@ -64,6 +64,7 @@ const Admin = () => {
                     <tr>
                         <th>ФИО:</th>
                         <th>Роль:</th>
+                        <th>Логин:</th>
                         <th>Действия:</th>
                     </tr>
                 </thead>
@@ -72,6 +73,7 @@ const Admin = () => {
                         <tr key={user.id}>
                             <td>{user.fullname}</td>
                             <td>{user.role}</td>
+                            <td>{user.login}</td>
                             <td>
                                 <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
                             </td>
