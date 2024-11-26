@@ -7,8 +7,8 @@ import Register from "../../pages/Register";
 import BoardPage from "../../pages/Board";
 import Admin from "../../pages/Admin";
 import Navbar from "../Navbar";
+import FileHandler from "../FileHandler/";
 
-//
 // Получить токен пользователя
 function getToken() {
   return getCookie("token");
@@ -76,6 +76,12 @@ function App() {
               </>
             </ProtectedRoute>
           }
+        />
+
+        {/* Поддержка статических файлов в роутинге */}
+        <Route
+          path="/backend/uploads/:filePath"
+          element={<FileHandler />}
         />
 
         {/* Маршрут для админки */}

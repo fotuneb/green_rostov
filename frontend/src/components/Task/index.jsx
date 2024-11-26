@@ -1,6 +1,8 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
-import { Modal } from "../TaskModal"
+import { Modal } from "../TaskModal";
+import { getCookie } from "../../utilities/cookies";
+import { User } from "../../utilities/api.js";
 import "./task.css"
 
 function Task(props) {
@@ -13,6 +15,23 @@ function Task(props) {
     closeModal();
     props.onTaskDeleted()
   }
+
+  // Отправка запроса по API для получения объекта пользователя
+  const getAvatarPathObj = async () => {
+    return await User.getById(getCookie('user_id'));
+  };
+
+  // Получение пути к изображению аватарки
+  const getAvatarPath = async () => {
+    getAvatarPathObj()
+    .then((avatarPath) => {
+      return avatarPath['avatar_url']; // Объект из промиса
+    })
+  }
+
+  // Путь к аватарке.
+  const avatarPath = getAvatarPath().toString();
+
 
   return (
     <>
@@ -31,7 +50,7 @@ function Task(props) {
             </p>
             <div className="task-pad task-creator-container">
               <span className="task-creator-name">{props.task.assigneeName}</span>
-              <div className="task-avatar"></div>
+              <div className="task-avatar"><img src={avatarPath} /></div>
             </div>
           </div>
         )}

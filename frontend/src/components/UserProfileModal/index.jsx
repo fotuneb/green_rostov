@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import "./user_profile_modal.css"
-import { getCookie } from '../../utilities/cookies.js';
+import { getCookie, setCookie } from '../../utilities/cookies.js';
 import { User, Avatar } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
 
 const EditProfile = ({closeModal}) => {
+    const fileRef = useRef(null);
     const [fileName, setFileName] = useState("Файл не выбран");
     const [userInfo, setUserInfo] = useState({
         fullname: '',
@@ -71,11 +72,19 @@ const EditProfile = ({closeModal}) => {
 
         // Отправка аватарки
         const userID = getCookie('user_id');
-        const data = await Avatar.sendFile(userID, fileName);
+        const file = fileRef.current.files[0];
+        const data = await Avatar.sendFile(userID, file);
         
-        console.log(data);
-        console.log("Изменения сохранены");
-
+        // Запись пути к аватарке в куки
+        setCookie("avatar_attachments_id", data["id"])
+        setCookie("avatar_link", data['file_path']);
+        console.log(getCookie('avatar_link'));
+        // const attach = await Avatar.getFile();
+        
+        // // Преобразуем ответ в Blob и создаем URL
+        // const blob = await attach.blob();
+        // const imageUrl = URL.createObjectURL(blob);
+        // console.log(imageUrl);
 
         User.changePublicInfo(userInfo)
 
@@ -102,7 +111,7 @@ const EditProfile = ({closeModal}) => {
             <h1 className="text-center">Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
                 <div className="avatar">
-                    <AvatarInput fileName={fileName} setFileName={setFileName} />
+                    <AvatarInput fileName={fileName} setFileName={setFileName} ref={fileRef} />
                 </div>
                 <div className="input-group">
                     <label className="user-profile-label">ФИО:</label>

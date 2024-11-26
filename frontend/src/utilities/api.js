@@ -3,7 +3,9 @@ const publicURL = process.env.REACT_APP_PUBLIC_URL;
 
 
 const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body = undefined, contentType = undefined) => {
-    const headers = {}
+    const headers = {
+        'accept': 'application/json'
+    }
 
     if (authorized)
         headers['Authorization'] = 'Bearer ' + getCookie('token')
@@ -39,6 +41,20 @@ const sendAPIRequestURLEncoded = async (relativeUrl, method, authorized = true, 
         method,
         headers,
         body: searchParams.toString()
+    })
+}
+
+
+const sendAPIRequestMedia = async (relativeUrl, method, body, authorized = true) => {
+    const headers = {}
+
+    if (authorized)
+        headers['Authorization'] = 'Bearer ' + getCookie('token')
+
+    return await fetch(publicURL + relativeUrl, {
+        method,
+        headers,
+        body: body
     })
 }
 
@@ -261,12 +277,16 @@ export var Board = {
 
 // Работа с аватарками
 export var Avatar = {
-    sendFile: async (userId, fileName) => {
+    sendFile: async (userId, file) => {
         const formData = new FormData();
-        formData.append('file', fileName);
+        formData.append('file', file);
 
-        const res = await sendAPIRequestJSON('/api/avatar?user_id=' + userId, 'POST', true, formData)
-
+        const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
+        return await res.json();
+    },
+    getFile: async () => {
+        console.log(`/api/attachments/${getCookie('avatar_attachment_id')}`);
+        const res = await sendAPIRequestJSON(`/api/attachments/${getCookie('avatar_attachment_id')}`, 'GET');
         return await res.json();
     }
 }
