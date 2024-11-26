@@ -7,6 +7,7 @@ function AddTask(props) {
   const [showNewTaskButton, setShowNewTaskButton] = useState(true);
   const [value, setValue] = useState("");
 
+  // Обработка события завершения ввода
   function handleInputComplete(event) {
     if (event.key === "Enter" && event.target.value !== "") {
       addNewTask(event.target.value, props.columnId);
@@ -16,6 +17,7 @@ function AddTask(props) {
     }
   }
 
+  // Добавление новой таски
   async function addNewTask(content, columnId) {
     await Task.create(content, parseInt(columnId))
     props.onTaskAdded()

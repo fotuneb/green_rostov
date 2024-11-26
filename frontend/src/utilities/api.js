@@ -120,7 +120,15 @@ export const User = {
         }
 
         return await res.json()
-    }
+    },
+
+    changeAvatar: async (userId, file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
+        return await res.json();
+    },
 }
 
 // Работа с админом
@@ -275,18 +283,24 @@ export var Board = {
     }
 }
 
-// Работа с аватарками
-export var Avatar = {
-    sendFile: async (userId, file) => {
-        const formData = new FormData();
-        formData.append('file', file);
+export var Attachment = {
+    getURL: (attachmentId) => {
+        return `/api/attachments/${attachmentId}`
+    }
+}
 
-        const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
-
-        return await res.json();
-    },
-    getFile: async (id) => {
-        const res = await sendAPIRequestJSON(`/api/attachments/${getCookie('avatar_attachment_id')}`, 'GET');
+// Работа с комментами
+export var Comments = {
+    getAll: async (task_id) => {
+        const res = await sendAPIRequestJSON(`api/comments/?task_id=${task_id}`, 'GET');
         return res;
+    },
+    addNewComment: async (text, id_user, id_task) => {
+        const res = await sendAPIRequestJSON(`/api/comments`, 'POST', true, {
+            text: text,
+            id_user: id_user,
+            id_task: id_task
+        })
+        return await res.json();
     }
 }

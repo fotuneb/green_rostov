@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import "./user_profile_modal.css"
-import { getCookie, setCookie } from '../../utilities/cookies.js';
-import { User, Avatar } from '../../utilities/api.js';
+import { getCookie } from '../../utilities/cookies.js';
+import { User } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
+import "./user_profile_modal.css"
 
 const EditProfile = ({closeModal}) => {
     const fileRef = useRef(null);
@@ -13,6 +14,7 @@ const EditProfile = ({closeModal}) => {
         about: '',
     });
 
+    // Установление паролей
     const [passwords, setPasswords] = useState({
         currentPassword: '',
         newPassword: '',
@@ -28,6 +30,7 @@ const EditProfile = ({closeModal}) => {
         window.open(data.telegram_link)
     }
 
+    // Установление данных о юзере
     useEffect(() => {
         if (userInfo.fullname !== '' || userInfo.about !== '')
             return
@@ -59,7 +62,7 @@ const EditProfile = ({closeModal}) => {
         // Отправка аватарки
         const userID = getCookie('user_id');
         const file = fileRef.current.files[0];
-        const data = await Avatar.sendFile(userID, file);
+        await User.changeAvatar(userID, file);
 
         // Изменение названия файла в sandbox
         setFileName(file.name);
@@ -74,6 +77,7 @@ const EditProfile = ({closeModal}) => {
             return
         }
 
+        // Смена пароля пользователя
         try {
             await User.changePassword(passwords.currentPassword, passwords.newPassword)
             setError('')
@@ -88,9 +92,7 @@ const EditProfile = ({closeModal}) => {
         <div className="font-inter model-content-wrapper">
             <h1 className="text-center">Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
-                <div className="avatar">
-                    <AvatarInput fileName={fileName} setFileName={setFileName} ref={fileRef} />
-                </div>
+            <AvatarInput fileName={fileName} setFileName={setFileName} ref={fileRef} />
                 <div className="input-group">
                     <label className="user-profile-label">ФИО:</label>
                     <input

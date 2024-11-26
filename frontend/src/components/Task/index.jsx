@@ -1,37 +1,22 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Modal } from "../TaskModal";
-import { getCookie } from "../../utilities/cookies.js";
-import { User } from "../../utilities/api.js";
+import AvatarImage from '../AvatarImage'
+
 import "./task.css"
 
 function Task(props) {
   const [isModalOpen, setModalOpen] = useState(false);
 
+  // Открытие и закрытие окна
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
+  // Обработка события удаления
   const onRemove = () => {
     closeModal();
     props.onTaskDeleted()
   }
-
-  // Отправка запроса по API для получения объекта пользователя
-  const getAvatarPathObj = async () => {
-    return await User.getById(getCookie('user_id'));
-  };
-
-  // Получение пути к изображению аватарки
-  const getAvatarPath = async () => {
-    getAvatarPathObj()
-    .then((avatarPath) => {
-      return avatarPath['avatar_url']; // Объект из промиса
-    })
-  }
-
-  // Путь к аватарке.
-  const avatarPath = getAvatarPath().toString();
-
 
   return (
     <>
@@ -50,7 +35,7 @@ function Task(props) {
             </p>
             <div className="task-pad task-creator-container">
               <span className="task-creator-name">{props.task.assigneeName}</span>
-              <div className="task-avatar"><img src={props.avatarPath} alt="" /></div>
+              <AvatarImage userId={props.task.assignee} />
             </div>
           </div>
         )}
