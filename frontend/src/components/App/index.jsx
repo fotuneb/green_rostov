@@ -7,6 +7,7 @@ import Register from "../../pages/Register";
 import BoardPage from "../../pages/Board";
 import Admin from "../../pages/Admin";
 import Navbar from "../Navbar";
+import FileHandler from "../FileHandler";
 
 //
 // Получить токен пользователя
@@ -97,6 +98,12 @@ function App() {
           element={
             isLogged ? <Navigate to="/board" replace /> : <Navigate to="/login" replace />
           }
+        />
+
+         {/* Статические файлы */}
+        <Route
+          path="/backend/uploads/:filePath"
+          element={<FileHandler />}
         />
 
         {/* Страница 404 */}

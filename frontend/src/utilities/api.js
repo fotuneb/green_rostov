@@ -42,6 +42,20 @@ const sendAPIRequestURLEncoded = async (relativeUrl, method, authorized = true, 
     })
 }
 
+// Метод для отправки по API на сервер медиа
+const sendAPIRequestMedia = async (relativeUrl, method, body, authorized = true) => {
+    const headers = {}
+
+    if (authorized)
+        headers['Authorization'] = 'Bearer ' + getCookie('token');
+
+    return await fetch(publicURL + relativeUrl, {
+        method,
+        headers,
+        body: body
+    })
+}
+
 // Базовая работа с юзером
 export const User = {
     create: async (fullname, login, password) => {
@@ -265,8 +279,12 @@ export var Avatar = {
         const formData = new FormData();
         formData.append('file', fileName);
 
-        const res = await sendAPIRequestJSON('/api/avatar?user_id=' + userId, 'POST', true, formData)
+        const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
 
         return await res.json();
+    },
+    getFile: async (id) => {
+        const res = await sendAPIRequestJSON(`/api/attachments/${getCookie('avatar_attachment_id')}`, 'GET');
+        return res;
     }
 }

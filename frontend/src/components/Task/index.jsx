@@ -1,7 +1,9 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Modal } from "../TaskModal"
+import { User } from "../../utilities/api.js";
 import "./task.css"
+import { getCookie } from "../../utilities/cookies";
 
 function Task(props) {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -31,7 +33,7 @@ function Task(props) {
             </p>
             <div className="task-pad task-creator-container">
               <span className="task-creator-name">{props.task.assigneeName}</span>
-              <div className="task-avatar"></div>
+              <div className="task-avatar"><img src={props.avatarPath} alt="" /></div>
             </div>
           </div>
         )}
