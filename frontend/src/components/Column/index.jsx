@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { LuTrash2 } from "react-icons/lu";
 import { getCookie } from "../../utilities/cookies.js";
-import { Column, Avatar } from "../../utilities/api.js";
+import { Column } from "../../utilities/api.js";
 import Task from "../Task";
 import AddTask from "../AddTask";
 import "./column.css"
@@ -42,8 +42,6 @@ function getColumnColors(columnId) {
 }
 
 function ColumnCompotent(props) {
-  const [avatarPath, setAvatarPath] = useState(null)
-
   async function deleteColumn(columnId, index) {
     await Column.delete(columnId)
     props.onUpdateNeeded()
@@ -76,15 +74,6 @@ function ColumnCompotent(props) {
 
     return true;
   })
-
-  // Получение аватарки пользователя по эндпоинту
-  const fetchAvatar = async () => {
-    return await Avatar.getFile();
-  }
-
-  // Устанавливаем в стейте путь к аватарке
-  fetchAvatar().then((data) => setAvatarPath(data.url))
-
 
   // Установка прав
   const hasRights = getCookie('role') != 'guest';
@@ -137,7 +126,6 @@ function ColumnCompotent(props) {
                       index={task.index}
                       board={props.board}
                       onTaskDeleted={props.onUpdateNeeded}
-                      avatarPath={avatarPath}
                     />
                   ))}
 

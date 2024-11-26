@@ -120,7 +120,15 @@ export const User = {
         }
 
         return await res.json()
-    }
+    },
+
+    changeAvatar: async (userId, file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
+        return await res.json();
+    },
 }
 
 // Работа с админом
@@ -275,18 +283,8 @@ export var Board = {
     }
 }
 
-// Работа с аватарками
-export var Avatar = {
-    sendFile: async (userId, file) => {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
-
-        return await res.json();
-    },
-    getFile: async (id) => {
-        const res = await sendAPIRequestJSON(`/api/attachments/${getCookie('avatar_attachment_id')}`, 'GET');
-        return res;
+export var Attachment = {
+    getURL: (attachmentId) => {
+        return `/api/attachments/${attachmentId}`
     }
 }
