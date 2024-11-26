@@ -70,32 +70,14 @@ const Admin = () => {
                 </thead>
                 <tbody>
                     {users.map(user => (
-                        <>
                         <tr key={user.id}>
-                            <td>{user.fullname}</td>
-                            <td>{user.role}</td>
-                            <td>{user.login}</td>
-                            <td>
-                                <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
-                            </td>
-                        </tr>
-                        <tr key={user.id}>
-                            <td>{user.fullname}</td>
-                            <td>{user.role}</td>
-                            <td>{user.login}</td>
-                            <td>
-                                <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
-                            </td>
-                        </tr>
-                        <tr key={user.id}>
-                            <td>{user.fullname}</td>
-                            <td>{user.role}</td>
-                            <td>{user.login}</td>
-                            <td>
-                                <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
-                            </td>
-                        </tr>
-                        </>
+                        <td>{user.fullname}</td>
+                        <td>{user.role}</td>
+                        <td>{user.login}</td>
+                        <td>
+                            <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
+                        </td>
+                    </tr>
                     ))}
                 </tbody>
             </table>
