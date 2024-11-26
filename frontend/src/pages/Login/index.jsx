@@ -35,7 +35,7 @@ const Login = ({setIsLogged}) => {
 
   return (
     <>
-      <div className="body-wrapper">
+      <div className="body-wrapper-log">
         <div className="main">
             <h1 className="login-title">Kaban</h1>
             <h3>Вход в аккаунт</h3>
