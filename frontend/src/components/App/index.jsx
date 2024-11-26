@@ -50,7 +50,7 @@ function App() {
           path="/login"
           element={
             <PublicRoute isLogged={isLogged} redirectTo="/board">
-              <Login setToken={setToken} />
+              <Login setIsLogged={setIsLogged} />
             </PublicRoute>
           }
         />
@@ -60,7 +60,7 @@ function App() {
           path="/signup"
           element={
             <PublicRoute isLogged={isLogged} redirectTo="/board">
-              <Register setToken={setToken} />
+              <Register setIsLogged={setIsLogged} />
             </PublicRoute>
           }
         />
@@ -71,8 +71,8 @@ function App() {
           element={
             <ProtectedRoute isLogged={isLogged} redirectTo="/login">
               <>
-                <Navbar token={token} setToken={setToken} />
-                <BoardPage token={token} />
+                <Navbar setIsLogged={setIsLogged} />
+                <BoardPage />
               </>
             </ProtectedRoute>
           }
@@ -84,8 +84,8 @@ function App() {
           element={
             <ProtectedRoute isLogged={isLogged} redirectTo="/login">
               <>
-                <Navbar token={token} setToken={setToken} />
-                <Admin token={token} />
+                <Navbar setIsLogged={setIsLogged} />
+                <Admin />
               </>
             </ProtectedRoute>
           }

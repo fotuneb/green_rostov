@@ -20,7 +20,7 @@ const fetchUsers = async () => {
     return data
 }
 
-const Admin = ({ token }) => {
+const Admin = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState({});
     const location = useLocation();
@@ -51,7 +51,6 @@ const Admin = ({ token }) => {
                 <ManageUserModal 
                 isOpen={isModalOpen} 
                 selectedUser={selectedUser} 
-                token={token} 
                 onClose={closeModal}
                 isAdminPage={isAdminPage} />
             <h1 className = "Admin_page_h">Страница администрирования</h1>

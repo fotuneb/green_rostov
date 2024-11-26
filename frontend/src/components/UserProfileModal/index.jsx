@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
-import { Link, useNavigate } from 'react-router-dom';
 import { User, Avatar } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
 

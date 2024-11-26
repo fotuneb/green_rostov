@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { UserAdmin } from '../../utilities/api';
 import "./manage_user_modal.css";
 
-const EditProfile = ({ user, token, isAdminPage }) => {
+const EditProfile = ({ user, isAdminPage }) => {
     const [role, setRole] = useState(user.role);
     const [userFullname, setUserFullname] = useState(user.fullname);
     const [curError, setCurError] = useState('');
@@ -99,13 +99,13 @@ const EditProfile = ({ user, token, isAdminPage }) => {
 };
 
 
-export const ManageUserModal = ({ isOpen, onClose, selectedUser, token, isAdminPage }) => {
+export const ManageUserModal = ({ isOpen, onClose, selectedUser, isAdminPage }) => {
     if (!isOpen) return null;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content manage-user-modal" onClick={(e) => e.stopPropagation()}>
-                <EditProfile user={selectedUser} token={token} isAdminPage={isAdminPage} />
+                <EditProfile user={selectedUser} isAdminPage={isAdminPage} />
             </div>
         </div>
     );
