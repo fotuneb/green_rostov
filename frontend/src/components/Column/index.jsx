@@ -71,7 +71,7 @@ function ColumnCompotent(props) {
       }
     }
 
-    if (filter.responsiblePerson && task.assignee_id != filter.responsiblePerson) {
+    if (filter.responsiblePerson && task.assignee != filter.responsiblePerson) {
       return false;
     }
 
