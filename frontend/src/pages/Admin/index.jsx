@@ -51,13 +51,13 @@ const Admin = () => {
     const isAdminPage = location.pathname === "/admin";
 
     return (
-        <>
-            <div className="admin-container font-inter">
+        <div className="admin-container font-inter">
                 <ManageUserModal 
                 isOpen={isModalOpen} 
                 selectedUser={selectedUser} 
                 onClose={closeModal}
-                isAdminPage={isAdminPage} />
+                isAdminPage={isAdminPage} 
+            />
             <h1 className = "Admin_page_h">Страница администрирования</h1>
             <table className="user-table">
                 <thead>
@@ -70,6 +70,7 @@ const Admin = () => {
                 </thead>
                 <tbody>
                     {users.map(user => (
+                        <>
                         <tr key={user.id}>
                             <td>{user.fullname}</td>
                             <td>{user.role}</td>
@@ -78,15 +79,30 @@ const Admin = () => {
                                 <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
                             </td>
                         </tr>
+                        <tr key={user.id}>
+                            <td>{user.fullname}</td>
+                            <td>{user.role}</td>
+                            <td>{user.login}</td>
+                            <td>
+                                <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
+                            </td>
+                        </tr>
+                        <tr key={user.id}>
+                            <td>{user.fullname}</td>
+                            <td>{user.role}</td>
+                            <td>{user.login}</td>
+                            <td>
+                                <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
+                            </td>
+                        </tr>
+                        </>
                     ))}
                 </tbody>
             </table>
             <div className="admin-custom-actions">
                 <button className="admin-button" onClick={excelExport}>Экспортировать доску в Excel</button>
             </div>
-        </div>
-        </>
-       
+        </div>     
     );
 };
 
