@@ -49,33 +49,12 @@ async def get_users():
         "id", "fullname", "role", "avatar_id"
     )
 
-    # Обрабатываем список пользователей
-    for user in users:
-        if user.get("avatar_id"):
-            try:
-                avatar = await Attachment.get(id=user["avatar_id"])
-                user["avatar_url"] = avatar.file_path  # Добавляем ссылку на аватарку
-            except DoesNotExist:
-                user["avatar_url"] = None  # На случай отсутствия записи в Attachment
-        else:
-            user["avatar_url"] = None  # Если аватарки у пользователя нет
-
     return users
 
 @router1.get("/api/get_user/{user_id}")
 async def get_user(user_id: int):
     # Получаем пользователя вместе с его аватаркой
     user = await UserModel.get(id=user_id).prefetch_related("avatar").values("fullname", "role", "about", "avatar_id")
-
-    # Проверяем наличие аватарки
-    if user.get("avatar_id"):
-        try:
-            avatar = await Attachment.get(id=user["avatar_id"])
-            user["avatar_url"] = avatar.file_path  # Добавляем ссылку на аватарку
-        except DoesNotExist:
-            user["avatar_url"] = None  # На случай, если запись в Attachment отсутствует
-    else:
-        user["avatar_url"] = None  # Если аватарки у пользователя нет
 
     return user
 # async def get_user(user_id: int):
