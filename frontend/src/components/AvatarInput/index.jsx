@@ -1,19 +1,12 @@
 import React, { useState } from "react";
-import { Avatar } from "../../utilities/api";
 
-const AvatarInput = () => {
-  const [fileName, setFileName] = useState("Файл не выбран");
+const AvatarInput = ({ fileName, setFileName }) => {
   
   // Отслеживание смены аватарки
   const handleFileChanges = (event) => {
     const file = event.target.files[0];
     setFileName(file ? file.name : "Файл не выбран");
   };
-
-  // Отправка аватара
-  const changeAvatar = () => {
-    
-  }
 
   return (
     <>

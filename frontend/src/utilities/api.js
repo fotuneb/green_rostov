@@ -2,7 +2,7 @@ import { getCookie } from './cookies'
 const publicURL = process.env.REACT_APP_PUBLIC_URL;
 
 
-const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body = undefined) => {
+const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body = undefined, contentType = undefined) => {
     const headers = {}
 
     if (authorized)
@@ -10,6 +10,9 @@ const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body =
 
     if (body)
         headers['Content-Type'] = 'application/json'
+
+    if (contentType && body)
+        headers['Content-Type'] = contentType
 
     return await fetch(publicURL + relativeUrl, {
         method,
@@ -39,6 +42,7 @@ const sendAPIRequestURLEncoded = async (relativeUrl, method, authorized = true, 
     })
 }
 
+// Базовая работа с юзером
 export const User = {
     create: async (fullname, login, password) => {
         const res = await sendAPIRequestJSON('/api/users', 'POST', false, {
@@ -103,6 +107,7 @@ export const User = {
     }
 }
 
+// Работа с админом
 export const UserAdmin = {
     changeFullname: async (userId, fullname) => {
         const res = await sendAPIRequestJSON(`/api/users/admin/change-fullname/${userId}?new_fullname=${fullname}`, 'POST')
@@ -120,6 +125,7 @@ export const UserAdmin = {
     }
 }
 
+// Работа с тасками
 export const Task = {
     getAll: async () => {
         const res = await sendAPIRequestJSON('/api/tasks', 'GET')
@@ -189,6 +195,7 @@ export const Task = {
     }
 }
 
+// Работа с колонками
 export const Column = {
     getAll: async () => {
         const res = await sendAPIRequestJSON('/api/columns', 'GET')
@@ -215,6 +222,7 @@ export const Column = {
     }
 }
 
+// Работа с досками
 export var Board = {
     fetch: async () => {
         let columns = await Column.getAll()
@@ -251,30 +259,14 @@ export var Board = {
     }
 }
 
+// Работа с аватарками
 export var Avatar = {
-    sendFile: async (usedId, fileName) => {
-        const searchParams = new URLSearchParams();
-        const headers = {
-            'Content-Type': 'multipart/form-data'
-        }
+    sendFile: async (userId, fileName) => {
+        const formData = new FormData();
+        formData.append('file', fileName);
 
-        // Параметры для запроса
-        const relativeURL = "/api/avatar/";
-        const method = "POST";
-        const body = {
-            "file": fileName,
-            "type": "image/png"
-        }
-        
-        // Заполнение параметров из body
-        for (const key in body)
-            searchParams.append(key, body[key])
+        const res = await sendAPIRequestJSON('/api/avatar?user_id=' + userId, 'POST', true, formData)
 
-        // Отправка запроса
-        return await fetch(publicURL + relativeURL + "?user_id=" + usedId, {
-            method,
-            headers,
-            body: searchParams.toString()
-        })
+        return await res.json();
     }
 }

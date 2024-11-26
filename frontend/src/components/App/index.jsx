@@ -8,6 +8,7 @@ import BoardPage from "../../pages/Board";
 import Admin from "../../pages/Admin";
 import Navbar from "../Navbar";
 
+//
 // Получить токен пользователя
 function getToken() {
   return getCookie("token");
