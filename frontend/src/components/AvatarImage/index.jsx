@@ -17,7 +17,6 @@ function AvatarImage({ userId }) {
         if (userData.avatar_id !== null) {
             setAvatarData({
                 attachmentId: userData.avatar_id,
-
             })
         }
         else {
@@ -26,7 +25,7 @@ function AvatarImage({ userId }) {
             })
         }
 
-    }, [avatarData])
+    }, [userId])
 
     const {attachmentId, fallbackStr} = avatarData
 
