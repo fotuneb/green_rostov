@@ -139,8 +139,14 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }
 
     // Обработка ввода нового комментария
-    const addNewComment = async (e) => {
-        const res = await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
+    const addNewComment = async () => {
+        if (newComment === '')
+            return
+
+        await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
+        setNewComment('')
+        const newComments = await Comments.getAll(taskData.id)
+        setComments(newComments)
     }
 
     // Получение комментариев
