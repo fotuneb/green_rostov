@@ -1,12 +1,9 @@
-body {
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
 .container-404 {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 .not-found-title {
@@ -16,14 +13,16 @@ body {
     color: #D422B0;
     font-size: 90px;
     font-family: DynaPuff, sans-serif;
+    font-weight: 900;
 }
 
 .not-found-subtitle {
     position: absolute;
     top: 30%;
     left: 25%;
-    font-size: 20px;
+    font-size: 25px;
     font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
 }
 
 /* Жёлтый круг */

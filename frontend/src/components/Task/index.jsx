@@ -1,14 +1,18 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
-import { Modal } from "../TaskModal"
+import { Modal } from "../TaskModal";
+import AvatarImage from '../AvatarImage'
+
 import "./task.css"
 
 function Task(props) {
   const [isModalOpen, setModalOpen] = useState(false);
 
+  // Открытие и закрытие окна
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
+  // Обработка события удаления
   const onRemove = () => {
     closeModal();
     props.onTaskDeleted()
@@ -31,7 +35,7 @@ function Task(props) {
             </p>
             <div className="task-pad task-creator-container">
               <span className="task-creator-name">{props.task.assigneeName}</span>
-              <div className="task-avatar"></div>
+              <AvatarImage userId={props.task.assignee} />
             </div>
           </div>
         )}

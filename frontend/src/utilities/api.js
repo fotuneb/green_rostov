@@ -3,7 +3,9 @@ const publicURL = process.env.REACT_APP_PUBLIC_URL;
 
 
 const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body = undefined, contentType = undefined) => {
-    const headers = {}
+    const headers = {
+        'accept': 'application/json'
+    }
 
     if (authorized)
         headers['Authorization'] = 'Bearer ' + getCookie('token')
@@ -39,6 +41,20 @@ const sendAPIRequestURLEncoded = async (relativeUrl, method, authorized = true, 
         method,
         headers,
         body: searchParams.toString()
+    })
+}
+
+
+const sendAPIRequestMedia = async (relativeUrl, method, body, authorized = true) => {
+    const headers = {}
+
+    if (authorized)
+        headers['Authorization'] = 'Bearer ' + getCookie('token')
+
+    return await fetch(publicURL + relativeUrl, {
+        method,
+        headers,
+        body: body
     })
 }
 
@@ -104,7 +120,15 @@ export const User = {
         }
 
         return await res.json()
-    }
+    },
+
+    changeAvatar: async (userId, file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
+        return await res.json();
+    },
 }
 
 // Работа с админом
@@ -259,14 +283,24 @@ export var Board = {
     }
 }
 
-// Работа с аватарками
-export var Avatar = {
-    sendFile: async (userId, fileName) => {
-        const formData = new FormData();
-        formData.append('file', fileName);
+export var Attachment = {
+    getURL: (attachmentId) => {
+        return `/api/attachments/${attachmentId}`
+    }
+}
 
-        const res = await sendAPIRequestJSON('/api/avatar?user_id=' + userId, 'POST', true, formData)
-
+// Работа с комментами
+export var Comments = {
+    getAll: async (task_id) => {
+        const res = await sendAPIRequestJSON(`api/comments/?task_id=${task_id}`, 'GET');
+        return res;
+    },
+    addNewComment: async (text, id_user, id_task) => {
+        const res = await sendAPIRequestJSON(`/api/comments`, 'POST', true, {
+            text: text,
+            id_user: id_user,
+            id_task: id_task
+        })
         return await res.json();
     }
 }

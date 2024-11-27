@@ -24,14 +24,7 @@
     gap: 8px; 
   }
   
-  .task-creator-name {
+.task-creator-name {
     font-size: 14px; 
     color: #333; 
-  }
-
-.task-avatar {
-    width: 32px; 
-    height: 32px;
-    background-color: #e0e0e0; 
-    border-radius: 50%; 
 }

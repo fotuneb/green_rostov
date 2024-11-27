@@ -7,6 +7,7 @@ from app.task.util import process_deadline, format_time, datetime_to_seconds
 from app.user.authentication import get_current_user, get_privileged_user
 from app.user.models_user import UserModel
 from fastapi import Depends
+from app.task.tg_http import notify_new_assignee
 
 
 @router.post("/api/tasks/{task_id}/deadline")
@@ -30,6 +31,14 @@ async def update_deadline(task_id: int, new_deadline: str, current_user: UserMod
     # Обновляем дедлайн и сохраняем
     task.deadline = deadline_datetime
     await task.save()
+
+    assignee = await task.assignee  
+  
+    if not assignee or not assignee.telegram_id:
+        return {"new_deadline": task.deadline}
+
+    if assignee.notifications:
+        await notify_new_assignee(assignee.telegram_id, task)
 
     return {"new_deadline": task.deadline}
 

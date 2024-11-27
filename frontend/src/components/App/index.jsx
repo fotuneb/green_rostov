@@ -8,7 +8,6 @@ import BoardPage from "../../pages/Board";
 import Admin from "../../pages/Admin";
 import Navbar from "../Navbar";
 
-//
 // Получить токен пользователя
 function getToken() {
   return getCookie("token");
@@ -39,8 +38,7 @@ function App() {
     return !isLogged ? children : <Navigate to={redirectTo} replace />;
   };
 
-  // Если флаг true, при запуске отправляем юзера на доску
-  // Если флаг false, пользователь должен пройти авторизацию
+  // Настройки маршрутизации
   return (
     <div className="App">
      <BrowserRouter>
