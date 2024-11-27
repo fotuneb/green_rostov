@@ -5,18 +5,16 @@
 body {
     font-family: "Montserrat", sans-serif;
     line-height: 1.5;
-    min-height: 100vh;
-    background: #D6CEFF;
     flex-direction: column;
     margin: 0;
 }
 
-.body-wrapper {
+.body-wrapper-log {
     width: 100vw;
-    height: 100vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: center; 
+    align-items: flex-start; 
+    box-sizing: border-box;
 }
 
 .main {
@@ -31,8 +29,8 @@ body {
 
 .login-title {
     font-family: "DynaPuff", serif;
-    font-size: 50px;
-    color: #392982;
+    font-size: 60px;
+    color: #1B4B73;
     margin-bottom: 5px;
 }
 
@@ -64,7 +62,7 @@ body {
     border: none;
     color: white;
     cursor: pointer;
-    background-color: #392982;
+    background-color:#1B4B73;
     width: 85%;
     font-family: "Montserrat", sans-serif;
     font-weight: 700;
@@ -72,7 +70,7 @@ body {
 }
 
 .login-button:hover {
-    background-color: #392982;
+    background-color:  #2e71a9;
 }
 
 .login-href {

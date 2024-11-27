@@ -2,14 +2,19 @@ import { getCookie } from './cookies'
 const publicURL = process.env.REACT_APP_PUBLIC_URL;
 
 
-const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body = undefined) => {
-    const headers = {}
+const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body = undefined, contentType = undefined) => {
+    const headers = {
+        'accept': 'application/json'
+    }
 
     if (authorized)
         headers['Authorization'] = 'Bearer ' + getCookie('token')
 
     if (body)
         headers['Content-Type'] = 'application/json'
+
+    if (contentType && body)
+        headers['Content-Type'] = contentType
 
     return await fetch(publicURL + relativeUrl, {
         method,
@@ -39,6 +44,21 @@ const sendAPIRequestURLEncoded = async (relativeUrl, method, authorized = true, 
     })
 }
 
+
+const sendAPIRequestMedia = async (relativeUrl, method, body, authorized = true) => {
+    const headers = {}
+
+    if (authorized)
+        headers['Authorization'] = 'Bearer ' + getCookie('token')
+
+    return await fetch(publicURL + relativeUrl, {
+        method,
+        headers,
+        body: body
+    })
+}
+
+// Базовая работа с юзером
 export const User = {
     create: async (fullname, login, password) => {
         const res = await sendAPIRequestJSON('/api/users', 'POST', false, {
@@ -100,9 +120,18 @@ export const User = {
         }
 
         return await res.json()
-    }
+    },
+
+    changeAvatar: async (userId, file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
+        return await res.json();
+    },
 }
 
+// Работа с админом
 export const UserAdmin = {
     changeFullname: async (userId, fullname) => {
         const res = await sendAPIRequestJSON(`/api/users/admin/change-fullname/${userId}?new_fullname=${fullname}`, 'POST')
@@ -120,6 +149,7 @@ export const UserAdmin = {
     }
 }
 
+// Работа с тасками
 export const Task = {
     getAll: async () => {
         const res = await sendAPIRequestJSON('/api/tasks', 'GET')
@@ -132,7 +162,7 @@ export const Task = {
     },
 
     rename: async (taskId, newTitle) => {
-        const res = await sendAPIRequestJSON('/api/task/rename', 'POST', true, {
+        const res = await sendAPIRequestJSON('/api/task/rename/', 'POST', true, {
             id: taskId,
             new_title: newTitle
         })
@@ -141,7 +171,7 @@ export const Task = {
     },
 
     changeDescription: async (taskId, newDesc) => {
-        const res = await sendAPIRequestJSON('/api/task/change_contents', 'POST', true, {
+        const res = await sendAPIRequestJSON('/api/task/change_contents/', 'POST', true, {
             id: taskId,
             desc: newDesc
         })
@@ -150,11 +180,16 @@ export const Task = {
     },
 
     changeResponsible: async (taskId, responsibleUserId) => {
-        const res = await sendAPIRequestJSON('/api/task/change_responsible', 'POST', true, {
+        const res = await sendAPIRequestJSON('/api/task/change_responsible/', 'POST', true, {
             id: taskId,
             id_user: responsibleUserId
         })
 
+        return await res.json()
+    },
+
+    changeDeadline: async (taskId, newDeadline) => {
+        const res = await sendAPIRequestJSON(`/api/tasks/${taskId}/deadline?new_deadline=${newDeadline}`, 'POST')
         return await res.json()
     },
 
@@ -184,6 +219,7 @@ export const Task = {
     }
 }
 
+// Работа с колонками
 export const Column = {
     getAll: async () => {
         const res = await sendAPIRequestJSON('/api/columns', 'GET')
@@ -210,6 +246,7 @@ export const Column = {
     }
 }
 
+// Работа с досками
 export var Board = {
     fetch: async () => {
         let columns = await Column.getAll()
@@ -243,5 +280,27 @@ export var Board = {
             column.tasks.sort((a, b) => a.index - b.index)
 
         return columns
+    }
+}
+
+export var Attachment = {
+    getURL: (attachmentId) => {
+        return `/api/attachments/${attachmentId}`
+    }
+}
+
+// Работа с комментами
+export var Comments = {
+    getAll: async (task_id) => {
+        const res = await sendAPIRequestJSON(`api/comments/?task_id=${task_id}`, 'GET');
+        return res;
+    },
+    addNewComment: async (text, id_user, id_task) => {
+        const res = await sendAPIRequestJSON(`/api/comments`, 'POST', true, {
+            text: text,
+            id_user: id_user,
+            id_task: id_task
+        })
+        return await res.json();
     }
 }

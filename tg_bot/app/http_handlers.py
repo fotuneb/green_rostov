@@ -12,8 +12,8 @@ async def send_change_responsible(request):
     bot: Bot = request.app["bot"]
 
     try:
-        temp = datetime.fromisoformat(deadline).strftime('%d.%m.%Y в %H:%M')
-    except:
+        temp = datetime.fromisoformat(deadline).strftime('%d.%m.%Y в %H:%M') if deadline else "Не указан"
+    except ValueError:
         temp = "Не указан"
 
     message = (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { LuTrash2 } from "react-icons/lu";
 import { getCookie } from "../../utilities/cookies.js";
@@ -7,6 +7,7 @@ import Task from "../Task";
 import AddTask from "../AddTask";
 import "./column.css"
 
+// Кастомные палитры цветов для колонок
 function getColumnColors(columnId) {
   const colors = [
     {
@@ -41,12 +42,14 @@ function getColumnColors(columnId) {
   return colors[columnId % colors.length]
 }
 
+// Основной компонент колонки
 function ColumnCompotent(props) {
   async function deleteColumn(columnId, index) {
     await Column.delete(columnId)
     props.onUpdateNeeded()
   }
 
+  // Функционал фильтра
   let filter = props.filter;
   let tasks = props.tasks.filter((task) => {
     if (filter.filterText != '' && !task.title.includes(filter.filterText)) {
@@ -68,14 +71,17 @@ function ColumnCompotent(props) {
       }
     }
 
-    if (filter.responsiblePerson && task.assignee_id != filter.responsiblePerson) {
+    if (filter.responsiblePerson && task.assignee != filter.responsiblePerson) {
       return false;
     }
 
     return true;
   })
 
+  // Установка прав
   const hasRights = getCookie('role') != 'guest';
+
+  // Установка возможных цветовых палитр
   const { bgColor, titleColor, addTaskBgColor, addTaskTextColor } = getColumnColors(props.column.id)
 
   return (

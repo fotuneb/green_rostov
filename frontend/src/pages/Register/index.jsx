@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { User } from "../../utilities/api";
 import './register.css'; // Импортируем стили
 
-function Register(props) {
+function Register() {
   const [fullname, setFullname] = useState('');
   const [username, setUsername] = useState('');
   const [password1, setPassword1] = useState('');

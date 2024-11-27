@@ -13,13 +13,16 @@
     height: 40px; 
     font-size: 16px;
     font-weight: 700;
-    
+}
+
+.add-column:hover{
+    background-color: #a4d3ff;
 }
 
 input.border{
     border-radius: 20px; 
     padding: 8px 12px; 
-    border: 2px solid #6C97BF; 
+    border: 2px solid #a4d3ff; 
     outline: none;
     transition: all 0.2s ease; 
 }

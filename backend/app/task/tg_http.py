@@ -8,7 +8,7 @@ async def notify_new_assignee(telegram_id: int, task):
     notification_data = {
         "telegram_id": telegram_id,
         "task_title": task.title,
-        "deadline": datetime.fromisoformat(str(task.deadline)).strftime('%d.%m.%Y в %H:%M') if task.deadline else "Не указан",
+        "deadline": task.deadline.isoformat() if task.deadline else None,
     }
 
     async with aiohttp.ClientSession() as session:
@@ -18,6 +18,7 @@ async def notify_new_assignee(telegram_id: int, task):
         ) as response:
             if response.status != 200:
                 print(f"Ошибка отправки уведомления: {await response.text()}")
+
 
 
 async def notify_upcoming_deadlines():

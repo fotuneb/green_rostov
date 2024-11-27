@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ManageUserModal } from "../../components/ManageUserModal"
+import { ManageUserModal } from "../../components/ManageUserModal";
+import { useLocation } from "react-router-dom";
 import { User } from '../../utilities/api';
+
 import './admin.css';
 
 const fetchUsers = async () => {
@@ -18,10 +20,12 @@ const fetchUsers = async () => {
     return data
 }
 
-const Admin = ({ token }) => {
+const Admin = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState({});
+    const location = useLocation();
 
+    // Получение данных о юзере
     useEffect(() => {
         const getUsers = async () => {
             const userList = await fetchUsers();
@@ -38,31 +42,49 @@ const Admin = ({ token }) => {
     };
     const closeModal = () => setModalOpen(false);
 
+    // Функционал кнопки "Экспорт в Excel"
+    const excelExport = () => {
+        window.location.href = process.env.REACT_APP_PUBLIC_URL + '/export/board';
+    }
+
+    // Проверяем, находится ли пользователь на странице /admin
+    const isAdminPage = location.pathname === "/admin";
+
     return (
         <div className="admin-container font-inter">
-            <ManageUserModal isOpen={isModalOpen} selectedUser={selectedUser} token={token} onClose={closeModal} />
-            <h1>Страница администрирования</h1>
+                <ManageUserModal 
+                isOpen={isModalOpen} 
+                selectedUser={selectedUser} 
+                onClose={closeModal}
+                isAdminPage={isAdminPage} 
+            />
+            <h1 className = "Admin_page_h">Страница администрирования</h1>
             <table className="user-table">
                 <thead>
                     <tr>
-                        <th>ФИО</th>
-                        <th>Роль</th>
-                        <th>Действия</th>
+                        <th>ФИО:</th>
+                        <th>Роль:</th>
+                        <th>Логин:</th>
+                        <th>Действия:</th>
                     </tr>
                 </thead>
                 <tbody>
                     {users.map(user => (
                         <tr key={user.id}>
-                            <td>{user.fullname}</td>
-                            <td>{user.role}</td>
-                            <td>
-                                <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
-                            </td>
-                        </tr>
+                        <td>{user.fullname}</td>
+                        <td>{user.role}</td>
+                        <td>{user.login}</td>
+                        <td>
+                            <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
+                        </td>
+                    </tr>
                     ))}
                 </tbody>
             </table>
-        </div>
+            <div className="admin-custom-actions">
+                <button className="admin-button" onClick={excelExport}>Экспортировать доску в Excel</button>
+            </div>
+        </div>     
     );
 };
 

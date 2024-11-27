@@ -232,7 +232,7 @@ async def change_task_content(TaskChangeInfo: Task_for_desc, current_user: UserM
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="description not found")
 
 # отправка уведомления в тг при изменении
-@router.post("/api/task/change_responsible")
+@router.post("/api/task/change_responsible/")
 async def change_responsible(TaskChangeInfo: Task_change_resposible):
     try:
         task = await Task.get(id=TaskChangeInfo.id)
@@ -383,19 +383,6 @@ async def export_board_to_excel():
                 task.created_at.strftime("%Y-%m-%d %H:%M:%S") if task.created_at else "Нет данных",
                 task.updated_at.strftime("%Y-%m-%d %H:%M:%S") if task.updated_at else "Нет данных"
             ])
-
-            # Вставка изображений в Excel (если необходимо)
-            # Получаем путь к изображению для задачи (например, если есть avatar)
-            if task.assignee and task.assignee.avatar:
-                image_path = (
-                    task.assignee.avatar.file_path if task.assignee and task.assignee.avatar else "Нет аватара"
-                )
-                image = Image.open(image_path)
-                img_stream = io.BytesIO()
-                image.save(img_stream, format="PNG")
-                img_stream.seek(0)
-                img = openpyxl.drawing.image.Image(img_stream)
-                worksheet.add_image(img, "H1")  # Добавляем изображение в ячейку H1 (можно изменить)
 
     # Сохраняем файл в Docker volume
     filepath = f"/backend/uploads/board_export_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
