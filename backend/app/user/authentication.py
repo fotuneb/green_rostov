@@ -55,5 +55,5 @@ async def get_privileged_user(current_user: UserModel = Depends(get_current_user
 async def generate_telegram_link(user_id: int):
     serializer = URLSafeTimedSerializer(settings.secret_key)
     token = serializer.dumps(user_id)
-    #f"tg://resolve?domain={settings.bot_name}&start={token}"
+
     return f"https://t.me/{settings.bot_name}?start={token}"

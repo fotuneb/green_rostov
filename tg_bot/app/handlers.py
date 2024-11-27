@@ -6,26 +6,21 @@ from config import SECRET_KEY
 import aiohttp
 from datetime import datetime
 from app.keyboards import main_kb, notifications
+from app.auth import auth, reg
 
 router = Router()
 
 
-@router.message(CommandStart(deep_link=True))
+@router.message(CommandStart())
 async def start_command(message: Message, command: CommandObject):
     telegram_id = message.from_user.id
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-            f"http://server:8000/api/check_telegram_link/{telegram_id}"
-        ) as response:
-            if response.status == 200:
-                user_data = await response.json()
-                if user_data.get("telegram_id") == telegram_id:
-                    await message.answer(f"Добро пожаловать обратно, {user_data['username']}👋🏻!", reply_markup=main_kb)
-                    return
-
     args = command.args
 
+    username = await auth(telegram_id)
+    if username:
+        await message.answer(f"Добро пожаловать обратно, {username} 👋🏻!", reply_markup=main_kb)
+        return
+        
     if not args:
         await message.answer("Добро пожаловать! Впишите команду /start 'token' ")
         return
@@ -36,16 +31,14 @@ async def start_command(message: Message, command: CommandObject):
     except BadSignature:
         await message.answer("Некорректный токен. Попробуйте снова.")
         return
+    
+    if await reg(user_id, telegram_id):
+        await message.answer("Вы успешно привязали Telegram к своему аккаунту!",reply_markup=main_kb)
+        return
+    else:
+        await message.answer("Ошибка привязки. Попробуйте позже.")
+        return
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            "http://server:8000/api/link_telegram",
-            json={"user_id": user_id, "telegram_id": telegram_id},
-        ) as response:
-            if response.status == 200:
-                await message.answer("Вы успешно привязали Telegram к своему аккаунту!",reply_markup=main_kb)
-            else:
-                await message.answer("Ошибка привязки. Попробуйте позже.")
 
 @router.message(F.text == '🔖 Мои задачи 🔖')
 async def my_tasks(message: Message):

@@ -1,24 +1,27 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, Avatar } from '../../utilities/api.js';
+import { User } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
+import "./user_profile_modal.css"
 
 const EditProfile = ({closeModal}) => {
+    const fileRef = useRef(null);
     const [fileName, setFileName] = useState("Файл не выбран");
     const [userInfo, setUserInfo] = useState({
         fullname: '',
         about: '',
     });
 
+    // Установление паролей
     const [passwords, setPasswords] = useState({
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
     });
 
+    // Получение аватарки
     const [error, setError] = useState('');
 
     // Обработка перехода на тг-бота
@@ -27,21 +30,7 @@ const EditProfile = ({closeModal}) => {
         window.open(data.telegram_link)
     }
 
-    // Получение аватарки пользователя по эндпоинту
-    const fetchAvatar = async () => {
-        const data = await fetch('/api/avatar/?user_id=' + getCookie('user_id'), {
-            method: "GET"
-        })
-
-        return await data.json();
-    }
-
-    // Получение пути к аватарке пользователя 
-    const getAvatarPath = async () => {
-        const data = await fetchAvatar();
-        console.log(data);
-    }
-
+    // Установление данных о юзере
     useEffect(() => {
         if (userInfo.fullname !== '' || userInfo.about !== '')
             return
@@ -72,11 +61,11 @@ const EditProfile = ({closeModal}) => {
 
         // Отправка аватарки
         const userID = getCookie('user_id');
-        const data = await Avatar.sendFile(userID, fileName);
-        
-        console.log(data);
-        console.log("Изменения сохранены");
+        const file = fileRef.current.files[0];
+        await User.changeAvatar(userID, file);
 
+        // Изменение названия файла в sandbox
+        setFileName(file.name);
 
         User.changePublicInfo(userInfo)
 
@@ -88,6 +77,7 @@ const EditProfile = ({closeModal}) => {
             return
         }
 
+        // Смена пароля пользователя
         try {
             await User.changePassword(passwords.currentPassword, passwords.newPassword)
             setError('')
@@ -102,9 +92,7 @@ const EditProfile = ({closeModal}) => {
         <div className="font-inter model-content-wrapper">
             <h1 className="text-center">Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
-                <div className="avatar">
-                    <AvatarInput fileName={fileName} setFileName={setFileName} />
-                </div>
+            <AvatarInput fileName={fileName} setFileName={setFileName} ref={fileRef} />
                 <div className="input-group">
                     <label className="user-profile-label">ФИО:</label>
                     <input

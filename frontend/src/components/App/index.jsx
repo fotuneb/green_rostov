@@ -8,7 +8,6 @@ import BoardPage from "../../pages/Board";
 import Admin from "../../pages/Admin";
 import Navbar from "../Navbar";
 
-//
 // Получить токен пользователя
 function getToken() {
   return getCookie("token");
@@ -39,8 +38,7 @@ function App() {
     return !isLogged ? children : <Navigate to={redirectTo} replace />;
   };
 
-  // Если флаг true, при запуске отправляем юзера на доску
-  // Если флаг false, пользователь должен пройти авторизацию
+  // Настройки маршрутизации
   return (
     <div className="App">
      <BrowserRouter>
@@ -50,7 +48,7 @@ function App() {
           path="/login"
           element={
             <PublicRoute isLogged={isLogged} redirectTo="/board">
-              <Login setToken={setToken} />
+              <Login setIsLogged={setIsLogged} />
             </PublicRoute>
           }
         />
@@ -60,7 +58,7 @@ function App() {
           path="/signup"
           element={
             <PublicRoute isLogged={isLogged} redirectTo="/board">
-              <Register setToken={setToken} />
+              <Register setIsLogged={setIsLogged} />
             </PublicRoute>
           }
         />
@@ -71,8 +69,8 @@ function App() {
           element={
             <ProtectedRoute isLogged={isLogged} redirectTo="/login">
               <>
-                <Navbar token={token} setToken={setToken} />
-                <BoardPage token={token} />
+                <Navbar setIsLogged={setIsLogged} />
+                <BoardPage />
               </>
             </ProtectedRoute>
           }
@@ -84,8 +82,8 @@ function App() {
           element={
             <ProtectedRoute isLogged={isLogged} redirectTo="/login">
               <>
-                <Navbar token={token} setToken={setToken} />
-                <Admin token={token} />
+                <Navbar setIsLogged={setIsLogged} />
+                <Admin />
               </>
             </ProtectedRoute>
           }

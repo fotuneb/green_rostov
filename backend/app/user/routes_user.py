@@ -43,45 +43,18 @@ async def change_password(user_id: int, new_password: str, admin_user: UserModel
     return {"msg": "Role updated successfully"}
 
 @router1.get("/api/get_users")
-async def get_users():
-    # Получаем всех пользователей и их аватарки
-    users = await UserModel.all().prefetch_related("avatar").values(
-        "id", "fullname", "role", "avatar_id"
-    )
-
-    # Обрабатываем список пользователей
-    for user in users:
-        if user.get("avatar_id"):
-            try:
-                avatar = await Attachment.get(id=user["avatar_id"])
-                user["avatar_url"] = avatar.file_path  # Добавляем ссылку на аватарку
-            except DoesNotExist:
-                user["avatar_url"] = None  # На случай отсутствия записи в Attachment
-        else:
-            user["avatar_url"] = None  # Если аватарки у пользователя нет
-
-    return users
+async def get_users(current_user: UserModel = Depends(get_current_user)):
+    if current_user.role == "admin":
+        return await UserModel.all().prefetch_related("avatar").values("id", "fullname", "role", "avatar_id", "login")
+    else:
+        return await UserModel.all().prefetch_related("avatar").values("id", "fullname", "role", "avatar_id")
 
 @router1.get("/api/get_user/{user_id}")
-async def get_user(user_id: int):
-    # Получаем пользователя вместе с его аватаркой
-    user = await UserModel.get(id=user_id).prefetch_related("avatar").values("fullname", "role", "about", "avatar_id")
-
-    # Проверяем наличие аватарки
-    if user.get("avatar_id"):
-        try:
-            avatar = await Attachment.get(id=user["avatar_id"])
-            user["avatar_url"] = avatar.file_path  # Добавляем ссылку на аватарку
-        except DoesNotExist:
-            user["avatar_url"] = None  # На случай, если запись в Attachment отсутствует
+async def get_user(user_id: int, current_user: UserModel = Depends(get_current_user)):
+    if current_user.role == "admin":
+        return await UserModel.get(id=user_id).prefetch_related("avatar").values("id", "fullname", "role", "avatar_id", "login")
     else:
-        user["avatar_url"] = None  # Если аватарки у пользователя нет
-
-    return user
-# async def get_user(user_id: int):
-#     user = await UserModel.get(id=user_id).values("fullname", "role", "about", "avatar_id")
-#     # {'fullname': 'Admin User', 'role': 'admin', 'about': 'System administrator', 'avatar_id': None}
-#     return user
+        return await UserModel.get(id=user_id).prefetch_related("avatar").values("id", "fullname", "role", "avatar_id")
 
 @router1.post("/api/users")
 async def create_user(user_in: UserIn):
@@ -171,9 +144,9 @@ async def link_telegram(data: dict):
 @router1.get("/api/check_telegram_link/{telegram_id}")
 async def check_telegram_link(telegram_id: int):
     user = await UserModel.filter(telegram_id=telegram_id).first()
-    if user.telegram_id:
-        return {"telegram_id": user.telegram_id, "username": user.fullname}
-    return {"telegram_id": None, "username": None}
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"telegram_id": user.telegram_id, "username": user.fullname}
 
 # используется у тг-бота
 @router1.get("/api/user/notifications_get/{telegram_id}")

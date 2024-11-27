@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { forwardRef } from "react";
 
-const AvatarInput = ({ fileName, setFileName }) => {
+const AvatarInput = forwardRef(({ fileName, setFileName }, ref) => {
   
   // Отслеживание смены аватарки
   const handleFileChanges = (event) => {
@@ -22,10 +22,11 @@ const AvatarInput = ({ fileName, setFileName }) => {
         className="user-profile-avatar-input"
         accept="image/*"
         onChange={handleFileChanges}
+        ref={ref}
         style={{ display: "none" }} // Скрыть стандартный input (если нужно)
       />
     </>
   );
-};
+});
 
 export default AvatarInput;
