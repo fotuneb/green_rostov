@@ -495,11 +495,11 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
 
     if user.avatar:
         try:
-            print("file_path:", file_path)
+            # print("file_path:", file_path)
             old_avatar_id = user.avatar_id
             old_attachment = await Attachment.get(id=old_avatar_id)
             old_path = old_attachment.file_path
-            print("old_path:", old_path)
+            # print("old_path:", old_path)
 
             old_attachment.file_path = file_path
             await old_attachment.save()
