@@ -1,6 +1,5 @@
 import aiohttp
 
-
 async def auth(telegram_id):
     async with aiohttp.ClientSession() as session:
         async with session.get(

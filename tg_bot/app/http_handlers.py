@@ -1,6 +1,7 @@
 from aiohttp import web
 from aiogram import Bot
 from datetime import datetime
+from aiogram.utils.deep_linking import create_start_link
 
 #Функция для уведомления пользователя о назначения на задачу
 async def send_change_responsible(request):
@@ -38,4 +39,13 @@ async def send_deadline(request):
 
     await bot.send_message(chat_id=telegram_id, text=message, parse_mode="HTML")
     return web.json_response({"status": "success"})
+
+async def generate_link(request):
+    data = await request.json()
+    user_id = data["user_id"]
+    bot: Bot = request.app["bot"]
+    link = await create_start_link(bot, user_id,encode=True)
+
+    return web.json_response({"link": link})
+    
     
