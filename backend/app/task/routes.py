@@ -7,13 +7,12 @@ from fastapi.staticfiles import StaticFiles
 from starlette.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from tortoise.transactions import in_transaction
 from tortoise.exceptions import DoesNotExist
-from app.user.authentication import get_current_user, get_privileged_user
+from app.user.authentication import get_privileged_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
 from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
 from app.task.tg_http import notify_new_assignee, send_deadline_notification
 from pydantic import BaseModel
-import base64
 import os
 import uuid
 from app.task.util import validate_image_file
@@ -300,25 +299,18 @@ async def move_task(TaskDragInfo: Task_Drag, current_user: UserModel = Depends(g
 
 
 @router.post("/api/comments")
-async def create_comment(CommentInfo: CommentPublicInfo):
+async def create_comment(CommentInfo: CommentPublicInfo, current_user: UserModel = Depends(get_privileged_user)):
     # проверка на существование задачи
     task = await Task.get_or_none(id=CommentInfo.id_task)
-    # проверка на текущего пользователя
-    temp_user = await UserModel.get_or_none(id=CommentInfo.id_user)
     if not task:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
-    
-    if not temp_user:
-        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="User not found")
-    elif temp_user.role == "guest":
-        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="You haven't sufficient permission")
-    
 
     comment = await Comments.create(
-        author_id = CommentInfo.id_user,
+        author_id = current_user.id,
         text = CommentInfo.text,
         task_id = CommentInfo.id_task
     )
+
     return {"id": comment.id,
             "author_id": comment.author_id,
             "create_date": comment.create_date,
@@ -464,95 +456,24 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
         raise HTTPException(status_code=500, detail=f"Error saving compressed image: {str(e)}")
 
     # удаление и создание нового вложения для юзера (норм работает)
-    # if user.avatar:
-    #     try:
-    #         old_avatar_id = user.avatar_id
-    #         old_attachment = await Attachment.get(id=old_avatar_id)
-        
-    #         os.remove(old_attachment.file_path)  # Удаляем файл с сервера
-    #         await old_attachment.delete()
-
-    #     except Exception as e:
-    #         raise HTTPException(status_code=500, detail=f"Error deleting old avatar: {str(e)}")
-
-
-    # # Создаем запись о вложении
-    # attachment = await Attachment.create(file_path=file_path)
-    # user.avatar = attachment
-
     if user.avatar:
         try:
-            # print("file_path:", file_path)
             old_avatar_id = user.avatar_id
             old_attachment = await Attachment.get(id=old_avatar_id)
-            old_path = old_attachment.file_path
-            # print("old_path:", old_path)
-
-            old_attachment.file_path = file_path
-            await old_attachment.save()
-
-            os.remove(old_path)  # Удаляем файл с сервера
-            
-            await user.save()
-            return {"id": old_attachment.id, "file_path": old_attachment.file_path}
+        
+            os.remove(old_attachment.file_path)  # Удаляем файл с сервера
+            await old_attachment.delete()
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error deleting old avatar: {str(e)}")
-    else:
-        # Создаем запись о вложении
-        attachment = await Attachment.create(file_path=file_path)
-        user.avatar = attachment
-
-        await user.save()
-        return {"id": attachment.id, "file_path": attachment.file_path}
 
 
+    # Создаем запись о вложении
+    attachment = await Attachment.create(file_path=file_path)
+    user.avatar = attachment
+    await user.save()
 
-# @router.post("/api/attachments/")
-# async def create_attachment_for_task(task_id: int, file: UploadFile):
-#     # Проверяем, что MIME-тип соответствует ожиданиям
-#     if file.content_type not in ["image/jpeg", "image/png"]:
-#         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Only JPG and PNG files are allowed")
-
-#     # Проверка, существует ли задача
-#     try:
-#         task = await Task.get(id=task_id)
-#     except DoesNotExist:
-#         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
-
-#     # Считываем содержимое файла
-#     file_bytes = await file.read()
-
-#     # Проверяем содержимое файла на допустимый формат
-#     if not validate_image_file(file_bytes):
-#         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Invalid image format")
-
-    # Генерируем уникальное имя файла с сохранением расширения
-    # file_extension = os.path.splitext(file.filename)[1].lower()  # Получаем расширение файла
-    # unique_filename = f"{uuid.uuid4()}{file_extension}"  # Генерируем уникальное имя файла
-
-    # # Создаем директорию, если её нет
-    # upload_dir = os.path.join("uploads", "attachments")
-    # os.makedirs(upload_dir, exist_ok=True)
-
-#     # Полный путь к файлу
-#     file_path = os.path.join(upload_dir, unique_filename)
-
-#     # Сохраняем файл
-#     try:
-#         with open(file_path, "wb") as f:
-#             f.write(file_bytes)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Error saving file: {str(e)}")
-
-#     # Создаем запись о вложении
-#     attachment = await Attachment.create(file_path=file_path)
-
-#     # Привязываем вложение к задаче через связь Many-to-Many
-#     await task.attachments.add(attachment)
-
-#     return {"id": attachment.id, "file_path": attachment.file_path}
-
+    return {"id": attachment.id, "file_path": attachment.file_path}
 
 
 @router.get("/api/attachments")
@@ -632,3 +553,22 @@ async def get_upcoming_deadlines():
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Tasks doesnt collected")
 
+
+@router.get("/api/comments/{id}")
+async def get_comment_by_id(id: int):
+    comment = await Comments.get_or_none(id=id)
+    if not comment:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
+
+    return {"text": comment.text}
+
+@router.post("/api/comments/{id}")
+async def change_comment_description(id: int, new_text: str, current_user: UserModel = Depends(get_privileged_user)):
+    comment = await Comments.get_or_none(id=id, author_id = current_user.id)
+    if not comment:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
+    
+    comment.text = new_text
+    await comment.save()
+
+    return {"status": "ok"}

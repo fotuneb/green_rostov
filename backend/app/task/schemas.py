@@ -38,5 +38,4 @@ class Task_Drag(BaseModel):
 
 class CommentPublicInfo(BaseModel):
     text: str
-    id_user: int
     id_task: int
