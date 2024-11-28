@@ -4,6 +4,7 @@ import jwt
 from itsdangerous import URLSafeTimedSerializer
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+import aiohttp
 
 from app.config import settings
 from app.user.models_user import UserModel
@@ -53,7 +54,14 @@ async def get_privileged_user(current_user: UserModel = Depends(get_current_user
     return current_user
 
 async def generate_telegram_link(user_id: int):
-    serializer = URLSafeTimedSerializer(settings.secret_key)
-    token = serializer.dumps(user_id)
-
-    return f"https://t.me/{settings.bot_name}?start={token}"
+     async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(f"http://bot:8081/generate_link", json={"user_id": user_id}) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return {"link": data["link"]}
+                else:
+                    detail = await response.text()
+                    raise HTTPException(status_code=response.status, detail=detail)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Ошибка связи с Telegram-ботом: {str(e)}")

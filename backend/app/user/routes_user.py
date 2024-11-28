@@ -124,7 +124,8 @@ async def generate_tg_link(user_id: int):
     user = await UserModel.get(id=user_id)
     if not user:
         return {"error": "Пользователь не найден"}
-    return {"telegram_link": await generate_telegram_link(user.id)}
+    data = await generate_telegram_link(user.id)
+    return {"telegram_link": data["link"]}
 
 # используется у тг-бота
 @router1.post("/api/link_telegram")
