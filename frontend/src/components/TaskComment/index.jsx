@@ -41,6 +41,7 @@ const TaskComment = (props) => {
     // Обработчик редактирования комментария
     const handleEditing = async (e) => {
         setDescription(e.target.value);
+        await Comments.changeCommentDescription(props.commentId, description);
     }
 
     // Обработчик завершения редактирования через клик вне поля
