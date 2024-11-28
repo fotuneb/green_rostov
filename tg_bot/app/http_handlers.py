@@ -2,13 +2,15 @@ from aiohttp import web
 from aiogram import Bot
 from datetime import datetime
 from aiogram.utils.deep_linking import create_start_link
+from app.utils import identify_mess
 
 #Функция для уведомления пользователя о назначения на задачу
-async def send_change_responsible(request):
+async def send_changing(request):
     data = await request.json()
     telegram_id = data["telegram_id"]
     task_title = data["task_title"]
-    deadline = data.get("deadline")
+    deadline = data["deadline"]
+    attr = data["attr"]
 
     bot: Bot = request.app["bot"]
 
@@ -16,9 +18,10 @@ async def send_change_responsible(request):
         temp = datetime.fromisoformat(deadline).strftime('%d.%m.%Y в %H:%M') if deadline else "Не указан"
     except ValueError:
         temp = "Не указан"
+    
+    ident = identify_mess(attr)
 
-    message = (
-        f"🔖 <b>Вы были назначены на задачу</b> \n\n"
+    message = (f"{ident}\n",
         f" Название задачи - {task_title}\n"
         f" Дедлайн - {temp}\n"
     )

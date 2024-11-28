@@ -185,7 +185,7 @@ async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depend
     )
     assignee = await UserModel.get(id=current_user.id)
     if assignee.telegram_id and assignee.notifications:
-        await notify_new_assignee(assignee.telegram_id, task)
+        await notify_new_assignee(assignee.telegram_id, task, 'create_task')
 
     return {
         "id": task.id,  
@@ -242,7 +242,7 @@ async def change_responsible(TaskChangeInfo: Task_change_resposible):
         if not new_assignee.telegram_id :
             return {"msg": "assignee updated successully, but new_assignee have not a tg"}
         elif new_assignee.notifications:
-            await notify_new_assignee(new_assignee.telegram_id, task)
+            await notify_new_assignee(new_assignee.telegram_id, task, "change_responsible")
         else:
             return {"msg": "user has disabled notifications"}
         return {"msg": "assignee updated successully"}

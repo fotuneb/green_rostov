@@ -4,16 +4,17 @@ from datetime import datetime
 from app.user.models_user import UserModel
 
 #Запрос к боту c переназ, проблемы с дедлайном
-async def notify_new_assignee(telegram_id: int, task):
+async def notify_new_assignee(telegram_id: int, task, attr):
     notification_data = {
         "telegram_id": telegram_id,
         "task_title": task.title,
         "deadline": task.deadline.isoformat() if task.deadline else None,
+        "attr": attr
     }
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            "http://bot:8081/send_change_responsible",  
+            "http://bot:8081/send_changing",  
             json=notification_data,
         ) as response:
             if response.status != 200:
