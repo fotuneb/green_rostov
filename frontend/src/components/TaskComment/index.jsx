@@ -6,6 +6,8 @@ import "./task_comment.css"
 // Компонент для отдельного коммента к таске
 const TaskComment = (props) => {
     const [user, setUser] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [description, setDescription] = useState(props.description.replace("<p>", "").replace("</p>", ""));
 
     // Получаем объект нашего юзера
     useEffect(() => {
@@ -19,9 +21,6 @@ const TaskComment = (props) => {
     // Получение пути к аватарке пользователя
     const avatarPath = Attachment.getURL(user.avatar_id);
     const isAvatarAvailable = !avatarPath.endsWith('null');
-
-    // Форматируем описание 
-    const description = props.description.replace("<p>", "").replace("</p>", "")
 
     // Форматируем дату
     const date = new Date(props.datePosted);
@@ -39,6 +38,23 @@ const TaskComment = (props) => {
         }
     }
 
+    // Обработчик редактирования комментария
+    const handleEditing = async (e) => {
+        setDescription(e.target.value);
+    }
+
+    // Обработчик завершения редактирования через клик вне поля
+    const handleEditingComplete = () => {
+        setIsEditing(false);
+    }
+
+    // Обработчик завершения редактирования через клавишу Enter
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            setIsEditing(false); 
+        }
+    }
+
     return (
         <div className="comment">
             <div className="comment-info">
@@ -49,13 +65,29 @@ const TaskComment = (props) => {
                     <span className="comment-author">{user.fullname}</span>
                     <span className="comment-date-posted"> {formattedDate}</span>
                 </div>
-                <div className="comment-description">{description}</div>
+                {/*  */}
+                {!isEditing ? 
+                <div className="comment-description" dangerouslySetInnerHTML={{ __html: description }}></div>
+                : <input type='text' 
+                         value={description} 
+                         onChange={handleEditing}
+                         onBlur={handleEditingComplete}
+                         onKeyDown={handleKeyDown}></input>}
+                        
             </div>
-            {/* Удалять может либо сам пользователь свой коммент, либо админ может удалять любые комменты */}
-            {
-                (isAdmin || isCommentAuthor) 
-                && <button className="comment-delete" onClick={handleCommentDelete}>Удалить</button>
-            }
+            <div className="comment-controls">
+                {/* Кнопка Редактировать отображается, когда пользователь в данный момент не редактирует коммент */}
+                {/* Права доступа аналогичны кнопке Удалить */}
+                {
+                    !isEditing && (isAdmin || isCommentAuthor) && 
+                    <button className="comment-action" onClick={(isEditing) => setIsEditing(isEditing)}>Редактировать</button>
+                }
+                {/* Удалять может либо сам пользователь свой коммент, либо админ может удалять любые комменты */}
+                {
+                    (isAdmin || isCommentAuthor) 
+                    && <button className="comment-action" onClick={handleCommentDelete}>Удалить</button>
+                }
+            </div>
         </div>
     )
 }

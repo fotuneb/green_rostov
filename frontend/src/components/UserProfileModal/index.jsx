@@ -6,6 +6,7 @@ import { User } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
 import "./user_profile_modal.css"
 
+// Компонент модального окна для изменения данных о юзере
 const EditProfile = ({closeModal}) => {
     const fileRef = useRef(null);
     const [fileName, setFileName] = useState("Файл не выбран");

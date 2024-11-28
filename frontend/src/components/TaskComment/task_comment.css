@@ -41,7 +41,11 @@
     display: flex;
 }
 
-.comment-delete {
+.comment-controls {
+    display: flex;
+}
+
+.comment-action {
     display: flex;
     justify-content: center;
     align-items: center;
