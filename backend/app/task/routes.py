@@ -10,7 +10,7 @@ from tortoise.exceptions import DoesNotExist
 from app.user.authentication import get_privileged_user
 from app.user.models_user import UserModel
 from app.task.models import Column, Task, Comments, Attachment
-from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo
+from app.task.schemas import ObjectRenameInfo, Column_drag, TaskPublicInfo, Task_for_desc, Task_change_resposible, Task_Drag, CommentPublicInfo, ChangeCommentInfo
 from app.task.tg_http import notify_new_assignee, send_deadline_notification
 from pydantic import BaseModel
 import os
@@ -563,12 +563,12 @@ async def get_comment_by_id(id: int):
     return {"text": comment.text}
 
 @router.post("/api/comments/{id}")
-async def change_comment_description(id: int, new_text: str, current_user: UserModel = Depends(get_privileged_user)):
-    comment = await Comments.get_or_none(id=id, author_id = current_user.id)
+async def change_comment_description(ChangeCommentInfo, current_user: UserModel = Depends(get_privileged_user)):
+    comment = await Comments.get_or_none(id=ChangeCommentInfo.id, author_id = current_user.id)
     if not comment:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
     
-    comment.text = new_text
+    comment.text = ChangeCommentInfo.new_text
     await comment.save()
 
     return {"status": "ok"}
