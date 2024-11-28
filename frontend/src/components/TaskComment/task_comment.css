@@ -1,7 +1,12 @@
 .comment {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     margin-top: 15px;
+}
+
+.comment-info {
+    display: flex;
+    flex-direction: column;
 }
 
 .comment-user-info {
@@ -16,6 +21,11 @@
 }
 
 .comment-avatar {
+    background-color: #e0e0e0; 
+    border-radius: 50%; 
+    text-align: center;
+    line-height: 32px;
+    font-size: 0.75em;
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -29,4 +39,19 @@
 
 .comment-description {
     display: flex;
+}
+
+.comment-delete {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    height: auto;
+    padding: 15px;
+    background-color: #ffff;
+    color: #6C97BF;
+    border: none;
+    transition: all 0.3s ease;
 }

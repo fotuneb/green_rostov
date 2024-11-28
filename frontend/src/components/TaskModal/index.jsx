@@ -149,6 +149,12 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setComments(newComments)
     }
 
+    // Коллбэк для обновления комментов после удаления коммента
+    const deleteComment = async () => {
+        const fetchedComments = await Comments.getAll(taskData.id); // Получение комментариев
+        setComments(fetchedComments);
+    }
+
     // Получение комментариев
     useEffect(() => {
         if (!isOpen) return null;
@@ -199,13 +205,17 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                         </div>
                         {!comments.length ? 
                         (<p>Напишите первым мнение о задаче...</p>) 
-                        : comments.map((comment) => {
+                        : comments
+                            .sort((a, b) => new Date(b.create_date) - new Date(a.create_date))
+                            .map((comment) => {
                             return (
                                 <>
                                     <TaskComment 
+                                    commentId={comment.id}
                                     userId={comment.author_id}
                                     datePosted={comment.create_date}
                                     description={comment.text}
+                                    onCommentDeleted={deleteComment}
                                     />
                                 </>
                             )
