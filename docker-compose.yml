@@ -34,8 +34,8 @@ services:
     depends_on:
       - server
     volumes:
-      - ./frontend:/app/frontend:cached  # Монтируем исходный код
-      - /app/frontend/node_modules       # Убираем лишний том для node_modules
+      - ./frontend:/app/frontend:cached  
+      - /app/frontend/node_modules       
     working_dir: /app/frontend  
       
 
