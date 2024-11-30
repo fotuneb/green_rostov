@@ -119,3 +119,9 @@
     flex-direction: column;
 }
 
+.comment-input {
+    border: 1px solid #ccc;
+    width: 97%;
+    padding: 10px;
+}
+

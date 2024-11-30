@@ -33,11 +33,9 @@ const TaskComment = (props) => {
          setIsEditing(false); 
          // Очищаем стейт от старых значений
          setOldText('');
-         // Сохранение старого текста в состояние
+         // Получение и сохранение старого текста в состояние
          Comments.getCommentById(props.commentId)
-         .then((comment) => {
-             setOldText(comment.text.replace('<p>', '').replace('</p>', ''));
-         })
+         .then((comment) => setOldText(comment.text.replace('<p>', '').replace('</p>', '')))
          .catch((error) => console.log(`Ошибка получения старого описания коммента: ${error}`));
          // Если поле пустое, то оставляем старое содержимое без запроса к серверу
          if (description == '') {

@@ -72,7 +72,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
     const hasRights = getCookie('role') != 'guest';
     const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
-    const quillCommentRef = useRef(null); // Ссылка на редактор нового комментария
+    const commentInputRef = useRef(null); // Ссылка на редактор нового комментария
 
     // Получаем основные данные о таске
     useEffect(async () => {
@@ -156,6 +156,11 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setNewComment('');
     }
 
+    // Обработка ввода в поле для нового комментария
+    const handleCommentInputChange = async (e) => {
+        setNewComment(e.target.value);
+    }
+
     // Обработка ввода нового комментария
     const addNewComment = async () => {
         // Если поле коммента пустое, выходим
@@ -187,6 +192,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
     if (!isOpen) return null;
 
+    console.log(comments);
+
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content task-modal" onClick={(e) => e.stopPropagation()}>
@@ -203,7 +210,6 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     ) : (
                         <h2 style={{marginTop: "5px"}} onClick={() => setIsEditing(true)}>{title}</h2>
                     )}
-
                     <ReactQuill
                         placeholder="Введите описание задачи"
                         ref={quillDescriptionRef}
@@ -217,15 +223,14 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     <div className="comments">
                         <h3>Комментарии</h3>
                         <div className="comment-write">
-                            <ReactQuill
-                                placeholder="Введите комментарий"
-                                ref={quillCommentRef}
-                                value={newComment}
-                                readOnly={!hasRights}
-                                onChange={setNewComment}
-                                modules={Modal.modules}
-                                formats={Modal.formats}
-                            />
+                            <input type="text" 
+                                   className="comment-input"
+                                   id="comment-input"
+                                   value={newComment}
+                                   readOnly={!hasRights}
+                                   onChange={handleCommentInputChange}
+                                   placeholder="Введите комментарий"
+                                   ref={commentInputRef} />
                             {hasRights && <button className="task-button font-inter" onClick={addNewComment}>Добавить комментарий</button>}
                         </div>
                         {!comments.length ? 
