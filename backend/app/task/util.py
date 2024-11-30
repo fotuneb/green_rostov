@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, time
-
+import pytz
 
 
 # Функция проверки формата файла по первым байтам
@@ -55,3 +55,9 @@ def datetime_to_seconds(dt: datetime) -> int:
 
     # Возвращаем разницу между текущей датой и dt в секундах
     return int((dt - start_of_day).total_seconds())
+
+
+# Пример преобразования времени в локальный часовой пояс
+def convert_to_local_timezone(utc_time: datetime, timezone_str: str = "Europe/Moscow") -> datetime:
+    local_tz = pytz.timezone(timezone_str)
+    return utc_time.astimezone(local_tz)

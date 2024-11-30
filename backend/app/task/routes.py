@@ -15,7 +15,7 @@ from app.task.tg_http import notify_new_assignee, send_deadline_notification
 from pydantic import BaseModel
 import os
 import uuid
-from app.task.util import validate_image_file
+from app.task.util import validate_image_file, convert_to_local_timezone
 from openpyxl.drawing.image import Image as OpenpyxlImage
 from PIL import Image
 import io
@@ -134,7 +134,7 @@ async def get_task_using_id(task_id: int):
     attachments = await task.attachments.all()  # Получаем все вложения, связанные с задачей
 
     # Формируем список вложений
-    attachment_list = [{"id": attachment.id, "file_path": attachment.file_path, "uploaded_at": attachment.uploaded_at} for attachment in attachments]
+    attachment_list = [{"id": attachment.id, "file_path": attachment.file_path, "uploaded_at": attachment.get_local_uploaded_at()} for attachment in attachments]
 
     return {
         "id": task.id,
@@ -313,7 +313,7 @@ async def create_comment(CommentInfo: CommentPublicInfo, current_user: UserModel
 
     return {"id": comment.id,
             "author_id": comment.author_id,
-            "create_date": comment.create_date,
+            "create_date": convert_to_local_timezone(comment.create_date),
             "text": comment.text,
             "task_id": comment.task_id,
             "is_edited": comment.is_edited
@@ -342,7 +342,19 @@ async def get_comments(task_id: int):
             raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comments not found")
 
         # Возвращаем список комментариев
-        return comments
+        res = []
+        for com in comments:
+            res.append({
+                "text": com.text,
+                "is_edited": com.is_edited,
+                "id": com.id,
+                "author_id": com.author_id,
+                "create_date": convert_to_local_timezone(com.create_date),
+                "task_id": com.task_id
+            })
+
+
+        return res
 
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
@@ -480,7 +492,16 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
 @router.get("/api/attachments")
 async def get_attachments():
     attachments = await Attachment.all()
-    return attachments
+    # print(attachments[0].uploaded_at, "\n", attachments[0].get_local_uploaded_at())
+    res = []
+    for at in attachments:
+        res.append({
+            "id": at.id,
+            "file_path": at.file_path,
+            "uploaded_at": convert_to_local_timezone(at.uploaded_at)
+        })
+    
+    return res
 
 
 @router.delete("/api/attachments/{attachment_id}")
