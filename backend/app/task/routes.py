@@ -315,7 +315,8 @@ async def create_comment(CommentInfo: CommentPublicInfo, current_user: UserModel
             "author_id": comment.author_id,
             "create_date": comment.create_date,
             "text": comment.text,
-            "task_id": comment.task_id
+            "task_id": comment.task_id,
+            "is_edited": comment.is_edited
     }
 
 
@@ -569,6 +570,7 @@ async def change_comment_description(info: ChangeCommentInfo, current_user: User
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
     
     comment.text = info.new_text
+    comment.is_edited = True
     await comment.save()
 
-    return {"status": "ok"}
+    return {"status": "ok", 'is_edited': comment.is_edited}
