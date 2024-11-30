@@ -2,6 +2,6 @@ from pydantic import BaseModel
 
 class TrackerInfo(BaseModel):
     task_id: int
-    started_at: str
-    time_tracked: int
+    track_date: str
+    track_amount: int
     
