@@ -38,7 +38,7 @@ async def update_deadline(task_id: int, new_deadline: str, current_user: UserMod
         return {"new_deadline": task.deadline}
 
     if assignee.notifications:
-        await notify_new_assignee(assignee.telegram_id, task)
+        await notify_new_assignee(assignee.telegram_id, task, "deadline")
 
     return {"new_deadline": task.deadline}
 

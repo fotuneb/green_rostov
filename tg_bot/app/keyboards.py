@@ -7,6 +7,7 @@ main_kb = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='⏰ Уведомления ⏰')],
 ], resize_keyboard=True)
 
+
 notifications = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -15,3 +16,5 @@ notifications = InlineKeyboardMarkup(
         ]
     ]
 )
+
+

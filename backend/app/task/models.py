@@ -11,6 +11,7 @@ class Comments(Model):
     text = fields.CharField(max_length=255)
     create_date = fields.DatetimeField(null=True, auto_now_add=True)
     task = fields.ForeignKeyField("models.Task", related_name="comments")
+    is_edited = fields.BooleanField(default=False)
 
     class Meta:
         table = "comments"

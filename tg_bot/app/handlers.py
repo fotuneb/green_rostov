@@ -1,8 +1,8 @@
 from itsdangerous import URLSafeTimedSerializer, BadSignature
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import CommandObject, Command, CommandStart
-from config import SECRET_KEY
+from aiogram.utils.deep_linking import decode_payload
+from aiogram.filters import CommandStart, CommandObject
 import aiohttp
 from datetime import datetime
 from app.keyboards import main_kb, notifications
@@ -11,34 +11,37 @@ from app.auth import auth, reg
 router = Router()
 
 
-@router.message(CommandStart())
-async def start_command(message: Message, command: CommandObject):
+@router.message(CommandStart(deep_link=True))
+async def start_with_args(message: Message, command: CommandObject):
     telegram_id = message.from_user.id
     args = command.args
+    payload = decode_payload(args)
 
+    print("args", args)
+    print("payload", payload)
+    
     username = await auth(telegram_id)
     if username:
         await message.answer(f"Добро пожаловать обратно, {username} 👋🏻!", reply_markup=main_kb)
         return
-        
-    if not args:
-        await message.answer("Добро пожаловать! Впишите команду /start 'token' ")
-        return
-
-    serializer = URLSafeTimedSerializer(SECRET_KEY)
-    try:
-        user_id = serializer.loads(args)
-    except BadSignature:
-        await message.answer("Некорректный токен. Попробуйте снова.")
-        return
     
-    if await reg(user_id, telegram_id):
+    if await reg(payload, telegram_id):
         await message.answer("Вы успешно привязали Telegram к своему аккаунту!",reply_markup=main_kb)
         return
     else:
         await message.answer("Ошибка привязки. Попробуйте позже.")
         return
 
+@router.message(CommandStart())
+async def start_without_args(message: Message):
+    telegram_id = message.from_user.id
+    username = await auth(telegram_id)
+    if username:
+        await message.answer(f"Добро пожаловать обратно, {username} 👋🏻!", reply_markup=main_kb)
+        return
+    else:
+        await message.answer("Добро пожаловать! Войдите через сайт ")
+        return
 
 @router.message(F.text == '🔖 Мои задачи 🔖')
 async def my_tasks(message: Message):

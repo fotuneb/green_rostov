@@ -114,3 +114,8 @@
     box-shadow: 0 0 8px #a4d3ff; 
 }
 
+.comments {
+    display: flex;
+    flex-direction: column;
+}
+

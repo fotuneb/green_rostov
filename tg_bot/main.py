@@ -4,7 +4,7 @@ from aiohttp import web
 
 from app.handlers import router
 from config import TG_TOKEN
-from app.http_handlers import send_change_responsible, send_deadline
+from app.http_handlers import send_changing, send_deadline, generate_link
 
 
 async def main():
@@ -14,8 +14,9 @@ async def main():
 
     app = web.Application()
     app["bot"] = bot
-    app.router.add_post("/send_change_responsible",send_change_responsible)
+    app.router.add_post("/send_changing",send_changing)
     app.router.add_post("/send_deadline", send_deadline)
+    app.router.add_post("/generate_link", generate_link)
 
     runner = web.AppRunner(app)
     await runner.setup()
