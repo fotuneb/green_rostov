@@ -39,9 +39,7 @@ class Task(Model):
     updated_at = fields.DatetimeField(auto_now=True)      # Время обновления
     
     deadline = fields.DatetimeField(null=True)          # Время дедлайна
-    time_track = fields.DatetimeField(null=True)        # Храним время в секундах
-    is_running = fields.BooleanField(default=False)     # Состояние таймера
-    last_started_at = fields.DatetimeField(null=True)   # Когда таймер был запущен
+    
   
     attachments = fields.ManyToManyField("models.Attachment", related_name="tasks_attachments", on_delete=fields.CASCADE)
 

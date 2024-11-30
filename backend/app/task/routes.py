@@ -20,6 +20,7 @@ from openpyxl.drawing.image import Image as OpenpyxlImage
 from PIL import Image
 import io
 from starlette.background import BackgroundTask
+from app.user.tracker_for_time.models import Tracker
 
 
 
@@ -129,7 +130,13 @@ async def get_task_using_id(task_id: int):
 
     if not task:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
-
+    
+    
+    trackings = await Tracker.filter(task=task_id)
+    total_tracked_time = 0
+    for tracking in trackings:
+        total_tracked_time += tracking.track_amount
+    
     # Получаем список вложений, связанных с задачей
     attachments = await task.attachments.all()  # Получаем все вложения, связанные с задачей
 
@@ -147,8 +154,7 @@ async def get_task_using_id(task_id: int):
         "created_at": task.created_at,
         "updated_at": task.updated_at,
         "deadline":task.deadline,                                   # +
-        "time_track":task.time_track,                               # +
-        "is_running": task.is_running,
+        "total_tracked_time": total_tracked_time,
         "attachments": attachment_list  # Добавляем список вложений
     }
 
@@ -194,7 +200,7 @@ async def create_task(TaskInfo: TaskPublicInfo, current_user: UserModel = Depend
         "assignee": task.assignee_id, 
         "column": task.column_id,
         "deadline":task.deadline,           # +
-        "time_track":task.time_track        # +
+        
     }
 
 # возвращается ok 200
