@@ -85,7 +85,8 @@ const TaskComment = (props) => {
                     </div>
                     <span className="comment-author">{user.fullname}</span>
                     <span className="comment-date-posted">{formattedDate} </span>
-                    <span className="comment-edited-flag" style={{display: isEdited ? "inline" : "none"}}>(ред.)</span>
+                    <span className="comment-edited-flag" 
+                          style={{display: props.isCommentEdited ? "inline" : "none"}}>(ред.)</span>
                 </div>
                 {/*  */}
                 {!isEditing ? 

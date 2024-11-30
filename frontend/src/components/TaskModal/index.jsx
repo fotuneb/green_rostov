@@ -134,7 +134,13 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         const [yyyy, mm, dd] = deadlineDay.split('-')
         const apiDeadlineString = `${dd}.${mm}.${yyyy} 00:00:00`
 
+        // Запрос к базе на изменение дедлайна
         await Task.changeDeadline(taskData.id, apiDeadlineString)
+
+        // Очищаем предыдущий дедлайн
+        setDeadline('');
+
+        // Устанавливаем актуальный дедлайн
         setDeadline(`${yyyy}-${mm}-${dd}T00:00:00`)
     }
 
@@ -180,6 +186,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }, [isOpen])
 
     if (!isOpen) return null;
+
+    console.log(comments);
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -229,6 +237,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             return (
                                 <>
                                     <TaskComment 
+                                    isCommentEdited={comment.is_edited}
                                     commentId={comment.id}
                                     userId={comment.author_id}
                                     datePosted={comment.create_date}
