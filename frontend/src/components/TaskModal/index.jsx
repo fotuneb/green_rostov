@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getCookie } from '../../utilities/cookies.js';
 import ReactQuill from 'react-quill';
-import { Task, User } from '../../utilities/api.js';
+import { Task, User, Comments } from '../../utilities/api.js';
 import TaskComment from '../TaskComment/';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
@@ -68,9 +68,11 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [users, setUsers] = useState([]);
     const [deadline, setDeadline] = useState('');
     const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState(null);
 
     const hasRights = getCookie('role') != 'guest';
-    const quillRef = useRef(null); // Ссылка на редактор
+    const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
+    const quillCommentRef = useRef(null); // Ссылка на редактор нового комментария
 
     // Получаем основные данные о таске
     useEffect(async () => {
@@ -136,10 +138,21 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setDeadline(`${yyyy}-${mm}-${dd}T00:00:00`)
     }
 
+    // Обработка ввода нового комментария
+    const addNewComment = async () => {
+        if (newComment === '')
+            return
+
+        await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
+        setNewComment('')
+        const newComments = await Comments.getAll(taskData.id)
+        setComments(newComments)
+    }
+
     // Получение комментариев
     useEffect(() => {
-        if (!isOpen) return;
-        User.getAll().then(setUsers)
+        if (!isOpen) return null;
+        Comments.getAll(taskData.id).then(setComments).catch((error) => console.log(error));
     }, [isOpen])
 
     if (!isOpen) return null;
@@ -162,7 +175,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     )}
 
                     <ReactQuill
-                        ref={quillRef}
+                        ref={quillDescriptionRef}
                         value={description}
                         readOnly={!hasRights}
                         onChange={setDescription}
@@ -172,7 +185,31 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     {hasRights && <button className="task-button font-inter" onClick={updateDescription}>Сохранить изменения</button>}
                     <div className="comments">
                         <h3>Комментарии</h3>
-
+                        <div className="comment-write">
+                            <ReactQuill
+                                placeholder="Введите комментарий"
+                                ref={quillCommentRef}
+                                value={newComment}
+                                readOnly={!hasRights}
+                                onChange={setNewComment}
+                                modules={Modal.modules}
+                                formats={Modal.formats}
+                            />
+                            {hasRights && <button className="task-button font-inter" onClick={addNewComment}>Добавить комментарий</button>}
+                        </div>
+                        {!comments.length ? 
+                        (<p>Напишите первым мнение о задаче...</p>) 
+                        : comments.map((comment) => {
+                            return (
+                                <>
+                                    <TaskComment 
+                                    userId={comment.author_id}
+                                    datePosted={comment.create_date}
+                                    description={comment.text}
+                                    />
+                                </>
+                            )
+                        })}
                     </div>
                 </div>
                 <div className="modal-actions">

@@ -1,12 +1,9 @@
-body {
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
 .container-404 {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 .not-found-title {

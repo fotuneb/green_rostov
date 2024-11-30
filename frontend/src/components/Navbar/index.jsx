@@ -1,6 +1,7 @@
 import { React, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Logout from "../Logout";
+import SmallLogo from "../SmallLogo/index.jsx";
 import { UserProfileModal } from "../UserProfileModal"
 import { getCookie, isCookieExists } from "../../utilities/cookies.js"
 import "./navbar.css";
@@ -16,11 +17,6 @@ function Navbar({setIsLogged}) {
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
-  // Функционал кнопки "Экспорт в Excel"
-  const excelExport = () => {
-    window.location.href = process.env.REACT_APP_PUBLIC_URL + '/export/board';
-  }
-
   // Проверка, задан ли токен (авторизованность пользователя)
   const isLogged = isCookieExists('token')
 
@@ -28,11 +24,7 @@ function Navbar({setIsLogged}) {
     <>
       <UserProfileModal isOpen={isModalOpen} onClose={closeModal} />
       <nav className="navbar">
-        {/* Кнопка "Экспорт в Excel" отображается только при логине в админ-аккаунт */}
-        {
-          getCookie('role') == 'admin' && 
-          <button className="nav-button" onClick={excelExport}>Экспорт в Excel</button>
-        }
+        <SmallLogo />
         {!isLogged ? (
           <div className="font-inter">
             <Link to="/login">
