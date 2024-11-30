@@ -68,7 +68,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [users, setUsers] = useState([]);
     const [deadline, setDeadline] = useState('');
     const [comments, setComments] = useState([]);
-    const [newComment, setNewComment] = useState(null);
+    const [newComment, setNewComment] = useState('');
 
     const hasRights = getCookie('role') != 'guest';
     const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
@@ -138,6 +138,18 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setDeadline(`${yyyy}-${mm}-${dd}T00:00:00`)
     }
 
+    // Метод для получения актуального списка комментариев
+    const updateComments = async () => {
+        // Получение всех комментариев с базы
+        const res = await Comments.getAll(taskData.id);
+        // Очистка предыдущего списка комментариев
+        setComments('');
+        // Установление актуального списка комментариев
+        setComments(res);
+        // Для проверки очищаем поле ввода для комментариев
+        setNewComment('');
+    }
+
     // Обработка ввода нового комментария
     const addNewComment = async () => {
         // Если поле коммента пустое, выходим
@@ -146,28 +158,19 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
         // Очищаем поля от текста
         setNewComment('');
-        // Получаем обновленный список комментариев
-        const res = await Comments.getAll(taskData.id);
-        // Очищаем список комментов
-        setComments('');
-        // Заполняем обновленным списком
-        setComments(res);
+        // Обновляем комментарии
+        updateComments();
     }
 
     // Обработка обновления содержимого коммента
     const editComment = async () => {
-        const fetchedComments = await Comments.getAll(taskData.id);
-        setComments(fetchedComments);
+        const res = await Comments.getAll(taskData.id);
+        setComments(res);
     }
 
     // Коллбэк для обновления комментов после удаления коммента
     const deleteComment = async () => {
-        // Получаем новый список комментов
-        const fetchedComments = await Comments.getAll(taskData.id); 
-        // Очищаем предыдущий список
-        setComments('');
-        // Добавляем новый
-        setComments(fetchedComments);
+        updateComments();
     }
 
     // Получение комментариев
