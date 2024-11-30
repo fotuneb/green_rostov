@@ -7,6 +7,7 @@ import "./task_comment.css"
 const TaskComment = (props) => {
     const [user, setUser] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
+    const [isEdited, setIsEdited] = useState(false);
     const [description, setDescription] = useState(props.description.replace("<p>", "").replace("</p>", ""));
 
     // Получаем объект нашего юзера
@@ -41,20 +42,38 @@ const TaskComment = (props) => {
     // Обработчик редактирования комментария
     const handleEditing = async (e) => {
         setDescription(e.target.value);
-        const res = await Comments.changeCommentDescription(props.commentId, description);
-        console.log(res);
     }
 
     // Обработчик завершения редактирования через клик вне поля
-    const handleEditingComplete = () => {
+    const handleEditingComplete = async () => {
+        // Остановка редактирования
         setIsEditing(false);
+
+        // Установка флага, что комментарий редактирован
+        setIsEdited(true);
+
+        // Обновление описания
+        await Comments.changeCommentDescription(props.commentId, description);
+
+        // Обновление списка комментариев
+        if (props.onCommentEdited) {
+            props.onCommentEdited();
+        }
     }
 
     // Обработчик завершения редактирования через клавишу Enter
-    const handleKeyDown = (e) => {
+    const handleKeyDown = async (e) => {
         if (e.key === "Enter") {
             setIsEditing(false); 
         }
+
+         // Обновление описания
+         await Comments.changeCommentDescription(props.commentId, description);
+
+         // Обновление списка комментариев
+         if (props.onCommentEdited) {
+             props.onCommentEdited();
+         }
     }
 
     return (
@@ -65,7 +84,8 @@ const TaskComment = (props) => {
                         {isAvatarAvailable && <img src={avatarPath} />}
                     </div>
                     <span className="comment-author">{user.fullname}</span>
-                    <span className="comment-date-posted"> {formattedDate}</span>
+                    <span className="comment-date-posted">{formattedDate} </span>
+                    <span className="comment-edited-flag" style={{display: isEdited ? "inline" : "none"}}>(ред.)</span>
                 </div>
                 {/*  */}
                 {!isEditing ? 

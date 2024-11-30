@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { UserAdmin } from '../../utilities/api';
+import { User } from "../../utilities/api.js";
 import "./manage_user_modal.css";
 
-const EditProfile = ({ user, isAdminPage }) => {
+const EditProfile = ({ user, isAdminPage, setUsers }) => {
     const [role, setRole] = useState(user.role);
     const [userFullname, setUserFullname] = useState(user.fullname);
     const [curError, setCurError] = useState('');
@@ -41,6 +42,8 @@ const EditProfile = ({ user, isAdminPage }) => {
         setCurError('');
 
         UserAdmin.changePassword(user.id, newPassword)
+
+        User.getAll().then(setUsers);
     };
 
     return (
@@ -100,13 +103,13 @@ const EditProfile = ({ user, isAdminPage }) => {
 };
 
 
-export const ManageUserModal = ({ isOpen, onClose, selectedUser, isAdminPage }) => {
+export const ManageUserModal = ({ isOpen, onClose, selectedUser, isAdminPage, setUsers }) => {
     if (!isOpen) return null;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content manage-user-modal" onClick={(e) => e.stopPropagation()}>
-                <EditProfile user={selectedUser} isAdminPage={isAdminPage} />
+                <EditProfile user={selectedUser} isAdminPage={isAdminPage} setUsers={setUsers} />
             </div>
         </div>
     );

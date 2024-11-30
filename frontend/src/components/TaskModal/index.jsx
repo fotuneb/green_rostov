@@ -140,18 +140,33 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
     // Обработка ввода нового комментария
     const addNewComment = async () => {
-        if (newComment === '')
-            return
-
+        // Если поле коммента пустое, выходим
+        if (newComment === '') return null;
+        // Добавляем новый комментарий
         await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
-        setNewComment('')
-        const newComments = await Comments.getAll(taskData.id)
-        setComments(newComments)
+        // Очищаем поля от текста
+        setNewComment('');
+        // Получаем обновленный список комментариев
+        const res = await Comments.getAll(taskData.id);
+        // Очищаем список комментов
+        setComments('');
+        // Заполняем обновленным списком
+        setComments(res);
+    }
+
+    // Обработка обновления содержимого коммента
+    const editComment = async () => {
+        const fetchedComments = await Comments.getAll(taskData.id);
+        setComments(fetchedComments);
     }
 
     // Коллбэк для обновления комментов после удаления коммента
     const deleteComment = async () => {
-        const fetchedComments = await Comments.getAll(taskData.id); // Получение комментариев
+        // Получаем новый список комментов
+        const fetchedComments = await Comments.getAll(taskData.id); 
+        // Очищаем предыдущий список
+        setComments('');
+        // Добавляем новый
         setComments(fetchedComments);
     }
 
@@ -216,6 +231,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                                     datePosted={comment.create_date}
                                     description={comment.text}
                                     onCommentDeleted={deleteComment}
+                                    onCommentEdited={editComment}
                                     />
                                 </>
                             )

@@ -563,12 +563,12 @@ async def get_comment_by_id(id: int):
     return {"text": comment.text}
 
 @router.post("/api/comments/{id}")
-async def change_comment_description(ChangeCommentInfo, current_user: UserModel = Depends(get_privileged_user)):
-    comment = await Comments.get_or_none(id=ChangeCommentInfo.id, author_id = current_user.id)
+async def change_comment_description(info: ChangeCommentInfo, current_user: UserModel = Depends(get_privileged_user)):
+    comment = await Comments.get_or_none(id=info.id, author_id = current_user.id)
     if not comment:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
     
-    comment.text = ChangeCommentInfo.new_text
+    comment.text = info.new_text
     await comment.save()
 
     return {"status": "ok"}

@@ -37,6 +37,10 @@
     border-radius: 50%;
 }
 
+.comment-edited-flag {
+    margin-left: 5px;
+}
+
 .comment-description {
     display: flex;
 }

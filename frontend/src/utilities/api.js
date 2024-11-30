@@ -311,7 +311,8 @@ export var Comments = {
         return await res.json();
     },
     changeCommentDescription: async (comment_id, newDescription) => {
-        const res = await sendAPIRequestJSON(`/api/comments`, 'POST', true, {
+        const res = await sendAPIRequestJSON(`/api/comments/${comment_id}`, 'POST', true, {
+            id: comment_id,
             new_text: newDescription
         })
         return await res.json();
