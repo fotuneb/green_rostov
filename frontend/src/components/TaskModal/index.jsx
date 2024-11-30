@@ -10,19 +10,16 @@ const ws = process.env.REACT_APP_PUBLIC_URL
 
 const formatDate = (dateString, reversed, dayOnly) => {
     const date = new Date(dateString); // Преобразуем строку в объект Date
-  
-    // Получаем компоненты даты и времени
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Месяцы в JS начинаются с 0
-    const year = date.getUTCFullYear();
 
-    if (dayOnly)
-        return `${year}-${month}-${day}`
-  
-    // Форматируем в нужный вид
+    // Получаем компоненты даты
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    // Формируем дату в нужном формате
     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 }
 
