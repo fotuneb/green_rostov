@@ -19,9 +19,9 @@ async def send_changing(request):
     except ValueError:
         temp = "Не указан"
     
-    ident = identify_mess(attr)
+    ident = await identify_mess(attr)
 
-    message = (f"{ident}\n",
+    message = (f"{ident}\n"
         f" Название задачи - {task_title}\n"
         f" Дедлайн - {temp}\n"
     )
