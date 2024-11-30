@@ -565,18 +565,12 @@ async def get_comment_by_id(id: int):
 
 @router.post("/api/comments/{id}")
 async def change_comment_description(info: ChangeCommentInfo, current_user: UserModel = Depends(get_privileged_user)):
-    if info.new_text == "":
-        return {"status": "nothing found"}
-    
     comment = await Comments.get_or_none(id=info.id, author_id = current_user.id)
     if not comment:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
     
-    if comment.text == info.new_text:
-        return {"status": "no changes"}
-    else:
-        comment.text = info.new_text
-        comment.is_edited = True
-        await comment.save()
+    comment.text = info.new_text
+    comment.is_edited = True
+    await comment.save()
 
-        return {"status": "ok", 'is_edited': comment.is_edited}
+    return {"status": "ok", 'is_edited': comment.is_edited}
