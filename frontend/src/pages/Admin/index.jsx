@@ -57,12 +57,13 @@ const Admin = () => {
                 selectedUser={selectedUser} 
                 onClose={closeModal}
                 isAdminPage={isAdminPage} 
+                setUsers={users}
             />
             <h1 className = "Admin_page_h">Страница администрирования</h1>
             <table className="user-table">
                 <thead>
                     <tr>
-                        <th>ФИО:</th>
+                        <th>Псевдоним:</th>
                         <th>Роль:</th>
                         <th>Логин:</th>
                         <th>Действия:</th>

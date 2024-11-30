@@ -68,7 +68,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [users, setUsers] = useState([]);
     const [deadline, setDeadline] = useState('');
     const [comments, setComments] = useState([]);
-    const [newComment, setNewComment] = useState(null);
+    const [newComment, setNewComment] = useState('');
 
     const hasRights = getCookie('role') != 'guest';
     const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
@@ -134,25 +134,49 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         const [yyyy, mm, dd] = deadlineDay.split('-')
         const apiDeadlineString = `${dd}.${mm}.${yyyy} 00:00:00`
 
+        // Запрос к базе на изменение дедлайна
         await Task.changeDeadline(taskData.id, apiDeadlineString)
+
+        // Очищаем предыдущий дедлайн
+        setDeadline('');
+
+        // Устанавливаем актуальный дедлайн
         setDeadline(`${yyyy}-${mm}-${dd}T00:00:00`)
+    }
+
+    // Метод для получения актуального списка комментариев
+    const updateComments = async () => {
+        // Получение всех комментариев с базы
+        const res = await Comments.getAll(taskData.id);
+        // Очистка предыдущего списка комментариев
+        setComments('');
+        // Установление актуального списка комментариев
+        setComments(res);
+        // Для проверки очищаем поле ввода для комментариев
+        setNewComment('');
     }
 
     // Обработка ввода нового комментария
     const addNewComment = async () => {
-        if (newComment === '')
-            return
-
+        // Если поле коммента пустое, выходим
+        if (newComment === '') return null;
+        // Добавляем новый комментарий
         await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
-        setNewComment('')
-        const newComments = await Comments.getAll(taskData.id)
-        setComments(newComments)
+        // Очищаем поля от текста
+        setNewComment('');
+        // Обновляем комментарии
+        updateComments();
+    }
+
+    // Обработка обновления содержимого коммента
+    const editComment = async () => {
+        const res = await Comments.getAll(taskData.id);
+        setComments(res);
     }
 
     // Коллбэк для обновления комментов после удаления коммента
     const deleteComment = async () => {
-        const fetchedComments = await Comments.getAll(taskData.id); // Получение комментариев
-        setComments(fetchedComments);
+        updateComments();
     }
 
     // Получение комментариев
@@ -181,6 +205,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     )}
 
                     <ReactQuill
+                        placeholder="Введите описание задачи"
                         ref={quillDescriptionRef}
                         value={description}
                         readOnly={!hasRights}
@@ -211,11 +236,13 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             return (
                                 <>
                                     <TaskComment 
+                                    isCommentEdited={comment.is_edited}
                                     commentId={comment.id}
                                     userId={comment.author_id}
                                     datePosted={comment.create_date}
                                     description={comment.text}
                                     onCommentDeleted={deleteComment}
+                                    onCommentEdited={editComment}
                                     />
                                 </>
                             )

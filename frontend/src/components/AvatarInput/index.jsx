@@ -5,7 +5,9 @@ const AvatarInput = forwardRef(({ fileName, setFileName }, ref) => {
   // Отслеживание смены аватарки
   const handleFileChanges = (event) => {
     const file = event.target.files[0];
+    console.log("Текущий файл:", file);
     setFileName(file ? file.name : "Файл не выбран");
+    console.log(fileName);
   };
 
   return (
