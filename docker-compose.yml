@@ -21,7 +21,7 @@ services:
       - database
     volumes:
       - ./backend:/app/api
-      - /backend/uploads
+      - photoes:/backend/uploads
 
   client:
     build:
@@ -66,3 +66,4 @@ services:
 
 volumes:
   pgdata:
+  photoes:
