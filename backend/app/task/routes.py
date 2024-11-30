@@ -151,9 +151,9 @@ async def get_task_using_id(task_id: int):
         "author": task.author_id,
         "assignee": task.assignee_id,
         "column": task.column_id,
-        "created_at": task.created_at,
-        "updated_at": task.updated_at,
-        "deadline":task.deadline,                                   # +
+        "created_at": convert_to_local_timezone(task.created_at),
+        "updated_at": convert_to_local_timezone(task.updated_at),
+        "deadline":convert_to_local_timezone(task.deadline),                                   # +
         "total_tracked_time": total_tracked_time,
         "attachments": attachment_list  # Добавляем список вложений
     }
@@ -391,8 +391,8 @@ async def export_board_to_excel():
                 task.description,
                 task.author.fullname if task.author else "Не указано",
                 task.assignee.fullname if task.assignee else "Не назначен",
-                task.created_at.strftime("%Y-%m-%d %H:%M:%S") if task.created_at else "Нет данных",
-                task.updated_at.strftime("%Y-%m-%d %H:%M:%S") if task.updated_at else "Нет данных"
+                convert_to_local_timezone(task.created_at).strftime("%Y-%m-%d %H:%M:%S") if task.created_at else "Нет данных",
+                convert_to_local_timezone(task.updated_at).strftime("%Y-%m-%d %H:%M:%S") if task.updated_at else "Нет данных"
             ])
 
     # Сохраняем файл в Docker volume
