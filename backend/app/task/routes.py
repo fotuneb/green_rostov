@@ -567,6 +567,7 @@ async def get_comment_by_id(id: int):
 async def change_comment_description(info: ChangeCommentInfo, current_user: UserModel = Depends(get_privileged_user)):
     if info.new_text == "":
         return {"status": "nothing found"}
+    
     comment = await Comments.get_or_none(id=info.id, author_id = current_user.id)
     if not comment:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Comment not found")
