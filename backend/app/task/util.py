@@ -60,4 +60,7 @@ def datetime_to_seconds(dt: datetime) -> int:
 # Пример преобразования времени в локальный часовой пояс
 def convert_to_local_timezone(utc_time: datetime, timezone_str: str = "Europe/Moscow") -> datetime:
     local_tz = pytz.timezone(timezone_str)
-    return utc_time.astimezone(local_tz)
+    if utc_time:
+        return utc_time.astimezone(local_tz)
+    else:
+        return None
