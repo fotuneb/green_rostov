@@ -7,7 +7,7 @@ import "./task_comment.css"
 const TaskComment = (props) => {
     const [user, setUser] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
-    const [isEdited, setIsEdited] = useState(false);
+    const [oldText, setOldText] = useState(props.description.replace("<p>", "").replace("</p>", ""));
     const [description, setDescription] = useState(props.description.replace("<p>", "").replace("</p>", ""));
 
     // Получаем объект нашего юзера
@@ -26,6 +26,35 @@ const TaskComment = (props) => {
     // Форматируем дату
     const date = new Date(props.datePosted);
     const formattedDate = date.toISOString().slice(0, 16).replace('T', ' ');
+
+    // Метод для обновления содержимого комментария
+    const updateCommentDescription = async () => {
+         // Останавливаем редактирование
+         setIsEditing(false); 
+         // Очищаем стейт от старых значений
+         setOldText('');
+         // Сохранение старого текста в состояние
+         Comments.getCommentById(props.commentId)
+         .then((comment) => {
+             setOldText(comment.text.replace('<p>', '').replace('</p>', ''));
+         })
+         .catch((error) => console.log(`Ошибка получения старого описания коммента: ${error}`));
+         // Если поле пустое, то оставляем старое содержимое без запроса к серверу
+         if (description == '') {
+             setDescription(oldText);
+             return;
+         }
+         // Если новое содержимое осталось таким же, то так же оставляем без лишнего запроса
+         if (description === oldText) {
+             return;
+         }
+         // Обновление описания
+         await Comments.changeCommentDescription(props.commentId, description)
+         // Ререндер списка комментариев
+         if (props.onCommentEdited) {
+             props.onCommentEdited();
+         }
+    }
 
     // Обработчик удаления комментария
     const handleCommentDelete = async () => {
@@ -46,34 +75,14 @@ const TaskComment = (props) => {
 
     // Обработчик завершения редактирования через клик вне поля
     const handleEditingComplete = async () => {
-        // Остановка редактирования
-        setIsEditing(false);
-
-        // Установка флага, что комментарий редактирован
-        setIsEdited(true);
-
-        // Обновление описания
-        await Comments.changeCommentDescription(props.commentId, description);
-
-        // Обновление списка комментариев
-        if (props.onCommentEdited) {
-            props.onCommentEdited();
-        }
+        await updateCommentDescription();
     }
 
     // Обработчик завершения редактирования через клавишу Enter
     const handleKeyDown = async (e) => {
         if (e.key === "Enter") {
-            setIsEditing(false); 
+            await updateCommentDescription();
         }
-
-         // Обновление описания
-         await Comments.changeCommentDescription(props.commentId, description);
-
-         // Обновление списка комментариев
-         if (props.onCommentEdited) {
-             props.onCommentEdited();
-         }
     }
 
     return (

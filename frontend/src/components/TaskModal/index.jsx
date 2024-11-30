@@ -187,8 +187,6 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
     if (!isOpen) return null;
 
-    console.log(comments);
-
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content task-modal" onClick={(e) => e.stopPropagation()}>
@@ -207,6 +205,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     )}
 
                     <ReactQuill
+                        placeholder="Введите описание задачи"
                         ref={quillDescriptionRef}
                         value={description}
                         readOnly={!hasRights}
