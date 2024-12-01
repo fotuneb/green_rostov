@@ -8,8 +8,11 @@ import "./user_profile_modal.css"
 
 // Компонент модального окна для изменения данных о юзере
 const EditProfile = ({closeModal}) => {
+    // Группа стейтов для аватарки
     const fileRef = useRef(null);
     const [fileName, setFileName] = useState("Файл не выбран");
+    const [file, setFile] = useState(null);
+
     const [userInfo, setUserInfo] = useState({
         fullname: '',
         about: '',
@@ -37,6 +40,7 @@ const EditProfile = ({closeModal}) => {
             return
 
         User.getById(getCookie('user_id')).then((myData) => {
+            console.log("Объект юзера после обновления полей:", myData);
             setUserInfo({
                 fullname: myData.fullname,
                 about: myData.about
@@ -53,26 +57,43 @@ const EditProfile = ({closeModal}) => {
     // Обработка смены пароля
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
-        console.log(name, value);
         setPasswords((prev) => ({ ...prev, [name]: value }));
     };
+
+    // Сохранение нового аватарки
+    const saveNewAvatar = async () => {
+        const userID = getCookie("user_id");
+        const file = fileRef.current.files[0];
+
+        if (!file) {
+            setError("Файл не выбран");
+            return;
+        }
+
+        try {
+            await User.changeAvatar(userID, file);
+            setFileName(file.name); // Обновляем имя файла
+            setFile(file);
+            setError(""); // Очищаем ошибку
+            console.log("Аватарка обновлена успешно!");
+        } catch (err) {
+            console.error("Ошибка загрузки аватарки:", err);
+            setError("Не удалось загрузить аватарку");
+        }
+    }
 
     // Обработка сохранения изменений в форме
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Отправка аватарки
-        const userID = getCookie('user_id');
-        const file = fileRef.current.files[0];
-        await User.changeAvatar(userID, file);
+        // Сохранение аватарки
+        saveNewAvatar();
 
-        // Изменение названия файла в sandbox
-        setFileName(file.name);
-
-        User.changePublicInfo(userInfo)
-
+        // Сохранение данных полей "Псевдоним" и "О себе"
+        await User.changePublicInfo(userInfo);
+        
         if (passwords.newPassword === '')
-            return closeModal()
+            return closeModal();
 
         if (passwords.newPassword !== passwords.confirmPassword) {
             setError('Пароли не совпадают!')
@@ -93,10 +114,13 @@ const EditProfile = ({closeModal}) => {
     return (
         <div className="font-inter model-content-wrapper">
             <h1 className="text-center">Редактировать профиль</h1>
-            <form onSubmit={handleSubmit} fileName={fileName} >
-            <AvatarInput ref={fileRef} />
+            <form onSubmit={handleSubmit}>
+                <AvatarInput ref={fileRef} 
+                         fileName={fileName} 
+                         setFileName={setFileName} 
+                         setFile={setFile} />
                 <div className="input-group">
-                    <label className="user-profile-label">ФИО:</label>
+                    <label className="user-profile-label">Псевдоним:</label>
                     <input
                         type="text"
                         name="fullname"

@@ -1,13 +1,18 @@
 import React, { forwardRef } from "react";
 
-const AvatarInput = forwardRef(({ fileName, setFileName }, ref) => {
+const AvatarInput = forwardRef(({ fileName, setFileName, setFile }, ref) => {
   
+
   // Отслеживание смены аватарки
   const handleFileChanges = (event) => {
     const file = event.target.files[0];
-    console.log("Текущий файл:", file);
-    setFileName(file ? file.name : "Файл не выбран");
-    console.log(fileName);
+    if (file) {
+        setFile(file);
+        setFileName(file.name); // Обновляем имя файла в состоянии
+    } else {
+        setFile(null);
+        setFileName("Файл не выбран");
+    }
   };
 
   return (

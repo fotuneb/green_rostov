@@ -42,9 +42,22 @@ const Admin = () => {
     };
     const closeModal = () => setModalOpen(false);
 
+    // Обновления контента на странице при сохранении изменений
+    const updateContents = async () => {
+        fetchUsers()
+        .then(setUsers)
+        .catch((error) => console.log(`Ошибка обновления данных в таблице: ${error}`))
+        console.log("Апдейт отработал...");
+    }
+
     // Функционал кнопки "Экспорт в Excel"
     const excelExport = () => {
         window.location.href = process.env.REACT_APP_PUBLIC_URL + '/export/board';
+    }
+
+    // Функционал кнопки "Создать нового юзера"
+    const createNewUser = () => {
+        
     }
 
     // Проверяем, находится ли пользователь на странице /admin
@@ -58,6 +71,7 @@ const Admin = () => {
                 onClose={closeModal}
                 isAdminPage={isAdminPage} 
                 setUsers={users}
+                update={updateContents}
             />
             <h1 className = "Admin_page_h">Страница администрирования</h1>
             <table className="user-table">
@@ -84,6 +98,7 @@ const Admin = () => {
             </table>
             <div className="admin-custom-actions">
                 <button className="admin-button" onClick={excelExport}>Экспортировать доску в Excel</button>
+                <button className="admin-button" onClick={createNewUser}>Создать нового юзера</button>
             </div>
         </div>     
     );

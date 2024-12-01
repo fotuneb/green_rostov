@@ -36,12 +36,12 @@ function Register() {
           <h3>Регистрация</h3>
           <form onSubmit={handleSubmit}>
               <label htmlFor="fullname" className="register-label">
-                  ФИО:
+                  Псевдоним:
               </label>
               <input type="text" 
                     id="fullname" 
                     name="fullname" 
-                    placeholder="Введите Ваше ФИО" 
+                    placeholder="Введите Ваш Псевдоним" 
                     required 
                     className="register-input"
                     onChange={(event) => setFullname(event.target.value)}>

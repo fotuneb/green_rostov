@@ -48,7 +48,8 @@
     border-radius: 5px;
     cursor: pointer;
     font-family: "Montserrat", sans-serif;
-    color:#ffffff ;
+    color:#ffffff;
+    margin-right: 10px;
 }
 
 .admin-button:hover {

@@ -6,8 +6,10 @@ import TaskComment from '../TaskComment/';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
 
+// Базовый публиный путь
 const ws = process.env.REACT_APP_PUBLIC_URL
 
+// Метод для форматирования даты
 const formatDate = (dateString, reversed, dayOnly) => {
     const date = new Date(dateString); // Преобразуем строку в объект Date
 
@@ -66,7 +68,6 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [deadline, setDeadline] = useState('');
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
-    const [updatedAt, setUpdatedAt] = useState('');
 
     const hasRights = getCookie('role') != 'guest';
     const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
@@ -176,8 +177,6 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setComments(res);
         // Для проверки очищаем поле ввода для комментариев
         setNewComment('');
-        // Ререндерим дату изменения таски
-        await renderTaskChangeDate();
     }
 
     // Обработка ввода в поле для нового комментария
@@ -191,9 +190,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         if (newComment === '') return null;
         // Добавляем новый комментарий
         await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
-        // Очищаем поля от текста
-        setNewComment('');
-        // Обновляем комментарии
+        // Обновляем список комментов
         await updateComments();
     }
 
@@ -245,7 +242,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             {hasRights && <button className="task-button font-inter" onClick={addNewComment}>Добавить комментарий</button>}
                         </div>
                         {!comments.length ? 
-                        (<p>Напишите первым мнение о задаче...</p>) 
+                        (<p style={{margin: "0"}}>Напишите первым мнение о задаче...</p>) 
                         : comments
                             .sort((a, b) => new Date(b.create_date) - new Date(a.create_date))
                             .map((comment) => {

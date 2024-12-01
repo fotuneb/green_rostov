@@ -1,57 +1,8 @@
 import React, { useState } from 'react';
-import { UserAdmin } from '../../utilities/api';
-import { User } from "../../utilities/api.js";
-import "./manage_user_modal.css";
 
-// Компонент модального окна
-const EditProfile = ({ user, isAdminPage, setUsers, closeModal, updateTable }) => {
-    const [role, setRole] = useState(user.role);
-    const [userFullname, setUserFullname] = useState(user.fullname);
-    const [curError, setCurError] = useState('');
-
-    // Стейт для установки паролей
-    const [passwords, setPasswords] = useState({
-        newPassword: '',
-        confirmPassword: '',
-    });
-
-    // Обработка смены пароля
-    const handlePasswordChange = (e) => {
-        const { name, value } = e.target;
-        setPasswords((prev) => ({ ...prev, [name]: value }));
-    };
-
-    // Обработка сохранения изменений
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (user.fullname !== userFullname)
-            UserAdmin.changeFullname(user.id, userFullname)
-
-        if (user.role !== role)
-            UserAdmin.changeRole(user.id, role)
-
-        const { newPassword, confirmPassword } = passwords
-        if (newPassword == '') {
-            return;
-        }
-
-        if (newPassword !== confirmPassword) {
-            return setCurError('Пароли не совпадают!');
-        }
-
-        setCurError('');
-
-        UserAdmin.changePassword(user.id, newPassword)
-
-        User.getAll().then(setUsers);
-
-        // Обновление таблицы в админке
-        await updateTable();
-
-        // Закрытие модального окна после сохранения изменений
-        closeModal();
-    };
+// Компонент модального окна для создания нового юзера в админке
+const EditNewUser = ({ closeModal }) => {
+    const [isModalOpen, setModalOpen] = useState(false);
 
     return (
         <div className="font-inter">
@@ -118,22 +69,16 @@ const EditProfile = ({ user, isAdminPage, setUsers, closeModal, updateTable }) =
                 }
             </form>
         </div>
-    );    
-};
+    );
+}
 
-
-export const ManageUserModal = ({ isOpen, onClose, selectedUser, isAdminPage, setUsers, update }) => {
+export const CreateNewUserModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
-
+    
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content manage-user-modal" onClick={(e) => e.stopPropagation()}>
-                <EditProfile 
-                user={selectedUser} 
-                isAdminPage={isAdminPage} 
-                setUsers={setUsers} 
-                closeModal={onClose} 
-                updateTable={update} />
+            <div className="modal-content user-profile-modal" onClick={(e) => e.stopPropagation()}>
+                <EditNewUser closeModal={onClose} />
             </div>
         </div>
     );
