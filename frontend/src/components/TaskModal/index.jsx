@@ -66,6 +66,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [deadline, setDeadline] = useState('');
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [updatedAt, setUpdatedAt] = useState('');
 
     const hasRights = getCookie('role') != 'guest';
     const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
@@ -93,10 +94,18 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
     // Динамический ререндер даты изменения таски
     const renderTaskChangeDate = async () => {
-        setTaskData((prevState) => ({
-            ...prevState, // Сохраняем остальные свойства объекта
-            updated_at: "newValue", // Изменяем только property2
-        }))
+        try {
+            // Получаем обновленные данные задачи
+            const task = await Task.getById(taskData.id);
+    
+            // Обновляем состояние taskData с новой датой
+            setTaskData((prevState) => ({
+                ...prevState, // Сохраняем остальные свойства объекта
+                updated_at: task.updated_at, // Обновляем дату
+            }));
+        } catch (error) {
+            console.error('Ошибка при обновлении даты изменения задачи:', error);
+        }
     }
 
     // Обновление описания таски
@@ -135,6 +144,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         onUpdateNeeded()
         taskData.assignee = idx
         setTaskData(taskData)
+        // Ререндерим дату изменения таски
+        await renderTaskChangeDate();
     }
 
     // Обновление дедлайна
@@ -150,6 +161,9 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
 
         // Устанавливаем актуальный дедлайн
         setDeadline(`${yyyy}-${mm}-${dd}T00:00:00`)
+
+        // Ререндерим дату изменения таски
+        await renderTaskChangeDate();
     }
 
     // Метод для получения актуального списка комментариев
@@ -162,6 +176,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setComments(res);
         // Для проверки очищаем поле ввода для комментариев
         setNewComment('');
+        // Ререндерим дату изменения таски
+        await renderTaskChangeDate();
     }
 
     // Обработка ввода в поле для нового комментария
@@ -178,18 +194,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         // Очищаем поля от текста
         setNewComment('');
         // Обновляем комментарии
-        updateComments();
-    }
-
-    // Обработка обновления содержимого коммента
-    const editComment = async () => {
-        const res = await Comments.getAll(taskData.id);
-        setComments(res);
-    }
-
-    // Коллбэк для обновления комментов после удаления коммента
-    const deleteComment = async () => {
-        updateComments();
+        await updateComments();
     }
 
     // Получение комментариев
@@ -199,8 +204,6 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }, [isOpen])
 
     if (!isOpen) return null;
-
-    console.log(comments);
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -254,8 +257,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                                     userId={comment.author_id}
                                     datePosted={comment.create_date}
                                     description={comment.text}
-                                    onCommentDeleted={deleteComment}
-                                    onCommentEdited={editComment}
+                                    onCommentDeleted={updateComments}
+                                    onCommentEdited={updateComments}
                                     />
                                 </>
                             )

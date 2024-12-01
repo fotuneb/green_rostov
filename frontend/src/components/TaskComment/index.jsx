@@ -60,7 +60,7 @@ const TaskComment = (props) => {
          await Comments.changeCommentDescription(props.commentId, description)
          // Ререндер списка комментариев
          if (props.onCommentEdited) {
-             props.onCommentEdited();
+             await props.onCommentEdited();
          }
     }
 
@@ -69,7 +69,7 @@ const TaskComment = (props) => {
         try {
             await Comments.deleteComment(props.commentId);
             if (props.onCommentDeleted) {
-                props.onCommentDeleted(); // Обновляем комментарии
+                await props.onCommentDeleted(); // Обновляем комментарии
             }
         } catch (error) {
             console.error("Ошибка при удалении комментария:", error);
