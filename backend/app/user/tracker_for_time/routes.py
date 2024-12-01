@@ -54,6 +54,7 @@ async def get_track_time_using_id(task_id: int):
         # Проверяем, если track_date не None
         track_date_str = tracking.track_date if tracking.track_date else None
         result.append({
+            "user_id": tracking.user_id,
             "track_date": track_date_str,
             "track_amount": tracking.track_amount
         })
