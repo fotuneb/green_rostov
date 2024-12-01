@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     postgres_port: int
     postgres_dbname: str
     jwt_secret: str
-    bot_name: str
 
 
 settings = Settings()
