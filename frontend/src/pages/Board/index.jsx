@@ -32,18 +32,50 @@ function BoardPage() {
     return await Board.fetch() 
   }
 
-  const updateScroll = () => {
-    const overflowState = {
-      overflowX: "hidden"
-    }
-
-    
-
-    return overflowState
-  }
-
   const updateBoard = () => {
     fetchBoard().then((data) => { setBoard(data) })
+  }
+
+  const updateColumnOrder = (columnId, newIndex) => {
+    let columnData
+    for (let column of board) {
+      if (column.id == columnId) {
+        columnData = column
+        break
+      }
+    }
+
+    if (!columnData)
+      return
+
+    const oldIndex = columnData.index
+
+    if (oldIndex < newIndex) {
+      for (let column of board) {
+        if (column.index > newIndex)
+          continue
+
+        if (column.index <= oldIndex)
+          continue
+
+        column.index -= 1
+      }
+    } else if (oldIndex > newIndex) {
+      for (let column of board) {
+        if (column.index < newIndex)
+          continue
+
+        if (column.index >= oldIndex)
+          continue
+
+        column.index += 1
+      }
+    }
+
+    columnData.index = newIndex
+
+    board.sort((a, b) => a.index - b.index)
+    setBoard(board)
   }
 
   const parseDraggableId = (taskDraggableId, id) => {
@@ -69,8 +101,10 @@ function BoardPage() {
       Task.move(taskId, newColumnId, destination.index).then(updateBoard)
     }
 
-    if (type === 'column')
-      Column.move(draggableId, destination.index).then(updateBoard)
+    if (type === 'column') {
+      updateColumnOrder(draggableId, destination.index)
+      Column.move(draggableId, destination.index)
+    }
   }
 
   return (
