@@ -79,7 +79,7 @@ async def show_task_details(callback_query: CallbackQuery):
     task_id = int(callback_query.data.split("_")[1])  
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(f"http://server:8000/api/task/{task_id}") as response:
+        async with session.get(f"http://server:8000/api/task_tg/{task_id}") as response:
             if response.status == 200:
                 task = await response.json()
 
@@ -89,7 +89,9 @@ async def show_task_details(callback_query: CallbackQuery):
                     f"📂 Колонка: <i>{task['column_name']}</i>\n"
                     f"📌 Название: <i>{task['title']}</i>\n"
                     f"📋 Описание: <i>{task['description'] if task.get('description') else 'Нет описания'}</i>\n"
-                    f"⏰ Дедлайн: {datetime.fromisoformat(task['deadline']).strftime('%d.%m.%Y в %H:%M') if task.get('deadline') else 'Не установлен'}\n" 
+                    f"⏰ Дедлайн: {datetime.fromisoformat(task['deadline']).strftime('%d.%m.%Y в %H:%M') if task.get('deadline') else 'Не установлен'}\n"
+                    f"👤 Назначил: <i>{task['author']}</i>\n"
+
                 )
                 comments = task.get("comments", [])
                 if comments:
