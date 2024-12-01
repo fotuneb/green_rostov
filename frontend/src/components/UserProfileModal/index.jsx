@@ -53,7 +53,6 @@ const EditProfile = ({closeModal}) => {
     // Обработка смены пароля
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
-        console.log(name, value);
         setPasswords((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -85,7 +84,6 @@ const EditProfile = ({closeModal}) => {
             setError('')
         }
         catch (error) {
-            console.log("Ошибка смены пароля", error);
             setError(error + '');
         }
     };
