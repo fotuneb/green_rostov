@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Attachment, Comments } from "../../utilities/api.js";
+import AvatarImage from "../AvatarImage"
 import { getCookie } from '../../utilities/cookies.js';
 import "./task_comment.css"
 
@@ -18,10 +19,6 @@ const TaskComment = (props) => {
     // Права на удаление коммента
     const isAdmin = getCookie('role') == 'admin';
     const isCommentAuthor = getCookie('user_id') == props.userId;
-
-    // Получение пути к аватарке пользователя
-    const avatarPath = Attachment.getURL(user.avatar_id);
-    const isAvatarAvailable = !avatarPath.endsWith('null');
 
     // Создаем базовый объект даты
     const date = new Date(props.datePosted);
@@ -46,7 +43,6 @@ const TaskComment = (props) => {
          // Получение и сохранение старого текста в состояние
          Comments.getCommentDescription(props.commentId)
          .then((comment) => setOldText(comment.text.replace('<p>', '').replace('</p>', '')))
-         .catch((error) => console.log(`Ошибка получения старого описания коммента: ${error}`));
          // Если поле пустое, то оставляем старое содержимое без запроса к серверу
          if (description == '') {
              setDescription(oldText);
@@ -97,9 +93,7 @@ const TaskComment = (props) => {
         <div className="comment">
             <div className="comment-info">
                 <div className="comment-user-info">
-                    <div className="comment-avatar">
-                        {isAvatarAvailable && <img src={avatarPath} />}
-                    </div>
+                    {user.id && <AvatarImage userId={user.id} />}
                     <span className="comment-author">{user.fullname}</span>
                     <span className="comment-date-posted">{formattedDate} </span>
                     <span className="comment-edited-flag" 

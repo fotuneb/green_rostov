@@ -45,16 +45,16 @@ async def change_password(user_id: int, new_password: str, admin_user: UserModel
 @router1.get("/api/get_users")
 async def get_users(current_user: UserModel = Depends(get_current_user)):
     if current_user.role == "admin":
-        return await UserModel.all().prefetch_related("avatar").values("id", "fullname", "role", "avatar_id", "login")
+        return await UserModel.all().prefetch_related("avatar").values("id", "fullname", "role", "avatar_id", "about", "login")
     else:
-        return await UserModel.all().prefetch_related("avatar").values("id", "fullname", "role", "avatar_id")
+        return await UserModel.all().prefetch_related("avatar").values("id", "fullname", "role", "about", "avatar_id")
 
 @router1.get("/api/get_user/{user_id}")
 async def get_user(user_id: int, current_user: UserModel = Depends(get_current_user)):
     if current_user.role == "admin":
-        return await UserModel.get(id=user_id).prefetch_related("avatar").values("id", "fullname", "role", "avatar_id", "login")
+        return await UserModel.get(id=user_id).prefetch_related("avatar").values("id", "fullname", "role", "avatar_id", "about", "login")
     else:
-        return await UserModel.get(id=user_id).prefetch_related("avatar").values("id", "fullname", "role", "avatar_id")
+        return await UserModel.get(id=user_id).prefetch_related("avatar").values("id", "fullname", "role", "avatar_id", "about")
 
 @router1.post("/api/users")
 async def create_user(user_in: UserIn):

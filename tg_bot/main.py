@@ -1,14 +1,14 @@
 import asyncio
+import os
 from aiogram import Bot, Dispatcher
 from aiohttp import web
 
 from app.handlers import router
-from config import TG_TOKEN
 from app.http_handlers import send_changing, send_deadline, generate_link
 
 
 async def main():
-    bot = Bot(token=TG_TOKEN)
+    bot = Bot(token=os.environ['BOT_SECRET_TOKEN'])
     dp = Dispatcher()
     dp.include_router(router)
 

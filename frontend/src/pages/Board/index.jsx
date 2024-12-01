@@ -32,18 +32,109 @@ function BoardPage() {
     return await Board.fetch() 
   }
 
-  const updateScroll = () => {
-    const overflowState = {
-      overflowX: "hidden"
-    }
-
-    
-
-    return overflowState
-  }
-
   const updateBoard = () => {
     fetchBoard().then((data) => { setBoard(data) })
+  }
+
+  function updateTaskOrder(board, taskId, newColumnId, newIndex) {
+    let task
+    let oldColumn
+    let oldIndex
+
+    taskId = taskId + ''
+    newColumnId = newColumnId + ''
+
+    for (let column of board) {
+        const taskIndex = column.tasks.findIndex(t => t.id === taskId)
+        if (taskIndex !== -1) {
+            task = column.tasks[taskIndex]
+            oldColumn = column
+            oldIndex = taskIndex
+            break
+        }
+    }
+
+    if (!task)
+      return
+
+    const newBoard = [...board]
+
+    const updatedOldColumn = {
+        ...oldColumn,
+        tasks: oldColumn.tasks.filter((t, index) => index !== oldIndex)
+    }
+
+    if (oldColumn.id === newColumnId) {
+        updatedOldColumn.tasks.splice(newIndex, 0, task)
+    } else {
+        const newColumn = newBoard.find(column => column.id === newColumnId)
+        if (!newColumn)
+          return
+
+        task.column_id = newColumnId
+        const updatedNewColumn = {
+            ...newColumn,
+            tasks: [
+                ...newColumn.tasks.slice(0, newIndex),
+                task,
+                ...newColumn.tasks.slice(newIndex),
+            ],
+        }
+
+        newBoard.splice(newBoard.findIndex(column => column.id === newColumn.id), 1, updatedNewColumn)
+    }
+
+    newBoard.splice(newBoard.findIndex(column => column.id === updatedOldColumn.id), 1, updatedOldColumn)
+
+    newBoard.forEach((column) => {
+        column.tasks.forEach((task, index) => {
+            task.index = index
+        })
+    })
+
+    setBoard(newBoard);
+  }
+
+  const updateColumnOrder = (columnId, newIndex) => {
+    let columnData
+    for (let column of board) {
+      if (column.id == columnId) {
+        columnData = column
+        break
+      }
+    }
+
+    if (!columnData)
+      return
+
+    const oldIndex = columnData.index
+
+    if (oldIndex < newIndex) {
+      for (let column of board) {
+        if (column.index > newIndex)
+          continue
+
+        if (column.index <= oldIndex)
+          continue
+
+        column.index -= 1
+      }
+    } else if (oldIndex > newIndex) {
+      for (let column of board) {
+        if (column.index < newIndex)
+          continue
+
+        if (column.index >= oldIndex)
+          continue
+
+        column.index += 1
+      }
+    }
+
+    columnData.index = newIndex
+
+    board.sort((a, b) => a.index - b.index)
+    setBoard(board)
   }
 
   const parseDraggableId = (taskDraggableId, id) => {
@@ -66,11 +157,14 @@ function BoardPage() {
     if (type === 'task') {
       const taskId = parseInt(parseDraggableId(draggableId, 1))
       const newColumnId = parseInt(parseDraggableId(destination.droppableId, 0))
-      Task.move(taskId, newColumnId, destination.index).then(updateBoard)
+      updateTaskOrder(board, taskId, newColumnId, destination.index)
+      Task.move(taskId, newColumnId, destination.index)
     }
 
-    if (type === 'column')
-      Column.move(draggableId, destination.index).then(updateBoard)
+    if (type === 'column') {
+      updateColumnOrder(draggableId, destination.index)
+      Column.move(draggableId, destination.index)
+    }
   }
 
   return (

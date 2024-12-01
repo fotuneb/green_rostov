@@ -413,12 +413,12 @@ async def export_board_to_excel():
 @router.get("/api/tasks_tg")
 async def get_user_tasks_for_tg(telegram_id: int):
     try:
-        tasks = await Task.filter(assignee__telegram_id=telegram_id).all()
+        tasks = await Task.filter(assignee__telegram_id=telegram_id).prefetch_related("column").all()
         if not tasks:
             return {"tasks": []}
 
         task_list = [
-            {"title": task.title, "deadline": task.deadline}
+            {"id":task.id, "title": task.title, "deadline": task.deadline,"column_name": task.column.title}
             for task in tasks
         ]
 
@@ -560,7 +560,7 @@ async def create_url_for_file(attachment_id: int):
     # Возвращаем файл с указанным MIME-типом
     return FileResponse(file_path, media_type=mime_type)
 
-
+#Для тг-бота
 @router.get("/api/tasks/deadline")
 async def get_upcoming_deadlines():
     try:
@@ -580,7 +580,36 @@ async def get_upcoming_deadlines():
         return result
     except DoesNotExist:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Tasks doesnt collected")
+#Для тг-бота
+@router.get("/api/task_tg/{task_id}")
+async def get_task_tg_id(task_id: int):
+    task = await Task.get_or_none(id=task_id).prefetch_related("column", "author")
 
+    if not task:
+        raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+
+    comments = await Comments.filter(task_id=task_id).prefetch_related("author")
+
+    comment_list = [{
+        "id": comment.id,
+        "author": comment.author.fullname if comment.author else "Неизвестный пользователь",
+        "text": comment.text,
+        "create_date": comment.create_date
+    } for comment in comments]
+
+    return {
+        "id": task.id,
+        "title": task.title,
+        "index": task.index,
+        "description": task.description,
+        "author": task.author.fullname if task.author else "Неизвестный пользователь",
+        "column": task.column_id,
+        "column_name": task.column.title,  # Название колонки
+        "created_at": task.created_at,
+        "updated_at": task.updated_at,
+        "deadline": task.deadline,
+        "comments": comment_list
+    }
 
 @router.get("/api/comments/{id}")
 async def get_comment_by_id(id: int):

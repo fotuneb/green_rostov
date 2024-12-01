@@ -24,7 +24,7 @@ async def notify_new_assignee(telegram_id: int, task, attr):
 
 async def notify_upcoming_deadlines():
     while True:
-        await asyncio.sleep(12 * 60 * 60)
+        await asyncio.sleep(5*60*60)
         async with aiohttp.ClientSession() as session:
             async with session.get("http://server:8000/api/tasks/deadline") as response:
                 if response.status == 200:

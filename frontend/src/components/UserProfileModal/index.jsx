@@ -106,7 +106,6 @@ const EditProfile = ({closeModal}) => {
             setError('')
         }
         catch (error) {
-            console.log("Ошибка смены пароля", error);
             setError(error + '');
         }
     };

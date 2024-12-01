@@ -33,7 +33,7 @@ async def create_track_time(info: TrackerInfo, current_user: UserModel = Depends
     tracker_entry = await Tracker.create(
         user_id=current_user.id,
         task_id=info.task,
-        track_date=datetime.strptime(info.track_date, "%Y-%m-%d %H:%M:%S"),  # Преобразуем строку в datetime
+        track_date=datetime.fromisoformat(info.track_date.replace("Z", "+00:00")), # Преобразуем строку в datetime
         track_amount=info.track_amount
     )
 
@@ -52,8 +52,9 @@ async def get_track_time_using_id(task_id: int):
     result = []
     for tracking in trackings:
         # Проверяем, если track_date не None
-        track_date_str = tracking.track_date.strftime("%Y-%m-%d %H:%M:%S") if tracking.track_date else None
+        track_date_str = tracking.track_date if tracking.track_date else None
         result.append({
+            "user_id": tracking.user_id,
             "track_date": track_date_str,
             "track_amount": tracking.track_amount
         })
