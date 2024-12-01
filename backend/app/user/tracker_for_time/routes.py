@@ -33,7 +33,7 @@ async def create_track_time(info: TrackerInfo, current_user: UserModel = Depends
     tracker_entry = await Tracker.create(
         user_id=current_user.id,
         task_id=info.task,
-        track_date=datetime.strptime(info.track_date, "%Y-%m-%d %H:%M:%S"),  # Преобразуем строку в datetime
+        track_date=datetime.fromisoformat(info.track_date.replace("Z", "+00:00")), # Преобразуем строку в datetime
         track_amount=info.track_amount
     )
 
