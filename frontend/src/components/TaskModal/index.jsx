@@ -94,6 +94,10 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     // Обновление описания таски
     const updateDescription = async () => {
         await Task.changeDescription(task.id, description);
+        setTaskData((prevState) => ({
+            ...prevState, // Сохраняем остальные свойства объекта
+            updated_at: "newValue", // Изменяем только property2
+        }))
     }
 
     // Хэндлер для изменения заголовка таски
