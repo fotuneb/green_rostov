@@ -10,19 +10,16 @@ const ws = process.env.REACT_APP_PUBLIC_URL
 
 const formatDate = (dateString, reversed, dayOnly) => {
     const date = new Date(dateString); // Преобразуем строку в объект Date
-  
-    // Получаем компоненты даты и времени
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Месяцы в JS начинаются с 0
-    const year = date.getUTCFullYear();
 
-    if (dayOnly)
-        return `${year}-${month}-${day}`
-  
-    // Форматируем в нужный вид
+    // Получаем компоненты даты
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    // Формируем дату в нужном формате
     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 }
 
@@ -68,11 +65,11 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [users, setUsers] = useState([]);
     const [deadline, setDeadline] = useState('');
     const [comments, setComments] = useState([]);
-    const [newComment, setNewComment] = useState(null);
+    const [newComment, setNewComment] = useState('');
 
     const hasRights = getCookie('role') != 'guest';
     const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
-    const quillCommentRef = useRef(null); // Ссылка на редактор нового комментария
+    const commentInputRef = useRef(null); // Ссылка на редактор нового комментария
 
     // Получаем основные данные о таске
     useEffect(async () => {
@@ -134,19 +131,54 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         const [yyyy, mm, dd] = deadlineDay.split('-')
         const apiDeadlineString = `${dd}.${mm}.${yyyy} 00:00:00`
 
+        // Запрос к базе на изменение дедлайна
         await Task.changeDeadline(taskData.id, apiDeadlineString)
+
+        // Очищаем предыдущий дедлайн
+        setDeadline('');
+
+        // Устанавливаем актуальный дедлайн
         setDeadline(`${yyyy}-${mm}-${dd}T00:00:00`)
+    }
+
+    // Метод для получения актуального списка комментариев
+    const updateComments = async () => {
+        // Получение всех комментариев с базы
+        const res = await Comments.getAll(taskData.id);
+        // Очистка предыдущего списка комментариев
+        setComments('');
+        // Установление актуального списка комментариев
+        setComments(res);
+        // Для проверки очищаем поле ввода для комментариев
+        setNewComment('');
+    }
+
+    // Обработка ввода в поле для нового комментария
+    const handleCommentInputChange = async (e) => {
+        setNewComment(e.target.value);
     }
 
     // Обработка ввода нового комментария
     const addNewComment = async () => {
-        if (newComment === '')
-            return
-
+        // Если поле коммента пустое, выходим
+        if (newComment === '') return null;
+        // Добавляем новый комментарий
         await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
-        setNewComment('')
-        const newComments = await Comments.getAll(taskData.id)
-        setComments(newComments)
+        // Очищаем поля от текста
+        setNewComment('');
+        // Обновляем комментарии
+        updateComments();
+    }
+
+    // Обработка обновления содержимого коммента
+    const editComment = async () => {
+        const res = await Comments.getAll(taskData.id);
+        setComments(res);
+    }
+
+    // Коллбэк для обновления комментов после удаления коммента
+    const deleteComment = async () => {
+        updateComments();
     }
 
     // Получение комментариев
@@ -156,6 +188,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }, [isOpen])
 
     if (!isOpen) return null;
+
+    console.log(comments);
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -173,8 +207,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     ) : (
                         <h2 style={{marginTop: "5px"}} onClick={() => setIsEditing(true)}>{title}</h2>
                     )}
-
                     <ReactQuill
+                        placeholder="Введите описание задачи"
                         ref={quillDescriptionRef}
                         value={description}
                         readOnly={!hasRights}
@@ -186,26 +220,31 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     <div className="comments">
                         <h3>Комментарии</h3>
                         <div className="comment-write">
-                            <ReactQuill
-                                placeholder="Введите комментарий"
-                                ref={quillCommentRef}
-                                value={newComment}
-                                readOnly={!hasRights}
-                                onChange={setNewComment}
-                                modules={Modal.modules}
-                                formats={Modal.formats}
-                            />
+                            <input type="text" 
+                                   className="comment-input"
+                                   id="comment-input"
+                                   value={newComment}
+                                   readOnly={!hasRights}
+                                   onChange={handleCommentInputChange}
+                                   placeholder="Введите комментарий"
+                                   ref={commentInputRef} />
                             {hasRights && <button className="task-button font-inter" onClick={addNewComment}>Добавить комментарий</button>}
                         </div>
                         {!comments.length ? 
                         (<p>Напишите первым мнение о задаче...</p>) 
-                        : comments.map((comment) => {
+                        : comments
+                            .sort((a, b) => new Date(b.create_date) - new Date(a.create_date))
+                            .map((comment) => {
                             return (
                                 <>
                                     <TaskComment 
+                                    isCommentEdited={comment.is_edited}
+                                    commentId={comment.id}
                                     userId={comment.author_id}
                                     datePosted={comment.create_date}
                                     description={comment.text}
+                                    onCommentDeleted={deleteComment}
+                                    onCommentEdited={editComment}
                                     />
                                 </>
                             )

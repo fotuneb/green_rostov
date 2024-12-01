@@ -2,6 +2,7 @@ import { getCookie } from './cookies'
 const publicURL = process.env.REACT_APP_PUBLIC_URL;
 
 
+// Отправка API запроса с передачей JSON
 const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body = undefined, contentType = undefined) => {
     const headers = {
         'accept': 'application/json'
@@ -23,6 +24,7 @@ const sendAPIRequestJSON = async (relativeUrl, method, authorized = true, body =
     })
 }
 
+// Отправка API запроса с передачей URL-параметров
 const sendAPIRequestURLEncoded = async (relativeUrl, method, authorized = true, body = undefined) => {
     const headers = {}
 
@@ -44,7 +46,7 @@ const sendAPIRequestURLEncoded = async (relativeUrl, method, authorized = true, 
     })
 }
 
-
+// Отправка API запроса с передачей медиа-файла
 const sendAPIRequestMedia = async (relativeUrl, method, body, authorized = true) => {
     const headers = {}
 
@@ -283,6 +285,7 @@ export var Board = {
     }
 }
 
+// Возврат пути к аватарке
 export var Attachment = {
     getURL: (attachmentId) => {
         return `/api/attachments/${attachmentId}`
@@ -291,6 +294,10 @@ export var Attachment = {
 
 // Работа с комментами
 export var Comments = {
+    getCommentById: async (comment_id) => {
+        const res = await sendAPIRequestJSON(`/api/comments/${comment_id}`, 'GET');
+        return await res.json();
+    },
     getAll: async (task_id) => {
         const res = await sendAPIRequestJSON(`/api/comments/?task_id=${task_id}`, 'GET');
         return await res.json();
@@ -301,6 +308,21 @@ export var Comments = {
             id_user: id_user,
             id_task: id_task
         })
+        return await res.json();
+    },
+    deleteComment: async (comment_id) => {
+        const res = await sendAPIRequestJSON(`/api/comments/${comment_id}`, 'DELETE', true);
+        return await res.json();
+    },
+    changeCommentDescription: async (comment_id, newDescription) => {
+        const res = await sendAPIRequestJSON(`/api/comments/${comment_id}`, 'POST', true, {
+            id: comment_id,
+            new_text: newDescription
+        })
+        return await res.json();
+    },
+    getCommentDescription: async (comment_id) => {
+        const res = await sendAPIRequestJSON(`/api/comments/${comment_id}`, 'GET');
         return await res.json();
     }
 }

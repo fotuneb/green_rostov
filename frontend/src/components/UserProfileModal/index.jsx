@@ -6,6 +6,7 @@ import { User } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
 import "./user_profile_modal.css"
 
+// Компонент модального окна для изменения данных о юзере
 const EditProfile = ({closeModal}) => {
     const fileRef = useRef(null);
     const [fileName, setFileName] = useState("Файл не выбран");
@@ -52,6 +53,7 @@ const EditProfile = ({closeModal}) => {
     // Обработка смены пароля
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
+        console.log(name, value);
         setPasswords((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -83,7 +85,7 @@ const EditProfile = ({closeModal}) => {
             setError('')
         }
         catch (error) {
-            console.log((111))
+            console.log("Ошибка смены пароля", error);
             setError(error + '');
         }
     };
@@ -91,8 +93,8 @@ const EditProfile = ({closeModal}) => {
     return (
         <div className="font-inter model-content-wrapper">
             <h1 className="text-center">Редактировать профиль</h1>
-            <form onSubmit={handleSubmit}>
-            <AvatarInput fileName={fileName} setFileName={setFileName} ref={fileRef} />
+            <form onSubmit={handleSubmit} fileName={fileName} >
+            <AvatarInput ref={fileRef} />
                 <div className="input-group">
                     <label className="user-profile-label">ФИО:</label>
                     <input

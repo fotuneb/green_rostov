@@ -7,6 +7,7 @@ import aiohttp
 from app.config import settings
 from app.user.routes_user import router1
 from app.task.routes import router
+from app.user.tracker_for_time.routes import router2
 from app.task.tg_http import notify_upcoming_deadlines
 from app.user.routes_user import admin_router
 import app.task.routes_for_time
@@ -17,6 +18,7 @@ def create_app() -> FastAPI:
 
     application.include_router(router, prefix="")
     application.include_router(router1, prefix="")
+    application.include_router(router2, prefix="")
     application.include_router(admin_router, prefix="")
     application.add_middleware(
         CORSMiddleware,
@@ -37,7 +39,7 @@ def create_app() -> FastAPI:
     register_tortoise(
         application,
         db_url=postgres_url,
-        modules={"models": ["app.user.models_user", "app.task.models"]},
+        modules={"models": ["app.user.models_user", "app.task.models", "app.task.attachment_model", "app.user.tracker_for_time.models"]},
         generate_schemas=True,
         add_exception_handlers=True,
     )
