@@ -52,7 +52,7 @@ async def get_track_time_using_id(task_id: int):
     result = []
     for tracking in trackings:
         # Проверяем, если track_date не None
-        track_date_str = tracking.track_date.strftime("%Y-%m-%d %H:%M:%S") if tracking.track_date else None
+        track_date_str = tracking.track_date if tracking.track_date else None
         result.append({
             "track_date": track_date_str,
             "track_amount": tracking.track_amount
