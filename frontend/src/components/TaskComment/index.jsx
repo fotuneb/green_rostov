@@ -44,7 +44,7 @@ const TaskComment = (props) => {
          // Очищаем стейт от старых значений
          setOldText('');
          // Получение и сохранение старого текста в состояние
-         Comments.getCommentById(props.commentId)
+         Comments.getCommentDescription(props.commentId)
          .then((comment) => setOldText(comment.text.replace('<p>', '').replace('</p>', '')))
          .catch((error) => console.log(`Ошибка получения старого описания коммента: ${error}`));
          // Если поле пустое, то оставляем старое содержимое без запроса к серверу
@@ -105,9 +105,9 @@ const TaskComment = (props) => {
                     <span className="comment-edited-flag" 
                           style={{display: props.isCommentEdited ? "inline" : "none"}}>(ред.)</span>
                 </div>
-                {/*  */}
+                {/* Если редактирование, то поле, иначе сам текст коммента */}
                 {!isEditing ? 
-                <div className="comment-description" dangerouslySetInnerHTML={{ __html: description }}></div>
+                <div className="comment-description">{description}</div>
                 : <input type='text' 
                          value={description} 
                          onChange={handleEditing}

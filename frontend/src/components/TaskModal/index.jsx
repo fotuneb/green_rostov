@@ -91,13 +91,20 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         User.getAll().then(setUsers)
     }, [isOpen])
 
-    // Обновление описания таски
-    const updateDescription = async () => {
-        await Task.changeDescription(task.id, description);
+    // Динамический ререндер даты изменения таски
+    const renderTaskChangeDate = async () => {
         setTaskData((prevState) => ({
             ...prevState, // Сохраняем остальные свойства объекта
             updated_at: "newValue", // Изменяем только property2
         }))
+    }
+
+    // Обновление описания таски
+    const updateDescription = async () => {
+        // Обновляем описание задачи
+        await Task.changeDescription(task.id, description);
+        // Ререндерим дату изменения таски
+        await renderTaskChangeDate();
     }
 
     // Хэндлер для изменения заголовка таски

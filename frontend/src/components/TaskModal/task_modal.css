@@ -69,7 +69,7 @@
     color: white;
     border: none;
     transition: all 0.3s ease;
-    margin: 15px 0 0;
+    margin: 15px 0 15px 0;
   }
 
   .task-button:hover{
