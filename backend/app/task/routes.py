@@ -126,10 +126,20 @@ async def get_tasks():
 
 @router.get("/api/task/{task_id}")
 async def get_task_using_id(task_id: int):
-    task = await Task.get_or_none(id=task_id)
+    task = await Task.get_or_none(id=task_id).prefetch_related("column")
 
     if not task:
         raise HTTPException(status_code=HTTP_400_BAD_REQUEST, detail="Task not found")
+    
+    comments = await Comments.filter(task_id=task_id).prefetch_related("author")
+
+    # Формируем список комментариев
+    comment_list = [{
+        "id": comment.id,
+        "author": comment.author.fullname,  
+        "text": comment.text,
+        "create_date": comment.create_date
+    } for comment in comments]
 
     # Получаем список вложений, связанных с задачей
     attachments = await task.attachments.all()  # Получаем все вложения, связанные с задачей
@@ -150,7 +160,9 @@ async def get_task_using_id(task_id: int):
         "deadline":task.deadline,                                   # +
         "time_track":task.time_track,                               # +
         "is_running": task.is_running,
-        "attachments": attachment_list  # Добавляем список вложений
+        "attachments": attachment_list,  # Добавляем список вложений
+        "comments": comment_list,
+        "column_name": task.column.title
     }
 
 # вывод всех колонок 
@@ -402,12 +414,12 @@ async def export_board_to_excel():
 @router.get("/api/tasks_tg")
 async def get_user_tasks_for_tg(telegram_id: int):
     try:
-        tasks = await Task.filter(assignee__telegram_id=telegram_id).all()
+        tasks = await Task.filter(assignee__telegram_id=telegram_id).prefetch_related("column").all()
         if not tasks:
             return {"tasks": []}
 
         task_list = [
-            {"title": task.title, "deadline": task.deadline}
+            {"id":task.id, "title": task.title, "deadline": task.deadline,"column_name": task.column.title}
             for task in tasks
         ]
 
