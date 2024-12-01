@@ -218,6 +218,16 @@ export const Task = {
         })
 
         return await res.json()
+    },
+
+    trackTime: async (taskId, trackDate, trackAmount) => {
+        const res = await sendAPIRequestJSON('/api/task/track_time', 'PUT', true, {
+            task: taskId,
+            track_date: trackDate,
+            track_amount: trackAmount
+        })
+
+        return await res.json()
     }
 }
 

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { getCookie } from '../../utilities/cookies.js';
 import ReactQuill from 'react-quill';
 import { Task, User, Comments } from '../../utilities/api.js';
+import { Tracker } from './Tracker/index.jsx';
 import TaskComment from '../TaskComment/';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
@@ -66,6 +67,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [deadline, setDeadline] = useState('');
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [trackedTime, setTrackedTime] = useState(0)
 
     const hasRights = getCookie('role') != 'guest';
     const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
@@ -90,6 +92,10 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         if (!isOpen) return;
         User.getAll().then(setUsers)
     }, [isOpen])
+
+    useEffect(() => {
+        setTrackedTime(taskData.total_tracked_time)
+    }, [taskData.total_tracked_time])
 
     // Обновление описания таски
     const updateDescription = async () => {
@@ -184,12 +190,10 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     // Получение комментариев
     useEffect(() => {
         if (!isOpen) return null;
-        Comments.getAll(taskData.id).then(setComments).catch((error) => console.log(error));
+        Comments.getAll(taskData.id).then(setComments);
     }, [isOpen])
 
     if (!isOpen) return null;
-
-    console.log(comments);
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -252,6 +256,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     </div>
                 </div>
                 <div className="modal-actions">
+                    <Tracker trackedTime={trackedTime} setTrackedTime={setTrackedTime} taskId={taskData.id} />
                     <ul>
                         <li>
                             <p className="font-semibold">Автор:</p>
