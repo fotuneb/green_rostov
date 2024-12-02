@@ -18,7 +18,7 @@ const TaskComment = (props) => {
 
     // Права на удаление коммента
     const isAdmin = getCookie('role') === 'admin';
-    const isCommentAuthor = getCookie('user_id') === props.userId;
+    const isCommentAuthor = parseInt(getCookie('user_id')) === props.userId;
 
     // Создаем базовый объект даты
     const date = new Date(props.datePosted);
@@ -114,7 +114,7 @@ const TaskComment = (props) => {
                 {/* Кнопка Редактировать отображается, когда пользователь в данный момент не редактирует коммент */}
                 {/* Права доступа аналогичны кнопке Удалить */}
                 {
-                    !isEditing && (isAdmin || isCommentAuthor) && 
+                    !isEditing && isCommentAuthor && 
                     <button className="comment-action" onClick={(isEditing) => setIsEditing(isEditing)}>Редактировать</button>
                 }
                 {/* Удалять может либо сам пользователь свой коммент, либо админ может удалять любые комменты */}

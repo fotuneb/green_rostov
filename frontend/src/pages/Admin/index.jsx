@@ -12,7 +12,7 @@ const Admin = () => {
     const [isUpdate, setIsUpdate] = useState(false);
     const location = useLocation();
 
-    // Функция для получения нового юзера
+    // Функция для получения списка юзеров
     const getUsers = async () => {
         const users = await User.getAll()
         let userList = []
@@ -98,7 +98,7 @@ const Admin = () => {
             </table>
             <div className="admin-custom-actions">
                 <button className="admin-button" onClick={excelExport}>Экспортировать доску в Excel</button>
-                <button className="admin-button" onClick={createNewUser}>Создать нового юзера</button>
+                {/* <button className="admin-button" onClick={createNewUser}>Создать нового юзера</button> */}
             </div>
         </div>     
     );

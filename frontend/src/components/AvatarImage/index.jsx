@@ -36,7 +36,6 @@ function AvatarImage({ userId, localImage, isUserModal, rerender }) {
 
     // Если аватарка была обновлена в профиле
     useEffect(() => {
-        console.log("Вызван ререндер!");
         fetchUserData();
     }, [rerender])
 
