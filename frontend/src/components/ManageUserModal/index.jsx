@@ -32,7 +32,7 @@ const EditProfile = ({ user, isAdminPage, setUsers, closeModal, updateTable }) =
             UserAdmin.changeRole(user.id, role)
 
         const { newPassword, confirmPassword } = passwords
-        if (newPassword == '') {
+        if (newPassword === '') {
             return;
         }
 

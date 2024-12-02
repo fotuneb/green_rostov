@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Attachment, Comments } from "../../utilities/api.js";
+import { User, Comments } from "../../utilities/api.js";
 import AvatarImage from "../AvatarImage"
 import { getCookie } from '../../utilities/cookies.js';
 import "./task_comment.css"
@@ -14,11 +14,11 @@ const TaskComment = (props) => {
     // Получаем объект нашего юзера
     useEffect(() => {
         User.getById(props.userId).then(setUser); 
-    }, [])
+    }, [props.userId])
 
     // Права на удаление коммента
-    const isAdmin = getCookie('role') == 'admin';
-    const isCommentAuthor = getCookie('user_id') == props.userId;
+    const isAdmin = getCookie('role') === 'admin';
+    const isCommentAuthor = getCookie('user_id') === props.userId;
 
     // Создаем базовый объект даты
     const date = new Date(props.datePosted);
@@ -44,7 +44,7 @@ const TaskComment = (props) => {
          Comments.getCommentDescription(props.commentId)
          .then((comment) => setOldText(comment.text.replace('<p>', '').replace('</p>', '')))
          // Если поле пустое, то оставляем старое содержимое без запроса к серверу
-         if (description == '') {
+         if (description === '') {
              setDescription(oldText);
              return;
          }

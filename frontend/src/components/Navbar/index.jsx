@@ -38,13 +38,13 @@ function Navbar({setIsLogged}) {
           <div className={`navbar-container justify-end`}>
             {/* Кнопка "Админка" отображается только при логине в админ-аккаунт и если НЕ маршрут /admin */}
             {
-              !isAdminPage && getCookie('role') == 'admin' && <Link to="/admin">
+              !isAdminPage && getCookie('role') === 'admin' && <Link to="/admin">
                 <button className="nav-button">Админка</button>
               </Link>
             }
             {/* Кнопка "Моя доска" отображается только при логине в админ-аккаунт и если маршрут /admin */}
             {
-              isAdminPage && getCookie('role') == 'admin' && <Link to="/board">
+              isAdminPage && getCookie('role') === 'admin' && <Link to="/board">
                 <button className="nav-button">Моя доска</button>
               </Link>
             }
