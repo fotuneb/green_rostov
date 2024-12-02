@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
 import { getCookie, isCookieExists } from "../../utilities/cookies.js";
+import { AvatarProvider, useAvatar } from '../../contexts/AvatarContext/index.jsx';
 import TaskFilter from "../../components/TaskFilter";
 import ColumnCompotent from "../../components/Column"
 import AddColumn from "../../components/AddColumn";
@@ -20,6 +21,9 @@ function BoardPage() {
 
   const hasRights = getCookie('role') !== 'guest';
   const isLogged = isCookieExists('token')
+
+  // Контекст для аватарок
+  const { avatarData, updateAvatar } = useAvatar();
 
   useEffect(() => {
     fetchBoard().then((data) => { setBoard(data) });
@@ -168,52 +172,55 @@ function BoardPage() {
   }
 
   return (
-    <div className="board-main">
-      <TaskFilter users={users} onFilterUpdate={(f) => setFilter(f)} />
-      <div className="board board-columns font-inter">
-        {isLogged ? (
-          <>
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable
-                droppableId="all-columns"
-                direction="horizontal"
-                type="column"
-              >
-                {(provided) => (
-                  <div
-                    className="board-columns"
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    {board.map((column) => {
-                      return (
-                        <ColumnCompotent
-                          key={column.id}
-                          board={board}
-                          column={column}
-                          tasks={column.tasks}
-                          index={column.index}
-                          filter={filter}
-                          onUpdateNeeded={updateBoard}
-                        />
-                      );
-                    })}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-            <div className="container mx-auto flex justify-between my-5 px-2">
-              <div className="flex justify-center">
-                {hasRights && <AddColumn board={board} onColumnAdded={updateBoard} />}
+    <>
+        <div className="board-main">
+        <TaskFilter users={users} onFilterUpdate={(f) => setFilter(f)} />
+        <div className="board board-columns font-inter">
+          {isLogged ? (
+            <>
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable
+                  droppableId="all-columns"
+                  direction="horizontal"
+                  type="column"
+                >
+                  {(provided) => (
+                    <div
+                      className="board-columns"
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                    >
+                      {board.map((column) => {
+                        return (
+                          <ColumnCompotent
+                            key={column.id}
+                            board={board}
+                            column={column}
+                            tasks={column.tasks}
+                            index={column.index}
+                            filter={filter}
+                            onUpdateNeeded={updateBoard}
+                            avatarData={avatarData}
+                          />
+                        );
+                      })}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+              <div className="container mx-auto flex justify-between my-5 px-2">
+                <div className="flex justify-center">
+                  {hasRights && <AddColumn board={board} onColumnAdded={updateBoard} />}
+                </div>
               </div>
-            </div>
-          </>
-        ) : (
-          <Navigate to="/login" />
-        )}
+            </>
+          ) : (
+            <Navigate to="/login" />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

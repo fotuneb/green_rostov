@@ -265,13 +265,13 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             return (
                                 <>
                                     <TaskComment 
-                                    isCommentEdited={comment.is_edited}
-                                    commentId={comment.id}
-                                    userId={comment.author_id}
-                                    datePosted={comment.create_date}
-                                    description={comment.text}
-                                    onCommentDeleted={updateComments}
-                                    onCommentEdited={updateComments}
+                                        isCommentEdited={comment.is_edited}
+                                        commentId={comment.id}
+                                        userId={comment.author_id}
+                                        datePosted={comment.create_date}
+                                        description={comment.text}
+                                        onCommentDeleted={updateComments}
+                                        onCommentEdited={updateComments}
                                     />
                                 </>
                             )

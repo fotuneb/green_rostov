@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { getCookie } from "../../utilities/cookies.js";
+import { AvatarProvider } from "../../contexts/AvatarContext";
 import NotFound404 from "../NotFound404";
 import Login from "../../pages/Login";
 import Register from "../../pages/Register";
@@ -40,7 +41,8 @@ function App() {
 
   // Настройки маршрутизации
   return (
-    <div className="App">
+    <AvatarProvider>
+      <div className="App">
      <BrowserRouter>
       <Routes>
         {/* Маршрут для логина (доступ только для неавторизованных пользователей) */}
@@ -105,6 +107,7 @@ function App() {
       </Routes>
     </BrowserRouter>
     </div>
+    </AvatarProvider>
   );
 }
 

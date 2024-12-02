@@ -1,14 +1,17 @@
 import { React, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { Modal } from "../TaskModal";
+import { useAvatar } from "../../contexts/AvatarContext";
 import AvatarImage from '../AvatarImage'
 
 import "./task.css"
 
 function Task(props) {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [rerender, setRerender] = useState(false);
 
+  // Данные по аватарке
+  const { avatarData } = useAvatar();
+  
   // Открытие и закрытие окна
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
@@ -36,7 +39,7 @@ function Task(props) {
             </p>
             <div className="task-pad task-creator-container">
               <span className="task-creator-name">{props.task.assigneeName}</span>
-              <AvatarImage userId={props.task.assignee} rerender={rerender} />
+              <AvatarImage userId={props.task.assignee} rerender={avatarData} />
             </div>
           </div>
         )}

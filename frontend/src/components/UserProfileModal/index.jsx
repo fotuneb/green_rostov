@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
 import { User } from '../../utilities/api.js';
+import { useAvatar } from '../../contexts/AvatarContext';
 import AvatarInput from "../AvatarInput";
 import AvatarImage from "../AvatarImage";
 import "./user_profile_modal.css"
@@ -12,6 +13,9 @@ const EditProfile = ({closeModal}) => {
     const fileRef = useRef(null);
     const [avatarImage, setAvatarImage] = useState(null);
     const [isUserModal, setIsUserModal] = useState(true);
+
+    // Контекст для обновления аватара
+    const { avatarData, updateAvatar } = useAvatar() || {};
 
     // Текущий юзер
     const [user, setUser] = useState([]);
@@ -78,7 +82,8 @@ const EditProfile = ({closeModal}) => {
         }
 
         try {
-            await User.changeAvatar(userID, file);
+            const avatarData = await User.changeAvatar(userID, file);
+            updateAvatar(avatarData.id); // Обновляем контекст аватарки
             setError(""); // Очищаем ошибку
             console.log("Аватарка обновлена успешно!");
         } catch (err) {
