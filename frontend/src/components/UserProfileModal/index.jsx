@@ -85,7 +85,6 @@ const EditProfile = ({closeModal}) => {
             const avatarData = await User.changeAvatar(userID, file);
             updateAvatar(avatarData.id); // Обновляем контекст аватарки
             setError(""); // Очищаем ошибку
-            console.log("Аватарка обновлена успешно!");
         } catch (err) {
             console.error("Ошибка загрузки аватарки:", err);
             setError("Не удалось загрузить аватарку");

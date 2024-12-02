@@ -34,7 +34,6 @@ const Admin = () => {
     // в модальном окне
     useEffect(() => {
         if (isUpdate) {
-            console.log("Обновление списка пользователей...");
             getUsers();
             setIsUpdate(false); // Сбрасываем флаг
         }
