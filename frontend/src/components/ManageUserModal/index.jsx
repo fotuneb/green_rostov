@@ -4,7 +4,7 @@ import { User } from "../../utilities/api.js";
 import "./manage_user_modal.css";
 
 // Компонент модального окна
-const EditProfile = ({ user, isAdminPage, setUsers, closeModal, updateTable }) => {
+const EditProfile = ({ user, isAdminPage, closeModal, isUpdate, setIsUpdate }) => {
     const [role, setRole] = useState(user.role);
     const [userFullname, setUserFullname] = useState(user.fullname);
     const [curError, setCurError] = useState('');
@@ -25,31 +25,28 @@ const EditProfile = ({ user, isAdminPage, setUsers, closeModal, updateTable }) =
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (user.fullname !== userFullname)
-            UserAdmin.changeFullname(user.id, userFullname)
-
-        if (user.role !== role)
-            UserAdmin.changeRole(user.id, role)
-
-        const { newPassword, confirmPassword } = passwords
-        if (newPassword === '') {
-            return;
+        if (user.fullname !== userFullname) {
+            await UserAdmin.changeFullname(user.id, userFullname);
         }
 
-        if (newPassword !== confirmPassword) {
-            return setCurError('Пароли не совпадают!');
+        if (user.role !== role) {
+            await UserAdmin.changeRole(user.id, role);
         }
 
-        setCurError('');
+        const { newPassword, confirmPassword } = passwords;
 
-        UserAdmin.changePassword(user.id, newPassword)
+        if (newPassword) {
+            if (newPassword !== confirmPassword) {
+                return setCurError('Пароли не совпадают!');
+            }
 
-        User.getAll().then(setUsers);
+            await UserAdmin.changePassword(user.id, newPassword);
+        }
 
-        // Обновление таблицы в админке
-        await updateTable();
+        // Отмечаем необходимость обновления
+        setIsUpdate(true);
 
-        // Закрытие модального окна после сохранения изменений
+        // Закрываем модальное окно
         closeModal();
     };
 
@@ -122,18 +119,19 @@ const EditProfile = ({ user, isAdminPage, setUsers, closeModal, updateTable }) =
 };
 
 
-export const ManageUserModal = ({ isOpen, onClose, selectedUser, isAdminPage, setUsers, update }) => {
+export const ManageUserModal = ({ isOpen, selectedUser, onClose, isAdminPage, isUpdate, setIsUpdate }) => {
     if (!isOpen) return null;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content manage-user-modal" onClick={(e) => e.stopPropagation()}>
                 <EditProfile 
-                user={selectedUser} 
-                isAdminPage={isAdminPage} 
-                setUsers={setUsers} 
-                closeModal={onClose} 
-                updateTable={update} />
+                    user={selectedUser} 
+                    isAdminPage={isAdminPage} 
+                    closeModal={onClose} 
+                    isUpdate={isUpdate}
+                    setIsUpdate={setIsUpdate} 
+                />
             </div>
         </div>
     );

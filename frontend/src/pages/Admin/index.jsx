@@ -2,53 +2,52 @@ import React, { useEffect, useState } from 'react';
 import { ManageUserModal } from "../../components/ManageUserModal";
 import { useLocation } from "react-router-dom";
 import { User } from '../../utilities/api';
-
 import './admin.css';
 
-const fetchUsers = async () => {
-    const users = await User.getAll()
-    let data = []
-
-    for (const user of users) {
-        if (user.role === 'admin') {
-            continue;
-        }
-
-        data.push(user)
-    }
-
-    return data
-}
-
+// Страница админки
 const Admin = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState({});
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [isUpdate, setIsUpdate] = useState(false);
     const location = useLocation();
+
+    // Функция для получения нового юзера
+    const getUsers = async () => {
+        const users = await User.getAll()
+        let userList = []
+        for (const user of users) {
+            if (user.role === 'admin') {
+                continue;
+            }
+            userList.push(user)
+        }
+        setUsers(userList);
+    };
 
     // Получение данных о юзере
     useEffect(() => {
-        const getUsers = async () => {
-            const userList = await fetchUsers();
-            setUsers(userList);
-        };
         getUsers();
     }, []);
 
-    const [isModalOpen, setModalOpen] = useState(false);
+    // Если нужно обновить таблицу после изменений
+    // в модальном окне
+    useEffect(() => {
+        if (isUpdate) {
+            console.log("Обновление списка пользователей...");
+            getUsers();
+            setIsUpdate(false); // Сбрасываем флаг
+        }
+    }, [isUpdate])
 
+    // Открытие модального окна
     const openModal = (user) => {
         setSelectedUser(user)
         setModalOpen(true)
     };
-    const closeModal = () => setModalOpen(false);
 
-    // Обновления контента на странице при сохранении изменений
-    const updateContents = async () => {
-        fetchUsers()
-        .then(setUsers)
-        .catch((error) => console.log(`Ошибка обновления данных в таблице: ${error}`))
-        console.log("Апдейт отработал...");
-    }
+    // Закрытие модального окна
+    const closeModal = () => setModalOpen(false);
 
     // Функционал кнопки "Экспорт в Excel"
     const excelExport = () => {
@@ -57,7 +56,7 @@ const Admin = () => {
 
     // Функционал кнопки "Создать нового юзера"
     const createNewUser = () => {
-        
+        return;
     }
 
     // Проверяем, находится ли пользователь на странице /admin
@@ -66,13 +65,14 @@ const Admin = () => {
     return (
         <div className="admin-container font-inter">
                 <ManageUserModal 
-                isOpen={isModalOpen} 
-                selectedUser={selectedUser} 
-                onClose={closeModal}
-                isAdminPage={isAdminPage} 
-                setUsers={users}
-                update={updateContents}
-            />
+                    isOpen={isModalOpen} 
+                    selectedUser={selectedUser} 
+                    onClose={closeModal}
+                    isAdminPage={isAdminPage} 
+                    setUsers={users}
+                    isUpdate={isUpdate}
+                    setIsUpdate={setIsUpdate}
+                />
             <h1 className = "Admin_page_h">Страница администрирования</h1>
             <table className="user-table">
                 <thead>
