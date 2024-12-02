@@ -8,7 +8,8 @@ function getFallbackAvatarString(name) {
     return words.map(word => word[0]).join('');
   }
 
-function AvatarImage({ userId }) {
+// Компонент для вывода изображения
+function AvatarImage({ userId, localImage }) {
     const [avatarData, setAvatarData] = useState({})
 
     useEffect(async () => {
@@ -29,6 +30,15 @@ function AvatarImage({ userId }) {
 
     const {attachmentId, fallbackStr} = avatarData
 
+    // Если передано локальное изображение из сэндбокса
+    if (localImage) {
+        return (
+            <div className="avatar">
+                <img src={localImage} alt="" />
+            </div>
+        )
+    }
+
     if (attachmentId) {
         return (
             <div className="avatar">
@@ -39,7 +49,7 @@ function AvatarImage({ userId }) {
 
     return (
         <div className="avatar">
-            {fallbackStr}
+            <div className="no-avatar">Нет аватара</div>
         </div>
     ) 
 }

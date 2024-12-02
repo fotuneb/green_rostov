@@ -487,7 +487,7 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
             raise HTTPException(status_code=500, detail=f"Error deleting old avatar: {str(e)}")
 
 
-    # Создаем запись о вложении
+    # Создаем запись о вложении (АХУЕННО РАБОТАЕТ НО ЛУЧШЕ НЕ КОММИТИТЬ)
     attachment = await Attachment.create(file_path=file_path)
     user.avatar = attachment
     await user.save()

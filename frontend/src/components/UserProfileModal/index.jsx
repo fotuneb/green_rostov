@@ -2,16 +2,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
-import { User } from '../../utilities/api.js';
+import { User, Attachment } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
+import AvatarImage from "../AvatarImage";
 import "./user_profile_modal.css"
 
 // Компонент модального окна для изменения данных о юзере
 const EditProfile = ({closeModal}) => {
     // Группа стейтов для аватарки
     const fileRef = useRef(null);
-    const [fileName, setFileName] = useState("Файл не выбран");
-    const [file, setFile] = useState(null);
+    const [avatarImage, setAvatarImage] = useState(null);
+
+    // Текущий юзер
+    const [user, setUser] = useState([]);
+
+    // Получаем объект нашего юзера
+    useEffect(() => {
+        User.getById(getCookie('user_id')).then(setUser); 
+        console.log(user);
+    }, [])
 
     const [userInfo, setUserInfo] = useState({
         fullname: '',
@@ -72,8 +81,6 @@ const EditProfile = ({closeModal}) => {
 
         try {
             await User.changeAvatar(userID, file);
-            setFileName(file.name); // Обновляем имя файла
-            setFile(file);
             setError(""); // Очищаем ошибку
             console.log("Аватарка обновлена успешно!");
         } catch (err) {
@@ -110,14 +117,18 @@ const EditProfile = ({closeModal}) => {
         }
     };
 
+    console.log(user);
+
     return (
         <div className="font-inter model-content-wrapper">
             <h1 className="text-center">Редактировать профиль</h1>
             <form onSubmit={handleSubmit}>
+                <div className="avatar-block">
+                    {user.id && <AvatarImage userId={user.id} localImage={avatarImage} />}
+                </div>
                 <AvatarInput ref={fileRef} 
-                         fileName={fileName} 
-                         setFileName={setFileName} 
-                         setFile={setFile} />
+                             setImage={setAvatarImage}
+                             />
                 <div className="input-group">
                     <label className="user-profile-label">Псевдоним:</label>
                     <input

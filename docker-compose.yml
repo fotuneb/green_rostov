@@ -21,7 +21,7 @@ services:
       - database
     volumes:
       - ./backend:/app/api
-      - photoes:/backend/uploads
+      - /backend/uploads
 
   client:
     build:

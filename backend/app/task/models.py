@@ -41,7 +41,7 @@ class Task(Model):
     deadline = fields.DatetimeField(null=True)          # Время дедлайна
     
   
-    attachments = fields.ManyToManyField("models.Attachment", related_name="tasks_attachments", on_delete=fields.CASCADE)
+    attachments = fields.ManyToManyField("models.Attachment", related_name="tasks_attachments")
 
     class Meta:
         table = "tasks"
