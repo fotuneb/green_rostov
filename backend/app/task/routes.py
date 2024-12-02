@@ -474,23 +474,22 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving compressed image: {str(e)}")
 
-    # удаление и создание нового вложения для юзера (норм работает)
+
+    # Удаляем старую аватарку, если она есть
     if user.avatar:
         try:
-            old_avatar_id = user.avatar_id
-            old_attachment = await Attachment.get(id=old_avatar_id)
-        
+            old_attachment = await user.avatar
             os.remove(old_attachment.file_path)  # Удаляем файл с сервера
             await old_attachment.delete()
-
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error deleting old avatar: {str(e)}")
 
-
-    # Создаем запись о вложении (АХУЕННО РАБОТАЕТ НО ЛУЧШЕ НЕ КОММИТИТЬ)
+    # Создаем новую запись вложения
     attachment = await Attachment.create(file_path=file_path)
-    user.avatar = attachment
-    await user.save()
+
+    # Обновляем аватарку пользователя
+    user.avatar_id = attachment.id
+    await user.save(update_fields=["avatar_id"])  # Указываем поле для обновления
 
     return {"id": attachment.id, "file_path": attachment.file_path}
 

@@ -14,7 +14,8 @@ class UserModel(Model):
     telegram_id = fields.IntField(max_length=200,null=True, default=None)
     notifications = fields.BooleanField(default=True)
 
-    avatar = fields.ForeignKeyField("models.Attachment", related_name="user_avatar", null = True)
+    avatar = fields.ForeignKeyField("models.Attachment", related_name="user_avatar", null = True, on_delete=fields.SET_NULL)
+    
     
     def verify_password(self, password):
         return bcrypt.verify(password, self.password)
