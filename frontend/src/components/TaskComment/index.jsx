@@ -14,7 +14,7 @@ const TaskComment = (props) => {
     // Получаем объект нашего юзера
     useEffect(() => {
         User.getById(props.userId).then(setUser); 
-    }, [props.userId])
+    }, [])
 
     // Права на удаление коммента
     const isAdmin = getCookie('role') === 'admin';
@@ -36,28 +36,29 @@ const TaskComment = (props) => {
    
     // Метод для обновления содержимого комментария
     const updateCommentDescription = async () => {
-         // Останавливаем редактирование
-         setIsEditing(false); 
-         // Очищаем стейт от старых значений
-         setOldText('');
-         // Получение и сохранение старого текста в состояние
-         Comments.getCommentDescription(props.commentId)
-         .then((comment) => setOldText(comment.text.replace('<p>', '').replace('</p>', '')))
-         // Если поле пустое, то оставляем старое содержимое без запроса к серверу
-         if (description === '') {
-             setDescription(oldText);
-             return;
-         }
-         // Если новое содержимое осталось таким же, то так же оставляем без лишнего запроса
-         if (description === oldText) {
-             return;
-         }
-         // Обновление описания
-         await Comments.changeCommentDescription(props.commentId, description)
-         // Ререндер списка комментариев
-         if (props.onCommentEdited) {
-             await props.onCommentEdited();
-         }
+        // Останавливаем редактирование
+        setIsEditing(false); 
+        // Очищаем стейт от старых значений
+        setOldText('');
+        // Получение и сохранение старого текста в состояние
+        Comments.getCommentDescription(props.commentId)
+        .then((comment) => setOldText(comment.text.replace('<p>', '').replace('</p>', '')))
+        .catch((error) => console.log(`Ошибка при получении старого содержимого комментария: ${error}`));
+        // Если поле пустое, то оставляем старое содержимое без запроса к серверу
+        if (description === '') {
+            setDescription(oldText);
+            return;
+        }
+        // Если новое содержимое осталось таким же, то так же оставляем без лишнего запроса
+        if (description === oldText) {
+            return;
+        }
+        // Обновление описания
+        await Comments.changeCommentDescription(props.commentId, description)
+        // Ререндер списка комментариев
+        if (props.onCommentEdited) {
+            await props.onCommentEdited();
+        }
     }
 
     // Обработчик удаления комментария
@@ -94,9 +95,9 @@ const TaskComment = (props) => {
             <div className="comment-info">
                 <div className="comment-user-info">
                     {user.id && <AvatarImage userId={user.id} />}
-                    <span className="comment-author">{user.fullname}</span>
-                    <span className="comment-date-posted">{formattedDate} </span>
-                    <span className="comment-edited-flag" 
+                    <span className="comment-author-element comment-author">{user.fullname}</span>
+                    <span className="comment-author-element comment-date-posted">{formattedDate} </span>
+                    <span className="comment-author-element comment-edited-flag" 
                           style={{display: props.isCommentEdited ? "inline" : "none"}}>(ред.)</span>
                 </div>
                 {/* Если редактирование, то поле, иначе сам текст коммента */}

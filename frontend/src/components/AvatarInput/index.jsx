@@ -21,6 +21,7 @@ const AvatarInput = forwardRef(({ setImage }, ref) => {
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
               // Получаем сжатое изображение в формате Data URL
               const resizedImage = canvas.toDataURL("image/jpeg", 0.9); // 0.9 — качество сжатия
+              // Отображем image
               setImage(resizedImage); // Устанавливаем в состояние
           };
           img.onerror = () => {

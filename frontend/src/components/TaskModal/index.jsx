@@ -190,14 +190,21 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         setNewComment(e.target.value);
     }
 
-    // Обработка ввода нового комментария
-    const addNewComment = async () => {
+    // Публикация нового коммента в таске
+    const publishComment = async () => {
         // Если поле коммента пустое, выходим
         if (newComment === '') return null;
         // Добавляем новый комментарий
         await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
         // Обновляем список комментов
         await updateComments();
+    }
+
+    // Обработка ввода нового комментария
+    const publishCommentEnter = async (e) => {
+        if (e.key == "Enter") {
+            await publishComment();
+        }
     }
 
     // Получение комментариев
@@ -237,18 +244,21 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     <div className="comments">
                         <h3>Комментарии</h3>
                         <div className="comment-write">
-                            <input type="text" 
-                                   className="comment-input"
-                                   id="comment-input"
-                                   value={newComment}
-                                   readOnly={!hasRights}
-                                   onChange={handleCommentInputChange}
-                                   placeholder="Введите комментарий"
-                                   ref={commentInputRef} />
-                            {hasRights && <button className="task-button font-inter" onClick={addNewComment}>Добавить комментарий</button>}
+                            {hasRights && <input type="text" 
+                                            className="comment-input"
+                                            id="comment-input"
+                                            value={newComment}
+                                            readOnly={!hasRights}
+                                            onChange={handleCommentInputChange}
+                                            onKeyDown={publishCommentEnter}
+                                            placeholder="Введите комментарий"
+                                            ref={commentInputRef} />}
+                            {hasRights && <button className="task-button font-inter" onClick={publishComment}>Добавить комментарий</button>}
                         </div>
                         {!comments.length ? 
-                        (<p style={{margin: "0"}}>Напишите первым мнение о задаче...</p>) 
+                        (<p style={{margin: "0"}}>{
+                            hasRights ? "Напишите первым мнение о задаче..." : "Нет комментариев"
+                        }</p>) 
                         : comments
                             .sort((a, b) => new Date(b.create_date) - new Date(a.create_date))
                             .map((comment) => {
