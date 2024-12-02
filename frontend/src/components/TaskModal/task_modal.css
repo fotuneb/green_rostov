@@ -116,14 +116,20 @@
     box-shadow: 0 0 8px #a4d3ff; 
 }
 
+.task-author-data-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+}
+
 .task-author-data {
     display: flex;
-    justify-content: space-between;
     margin-top: 5px;
-    width: 135px;
+    width: 100%;
 }
 
 .task-author-data > .task-author-name {
+    margin-left: 10px;
     display: inline-block;
     height: 32px;
     line-height: 32px;

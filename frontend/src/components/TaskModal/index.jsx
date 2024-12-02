@@ -286,9 +286,11 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     <ul>
                         <li>
                             <p className="font-semibold">Автор:</p>
-                            <div className="task-author-data">
-                                {<AvatarImage userId={authorID} />} 
-                                <span class="task-author-name">{taskData.authorName}</span>
+                            <div className="task-author-data-wrapper">
+                                <div className="task-author-data">
+                                    {<AvatarImage userId={authorID} />} 
+                                    <span class="task-author-name">{taskData.authorName}</span>
+                                </div>
                             </div>
                         </li>
                         <li>
