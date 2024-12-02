@@ -1,4 +1,6 @@
 .tracker-div {
+    position: absolute;
+    right: 0;
     height: 3em;
     display: flex;
     flex-direction: row-reverse;
@@ -16,4 +18,5 @@
     padding: 1em;
     background-color: #f0f0f0;
     font-weight: bold;
+    line-height: 16px;
 }

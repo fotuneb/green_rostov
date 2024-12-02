@@ -4,6 +4,7 @@ import ReactQuill from 'react-quill';
 import { Task, User, Comments } from '../../utilities/api.js';
 import { Tracker } from './Tracker/index.jsx';
 import TaskComment from '../TaskComment/';
+import AvatarImage from "../AvatarImage";
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
 
@@ -67,6 +68,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [trackedTime, setTrackedTime] = useState(0)
+    const [authorID, setAuthorID] = useState(null);
 
     const hasRights = getCookie('role') !== 'guest';
     const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
@@ -80,7 +82,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
             const detail = await Task.getById(task.id)
             detail.assigneeName = task.assigneeName
             detail.authorName = task.authorName
-
+        
+            setAuthorID(detail.author);
             setTaskData(detail);
             setTitle(detail.title);
             setDescription(detail.description || '');
@@ -283,7 +286,10 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                     <ul>
                         <li>
                             <p className="font-semibold">Автор:</p>
-                            <p>{taskData.authorName}</p>
+                            <div className="task-author-data">
+                                {<AvatarImage userId={authorID} />} 
+                                <span class="task-author-name">{taskData.authorName}</span>
+                            </div>
                         </li>
                         <li>
                             <p className="font-semibold">Дата создания:</p>
