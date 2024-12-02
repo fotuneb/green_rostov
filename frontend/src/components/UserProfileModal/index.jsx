@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
-import { User, Attachment } from '../../utilities/api.js';
+import { User } from '../../utilities/api.js';
 import AvatarInput from "../AvatarInput";
 import AvatarImage from "../AvatarImage";
 import "./user_profile_modal.css"
@@ -12,6 +11,7 @@ const EditProfile = ({closeModal}) => {
     // Группа стейтов для аватарки
     const fileRef = useRef(null);
     const [avatarImage, setAvatarImage] = useState(null);
+    const [isUserModal, setIsUserModal] = useState(true);
 
     // Текущий юзер
     const [user, setUser] = useState([]);
@@ -19,7 +19,6 @@ const EditProfile = ({closeModal}) => {
     // Получаем объект нашего юзера
     useEffect(() => {
         User.getById(getCookie('user_id')).then(setUser); 
-        console.log(user);
     }, [])
 
     const [userInfo, setUserInfo] = useState({
@@ -49,7 +48,6 @@ const EditProfile = ({closeModal}) => {
             return
 
         User.getById(getCookie('user_id')).then((myData) => {
-            console.log("Объект юзера после обновления полей:", myData);
             setUserInfo({
                 fullname: myData.fullname,
                 about: myData.about
@@ -117,14 +115,12 @@ const EditProfile = ({closeModal}) => {
         }
     };
 
-    console.log(user);
-
     return (
         <div className="font-inter model-content-wrapper">
-            <h1 className="text-center">Редактировать профиль</h1>
-            <form onSubmit={handleSubmit}>
+            <h1 className="text-center user-profile-modal-main-title">Редактировать профиль</h1>
+            <form onSubmit={handleSubmit} className="user-profile-modal-form">
                 <div className="avatar-block">
-                    {user.id && <AvatarImage userId={user.id} localImage={avatarImage} />}
+                    {user.id && <AvatarImage userId={user.id} localImage={avatarImage} isUserModal={isUserModal} />}
                 </div>
                 <AvatarInput ref={fileRef} 
                              setImage={setAvatarImage}
@@ -187,7 +183,7 @@ const EditProfile = ({closeModal}) => {
                 </div>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 <button className="user-profile-save font-inter" type="submit">Сохранить изменения</button>
-                <button className="user-profile-save font-inter" style={{marginBottom: "15px"}} onClick={handleTgBot}>Перейти к Telegram-боту</button>
+                <button className="user-profile-save font-inter" onClick={handleTgBot}>Перейти к Telegram-боту</button>
             </form>
         </div>
     );

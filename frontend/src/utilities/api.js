@@ -78,7 +78,7 @@ export const User = {
             password
         })
 
-        if (res.status == 401)
+        if (res.status === 401)
             throw new Error('Неправильный логин или пароль!')
 
         if (!res.ok)

@@ -7,9 +7,6 @@ import TaskComment from '../TaskComment/';
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
 
-// Базовый публиный путь
-const ws = process.env.REACT_APP_PUBLIC_URL
-
 // Метод для форматирования даты
 const formatDate = (dateString, reversed, dayOnly) => {
     const date = new Date(dateString); // Преобразуем строку в объект Date
@@ -53,7 +50,7 @@ const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
 
     return (
         <p onClick={() => setIsEditing(true)}>
-            {deadlineValue && formatDate(deadlineValue) || 'Не установлен (нажмите для редактирования)'}
+            {(deadlineValue && formatDate(deadlineValue)) || 'Не установлен (нажмите для редактирования)'}
         </p>
     )
 }
@@ -71,22 +68,25 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [newComment, setNewComment] = useState('');
     const [trackedTime, setTrackedTime] = useState(0)
 
-    const hasRights = getCookie('role') != 'guest';
+    const hasRights = getCookie('role') !== 'guest';
     const quillDescriptionRef = useRef(null); // Ссылка на редактор описания таски
     const commentInputRef = useRef(null); // Ссылка на редактор нового комментария
 
     // Получаем основные данные о таске
-    useEffect(async () => {
-        if (!isOpen) return;
+    useEffect(() => {
+        async function fetchTaskData() {
+            if (!isOpen) return;
         
-        const detail = await Task.getById(task.id)
-        detail.assigneeName = task.assigneeName
-        detail.authorName = task.authorName
+            const detail = await Task.getById(task.id)
+            detail.assigneeName = task.assigneeName
+            detail.authorName = task.authorName
 
-        setTaskData(detail);
-        setTitle(detail.title);
-        setDescription(detail.description || '');
-        setDeadline(detail.deadline || '')
+            setTaskData(detail);
+            setTitle(detail.title);
+            setDescription(detail.description || '');
+            setDeadline(detail.deadline || '')
+        }
+        fetchTaskData();
     }, [isOpen]);
 
     // Установление юзера, прикрепленного к таске

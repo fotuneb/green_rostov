@@ -7,6 +7,7 @@ import "./task.css"
 
 function Task(props) {
   const [isModalOpen, setModalOpen] = useState(false);
+  const [rerender, setRerender] = useState(false);
 
   // Открытие и закрытие окна
   const openModal = () => setModalOpen(true);
@@ -35,7 +36,7 @@ function Task(props) {
             </p>
             <div className="task-pad task-creator-container">
               <span className="task-creator-name">{props.task.assigneeName}</span>
-              <AvatarImage userId={props.task.assignee} />
+              <AvatarImage userId={props.task.assignee} rerender={rerender} />
             </div>
           </div>
         )}

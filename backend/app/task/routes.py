@@ -461,9 +461,9 @@ async def create_attachment_for_user(user_id: int, file: UploadFile):
     except AttributeError:
         resampling_filter = Image.ANTIALIAS  # Для старых версий Pillow
 
-    # Сжимаем изображение до 128x128
+    # Сжимаем изображение до 256x256
     image = image.convert("RGB")  # Приводим изображение к RGB (на случай PNG с альфа-каналом)
-    image = image.resize((128, 128), resampling_filter)
+    image = image.resize((256, 256), resampling_filter)
 
     # Генерируем уникальное имя файла с сохранением расширения
     unique_filename = f"{uuid.uuid4()}.jpg"  # Сохраняем как JPEG

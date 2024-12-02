@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
 import { getCookie, isCookieExists } from "../../utilities/cookies.js";
@@ -18,7 +18,7 @@ function BoardPage() {
     filterText: '',
   });
 
-  const hasRights = getCookie('role') != 'guest';
+  const hasRights = getCookie('role') !== 'guest';
   const isLogged = isCookieExists('token')
 
   useEffect(() => {
@@ -98,7 +98,7 @@ function BoardPage() {
   const updateColumnOrder = (columnId, newIndex) => {
     let columnData
     for (let column of board) {
-      if (column.id == columnId) {
+      if (column.id === columnId) {
         columnData = column
         break
       }

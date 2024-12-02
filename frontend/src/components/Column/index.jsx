@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { LuTrash2 } from "react-icons/lu";
 import { getCookie } from "../../utilities/cookies.js";
@@ -52,7 +52,7 @@ function ColumnCompotent(props) {
   // Функционал фильтра
   let filter = props.filter;
   let tasks = props.tasks.filter((task) => {
-    if (filter.filterText != '' && !task.title.includes(filter.filterText)) {
+    if (filter.filterText !== '' && !task.title.includes(filter.filterText)) {
       return false;
     }
 
@@ -71,7 +71,7 @@ function ColumnCompotent(props) {
       }
     }
 
-    if (filter.responsiblePerson && task.assignee != filter.responsiblePerson) {
+    if (filter.responsiblePerson && task.assignee !== filter.responsiblePerson) {
       return false;
     }
 
@@ -79,7 +79,7 @@ function ColumnCompotent(props) {
   })
 
   // Установка прав
-  const hasRights = getCookie('role') != 'guest';
+  const hasRights = getCookie('role') !== 'guest';
 
   // Установка возможных цветовых палитр
   const { bgColor, titleColor, addTaskBgColor, addTaskTextColor } = getColumnColors(props.column.id)

@@ -21,7 +21,7 @@ function Register() {
 
       setError('');
   
-      const data = await User.create(fullname, username, password1);
+      await User.create(fullname, username, password1);
       navigate("/login");
     } catch (error) {
       setError(error)

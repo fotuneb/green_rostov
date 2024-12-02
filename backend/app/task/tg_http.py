@@ -51,7 +51,6 @@ async def notify_upcoming_deadlines():
 async def send_deadline_notification(telegram_id,message):
     user = await UserModel.filter(telegram_id=telegram_id).first()
     payload = {"telegram_id": telegram_id, "message": message}
-    print(user.notifications)
     if user.notifications:
         async with aiohttp.ClientSession() as session:
             async with session.post(
