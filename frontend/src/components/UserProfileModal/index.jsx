@@ -15,7 +15,7 @@ const EditProfile = ({closeModal}) => {
     const [isUserModal, setIsUserModal] = useState(true);
 
     // Контекст для обновления аватара
-    const { avatarData, updateAvatar } = useAvatar() || {};
+    const { updateAvatar } = useAvatar() || {};
 
     // Текущий юзер
     const [user, setUser] = useState([]);
@@ -56,7 +56,7 @@ const EditProfile = ({closeModal}) => {
                 fullname: myData.fullname,
                 about: myData.about
             })
-        })
+        }).catch(console.error);
     }, [userInfo])
 
     // Обработка смены информации о юзере
@@ -99,7 +99,7 @@ const EditProfile = ({closeModal}) => {
         saveNewAvatar();
 
         // Сохранение данных полей "Псевдоним" и "О себе"
-        await User.changePublicInfo(userInfo);
+        await User.changePublicInfo(userInfo).catch(console.error);
         
         if (passwords.newPassword === '')
             return closeModal();
@@ -110,13 +110,7 @@ const EditProfile = ({closeModal}) => {
         }
 
         // Смена пароля пользователя
-        try {
-            await User.changePassword(passwords.currentPassword, passwords.newPassword)
-            setError('')
-        }
-        catch (error) {
-            setError(error + '');
-        }
+        await User.changePassword(passwords.currentPassword, passwords.newPassword).catch(setError)
     };
 
     return (

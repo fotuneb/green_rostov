@@ -4,8 +4,25 @@ import AvatarImage from "../AvatarImage"
 import { getCookie } from '../../utilities/cookies.js';
 import "./task_comment.css"
 
+// Форматирование даты публикации коммента
+function formatPublishDate(datePosted) {
+    // Создаем базовый объект даты
+    const date = new Date(datePosted);
+
+    // Форматируем дату в нужный вид
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Добавляем ведущий ноль
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    // Итоговая сформатированная дата
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 // Компонент для отдельного коммента к таске
-const TaskComment = (props) => {
+export default function TaskComment (props) {
     const [user, setUser] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [oldText, setOldText] = useState(props.description.replace("<p>", "").replace("</p>", ""));
@@ -19,20 +36,6 @@ const TaskComment = (props) => {
     // Права на удаление коммента
     const isAdmin = getCookie('role') === 'admin';
     const isCommentAuthor = parseInt(getCookie('user_id')) === props.userId;
-
-    // Создаем базовый объект даты
-    const date = new Date(props.datePosted);
-
-    // Форматируем дату в нужный вид
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Добавляем ведущий ноль
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    
-    // Итоговая сформатированная дата
-    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
    
     // Метод для обновления содержимого комментария
     const updateCommentDescription = async () => {
@@ -86,6 +89,7 @@ const TaskComment = (props) => {
     // Обработчик завершения редактирования через клавишу Enter
     const handleKeyDown = async (e) => {
         if (e.key === "Enter") {
+            e.preventDefault();
             await updateCommentDescription();
         }
     }
@@ -96,7 +100,7 @@ const TaskComment = (props) => {
                 <div className="comment-user-info">
                     {user.id && <AvatarImage userId={user.id} />}
                     <span className="comment-author-element comment-author">{user.fullname}</span>
-                    <span className="comment-author-element comment-date-posted">{formattedDate} </span>
+                    <span className="comment-author-element comment-date-posted">{formatPublishDate(props.datePosted)} </span>
                     <span className="comment-author-element comment-edited-flag" 
                           style={{display: props.isCommentEdited ? "inline" : "none"}}>(ред.)</span>
                 </div>
@@ -126,5 +130,3 @@ const TaskComment = (props) => {
         </div>
     )
 }
-
-export default TaskComment

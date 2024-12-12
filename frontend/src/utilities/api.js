@@ -259,7 +259,7 @@ export const Column = {
 }
 
 // Работа с досками
-export var Board = {
+export const Board = {
     fetch: async () => {
         let columns = await Column.getAll()
         const tasks = await Task.getAll()
@@ -296,14 +296,14 @@ export var Board = {
 }
 
 // Возврат пути к аватарке
-export var Attachment = {
+export const Attachment = {
     getURL: (attachmentId) => {
         return `/api/attachments/${attachmentId}`
     }
 }
 
 // Работа с комментами
-export var Comments = {
+export const Comments = {
     getAll: async (task_id) => {
         const res = await sendAPIRequestJSON(`/api/comments/?task_id=${task_id}`, 'GET');
         return await res.json();

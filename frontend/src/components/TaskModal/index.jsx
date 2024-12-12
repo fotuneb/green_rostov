@@ -95,23 +95,20 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     // Установление юзера, прикрепленного к таске
     useEffect(() => {
         if (!isOpen) return;
-        User.getAll().then(setUsers)
+        User.getAll().then(setUsers).catch(console.error);
     }, [isOpen])
 
     // Динамический ререндер даты изменения таски
     const renderTaskChangeDate = async () => {
-        try {
-            // Получаем обновленные данные задачи
-            const task = await Task.getById(taskData.id);
+         // Получаем обновленные данные задачи
+         const task = await Task.getById(taskData.id)
+         .catch(console.error);
     
-            // Обновляем состояние taskData с новой датой
-            setTaskData((prevState) => ({
-                ...prevState, // Сохраняем остальные свойства объекта
-                updated_at: task.updated_at, // Обновляем дату
-            }));
-        } catch (error) {
-            console.error('Ошибка при обновлении даты изменения задачи:', error);
-        }
+         // Обновляем состояние taskData с новой датой
+         setTaskData((prevState) => ({
+             ...prevState, // Сохраняем остальные свойства объекта
+             updated_at: task.updated_at, // Обновляем дату
+         }));
     }
 
     useEffect(() => {
@@ -121,7 +118,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     // Обновление описания таски
     const updateDescription = async () => {
         // Обновляем описание задачи
-        await Task.changeDescription(task.id, description);
+        await Task.changeDescription(task.id, description)
+        .catch(console.error);
         // Ререндерим дату изменения таски
         await renderTaskChangeDate();
     }
@@ -129,7 +127,9 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     // Хэндлер для изменения заголовка таски
     const handleTitleChange = (e) => {
         if (e.key === 'Enter') {
+            e.preventDefault();
             Task.rename(taskData.id, title)
+            .catch(console.error);
             setIsEditing(false);
         }
     };
@@ -137,12 +137,14 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     // Удаление таски
     const deleteTask = async () => {
         await Task.delete(taskData.id)
+        .catch(console.error);
         onRemove()
     }
 
     // Обновление колонки
     const updateColumn = async (idx) => {
         await Task.move(taskData.id, idx, 0)
+        .catch(console.error);
         onUpdateNeeded()
         taskData.column_id = idx
         setTaskData(taskData)
@@ -151,6 +153,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     // Обновление назначенного таске юзера
     const updateAssignee = async (idx) => {
         await Task.changeResponsible(taskData.id, idx)
+        .catch(console.error)
         onUpdateNeeded()
         taskData.assignee = idx
         setTaskData(taskData)
@@ -164,7 +167,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         const apiDeadlineString = `${dd}.${mm}.${yyyy} 00:00:00`
 
         // Запрос к базе на изменение дедлайна
-        await Task.changeDeadline(taskData.id, apiDeadlineString)
+        await Task.changeDeadline(taskData.id, apiDeadlineString).catch(console.error)
 
         // Очищаем предыдущий дедлайн
         setDeadline('');
@@ -179,7 +182,8 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     // Метод для получения актуального списка комментариев
     const updateComments = async () => {
         // Получение всех комментариев с базы
-        const res = await Comments.getAll(taskData.id);
+        const res = await Comments.getAll(taskData.id)
+        .catch(console.error);
         // Очистка предыдущего списка комментариев
         setComments('');
         // Установление актуального списка комментариев
@@ -198,7 +202,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         // Если поле коммента пустое, выходим
         if (newComment === '') return null;
         // Добавляем новый комментарий
-        await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id);
+        await Comments.addNewComment(newComment, getCookie('user_id'), taskData.id).catch(console.error);
         // Обновляем список комментов
         await updateComments();
     }
@@ -206,6 +210,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     // Обработка ввода нового комментария
     const publishCommentEnter = async (e) => {
         if (e.key == "Enter") {
+            e.preventDefault();
             await publishComment();
         }
     }

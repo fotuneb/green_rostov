@@ -13,6 +13,12 @@ function getFallbackAvatarString(name) {
 function AvatarImage({ userId, localImage, isUserModal, rerender }) {
     const [avatarData, setAvatarData] = useState({})
 
+    // Получаем изначальные данные для аватарки
+    // При установлении флага rerender производим ререндер аватарки
+    useEffect(() => {
+        fetchUserData();
+    }, [userId, rerender])
+
     // Получение данных об аватарке
     const fetchUserData = async () => {
         const userData = await User.getById(userId)
@@ -28,16 +34,6 @@ function AvatarImage({ userId, localImage, isUserModal, rerender }) {
             })
         }
     }
-
-    // Получаем изначальные данные для аватарки
-    useEffect(() => {
-        fetchUserData();
-    }, [userId])
-
-    // Если аватарка была обновлена в профиле
-    useEffect(() => {
-        fetchUserData();
-    }, [rerender])
 
     // Получаем ID вложения и строку-заглушку на случай его отсутствия
     const {attachmentId, fallbackStr} = avatarData

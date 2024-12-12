@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { UserAdmin } from '../../utilities/api';
-import { User } from "../../utilities/api.js";
+import { UserAdmin } from '../../utilities/api.js';
+import { User } from "../../utilities/api.js"
 import "./manage_user_modal.css";
 
 // Компонент модального окна
@@ -21,16 +21,21 @@ const EditProfile = ({ user, isAdminPage, closeModal, isUpdate, setIsUpdate }) =
         setPasswords((prev) => ({ ...prev, [name]: value }));
     };
 
+    // Удаление юзера
+    const handleDeleteUser = async () => {
+        await User.delete().catch(console.error);
+    }
+
     // Обработка сохранения изменений
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (user.fullname !== userFullname) {
-            await UserAdmin.changeFullname(user.id, userFullname);
+            await UserAdmin.changeFullname(user.id, userFullName).catch(console.error);
         }
 
         if (user.role !== role) {
-            await UserAdmin.changeRole(user.id, role);
+            await UserAdmin.changeRole(user.id, role).catch(console.error);
         }
 
         const { newPassword, confirmPassword } = passwords;
@@ -40,7 +45,7 @@ const EditProfile = ({ user, isAdminPage, closeModal, isUpdate, setIsUpdate }) =
                 return setCurError('Пароли не совпадают!');
             }
 
-            await UserAdmin.changePassword(user.id, newPassword);
+            await UserAdmin.changePassword(user.id, newPassword).catch(console.error);
         }
 
         // Отмечаем необходимость обновления
@@ -97,6 +102,12 @@ const EditProfile = ({ user, isAdminPage, closeModal, isUpdate, setIsUpdate }) =
                     />
                 </div>
                 {curError && <p className="error-message">{curError}</p>}
+                <button
+                    className="user-profile-save font-inter"
+                    onClick={handleDeleteUser}
+                >
+                    Удалить пользователя
+                </button>
                 <button
                     className="user-profile-save font-inter"
                     type="submit" // Закрытие модального окна

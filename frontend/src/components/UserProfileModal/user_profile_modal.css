@@ -20,25 +20,25 @@
   z-index: 1001; 
 }
 
-.user-profile-modal-form {
+.create-new-user-modal-form {
   padding-bottom: 20px;
 }
 
-.user-profile-modal {
+.create-new-user-modal {
   width: auto;
 }
 
-.user-profile-modal-main-title {
+.create-new-user-modal-main-title {
   margin-top: 0;
   padding-top: 0;
 }
 
-.user-profile-label {
+.create-new-user-label {
     margin-bottom: 0.2em;
     font-family: "Montserrat", sans-serif; 
 }
 
- .user-profile-avatar-btn {
+ .create-new-user-avatar-btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -54,37 +54,17 @@
     transition: all 0.3s ease;
     margin: 15px 0 0;
   }
-
-  .avatar-file-name-display {
-    margin-left: 10px;
-    font-style: italic;
-    color: #ffff;
-  }
-
-  .user-profile-avatar-btn {
-    margin-bottom: 15px;
-  }
   
-  .user-profile-save:hover {
+  .create-new-user-save:hover {
     background-color: #1B4B73;
   }
   
-  .user-profile-save:last-child {
+  .create-new-user-save:last-child {
     background-color: #4022D7;
   }
   
-  .user-profile-save:last-child:hover {
+  .create-new-user-save:last-child:hover {
     background-color: #4022D7;
   }
   
-
-/* Скрываем реальный input */
-.user-profile-avatar-input {
-    display: none;
-}
-
-.avatar-block {
-  display: flex;
-  justify-content: center;
-}
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ManageUserModal } from "../../components/ManageUserModal";
+import { CreateNewUserModal } from '../../components/CreateNewUserModal';
 import { useLocation } from "react-router-dom";
 import { User } from '../../utilities/api';
 import './admin.css';
@@ -8,7 +9,8 @@ import './admin.css';
 const Admin = () => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState({});
-    const [isModalOpen, setModalOpen] = useState(false);
+    const [isModalEditOpen, setModalEditOpen] = useState(false);
+    const [isModalNewUserOpen, setModalNewUserOpen] = useState(false);
     const [isUpdate, setIsUpdate] = useState(false);
     const location = useLocation();
 
@@ -23,16 +25,13 @@ const Admin = () => {
             userList.push(user)
         }
         setUsers(userList);
-    };
+    }
 
-    // Получение данных о юзере
     useEffect(() => {
-        getUsers();
-    }, []);
+        getUsers(); // Изначальное получение списка юзеров
 
-    // Если нужно обновить таблицу после изменений
-    // в модальном окне
-    useEffect(() => {
+        // Если нужно обновить таблицу после изменений
+        // в модальном окне
         if (isUpdate) {
             getUsers();
             setIsUpdate(false); // Сбрасываем флаг
@@ -40,22 +39,21 @@ const Admin = () => {
     }, [isUpdate])
 
     // Открытие модального окна
-    const openModal = (user) => {
+    const openEditModal = (user) => {
         setSelectedUser(user)
-        setModalOpen(true)
+        setModalEditOpen(true)
     };
 
-    // Закрытие модального окна
-    const closeModal = () => setModalOpen(false);
+    // Закрытие модального окна для редактирования данных пользователя
+    const closeEditModal = () => setModalEditOpen(false);
+
+    // Коллбэки для управления состоянием модального окна для создания юзера
+    const openNewUserModal = () => setModalNewUserOpen(true);
+    const closeNewUserModal = () => setModalNewUserOpen(false);
 
     // Функционал кнопки "Экспорт в Excel"
     const excelExport = () => {
         window.location.href = process.env.REACT_APP_PUBLIC_URL + '/export/board';
-    }
-
-    // Функционал кнопки "Создать нового юзера"
-    const createNewUser = () => {
-        return;
     }
 
     // Проверяем, находится ли пользователь на странице /admin
@@ -64,13 +62,17 @@ const Admin = () => {
     return (
         <div className="admin-container font-inter">
                 <ManageUserModal 
-                    isOpen={isModalOpen} 
+                    isOpen={isModalEditOpen} 
                     selectedUser={selectedUser} 
-                    onClose={closeModal}
+                    onClose={closeEditModal}
                     isAdminPage={isAdminPage} 
                     setUsers={users}
                     isUpdate={isUpdate}
                     setIsUpdate={setIsUpdate}
+                />
+                <CreateNewUserModal 
+                    isOpen={isModalNewUserOpen}
+                    onClose={closeNewUserModal}
                 />
             <h1 className = "Admin_page_h">Страница администрирования</h1>
             <table className="user-table">
@@ -89,7 +91,7 @@ const Admin = () => {
                         <td>{user.role}</td>
                         <td>{user.login}</td>
                         <td>
-                            <button className="admin-button" onClick={() => openModal(user)}>Редактировать</button>
+                            <button className="admin-button" onClick={() => openEditModal(user)}>Редактировать</button>
                         </td>
                     </tr>
                     ))}
@@ -97,7 +99,7 @@ const Admin = () => {
             </table>
             <div className="admin-custom-actions">
                 <button className="admin-button" onClick={excelExport}>Экспортировать доску в Excel</button>
-                {/* <button className="admin-button" onClick={createNewUser}>Создать нового юзера</button> */}
+                <button className="admin-button" onClick={openNewUserModal}>Создать нового юзера</button>
             </div>
         </div>     
     );
