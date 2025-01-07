@@ -1,12 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getCookie } from '../../utilities/cookies.js';
+import { getCookie } from '../../utilities/cookies';
 import ReactQuill from 'react-quill';
-import { Task, User, Comments } from '../../utilities/api.js';
-import { Tracker } from './Tracker/index.jsx';
-import TaskComment from '../TaskComment/';
+import { Task } from '../../utilities/api/task/task'
+import { User } from '../../utilities/api/user/user'
+import { Comments } from '../../utilities/api/comments/comments'
+import { Tracker } from './Tracker/index.js';
+import TaskComment from '../TaskComment';
 import AvatarImage from "../AvatarImage";
 import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
 import './task_modal.css';
+
+import { TaskAPIRequestObjectFull } from "../../utilities/api/task/types"
+import { UserObjectAPIResponse } from '../../utilities/api/user/types'
 
 // Метод для форматирования даты
 const formatDate = (dateString, reversed, dayOnly) => {
@@ -58,14 +63,14 @@ const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
 
 // Основной компонент модального окна
 export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }) => {
-    const [taskData, setTaskData] = useState(task);
-    const [isEditing, setIsEditing] = useState(false);
-    const [isEditingDeadline, setIsEditingDeadline] = useState(false);
-    const [title, setTitle] = useState(taskData.title);
-    const [description, setDescription] = useState(taskData.description || '');
-    const [users, setUsers] = useState([]);
-    const [deadline, setDeadline] = useState('');
-    const [comments, setComments] = useState([]);
+    const [taskData, setTaskData] = useState<TaskAPIRequestObjectFull>(task);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [isEditingDeadline, setIsEditingDeadline] = useState<boolean>(false);
+    const [title, setTitle] = useState<string>(taskData.title);
+    const [description, setDescription] = useState<string | null>(taskData.description || '');
+    const [users, setUsers] = useState<Array<UserObjectAPIResponse>>([]);
+    const [deadline, setDeadline] = useState<string>('');
+    const [comments, setComments] = useState<Array<>>([]);
     const [newComment, setNewComment] = useState('');
     const [trackedTime, setTrackedTime] = useState(0)
     const [authorID, setAuthorID] = useState(null);

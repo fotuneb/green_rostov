@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { getCookie } from "../../utilities/cookies.js";
-import { AvatarProvider } from "../../contexts/AvatarContext";
-import NotFound404 from "../NotFound404";
-import Login from "../../pages/Login";
-import Register from "../../pages/Register";
-import BoardPage from "../../pages/Board";
-import Admin from "../../pages/Admin";
-import Navbar from "../Navbar";
+import { AvatarProvider } from "../../contexts/AvatarContext/index.js";
+import NotFound404 from "../NotFound404/index.jsx";
+import Login from "../../pages/Login/index.js";
+import Register from "../../pages/Register/index.jsx";
+import BoardPage from "../../pages/Board/index.jsx";
+import Admin from "../../pages/Admin/index.jsx";
+import Navbar from "../Navbar/index.jsx";
 
 // Получить токен пользователя
 function getToken() {
@@ -20,7 +20,7 @@ function getUserID() {
 }
 
 // Основной компонент приложения
-function App() {
+const App: React.FC = () => {
   const [token, setToken] = useState(() => getToken());
   const [isLogged, setIsLogged] = useState(() => !!getToken() && !!getUserID());
 

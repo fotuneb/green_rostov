@@ -4,7 +4,7 @@ import { LuTrash2 } from "react-icons/lu";
 import { getCookie } from "../../utilities/cookies.js";
 import { Column } from "../../utilities/api.js";
 import Task from "../Task";
-import AddTask from "../AddTask";
+import AddTask from "../AddTask/index.js";
 import "./column.css"
 
 // Кастомные палитры цветов для колонок

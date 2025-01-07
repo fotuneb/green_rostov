@@ -1,7 +1,16 @@
 {
-    "compilerOptions": {
-      "jsx": "react-jsx",
-      "strict": true, 
-      "esModuleInterop": true
-    }
-  }
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "es2015"],
+    "allowJs": true,
+    "jsx": "react",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src"
+  ]
+}
