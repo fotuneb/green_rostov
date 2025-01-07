@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { User, Comments } from "../../utilities/api.js";
-import AvatarImage from "../AvatarImage"
+import AvatarImage from "../AvatarImage/index.jsx"
 import { getCookie } from '../../utilities/cookies.js';
 import "./task_comment.css"
 
+interface TaskCommentProps {
+    commentId: number
+    userId: number
+    datePosted: string
+    description: string
+    onCommentDeleted: () => void
+    onCommentEdited: () => void
+}
+
 // Форматирование даты публикации коммента
-function formatPublishDate(datePosted) {
+function formatPublishDate(datePosted: string): string {
     // Создаем базовый объект даты
     const date = new Date(datePosted);
 
@@ -16,37 +25,43 @@ function formatPublishDate(datePosted) {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
-    
+
     // Итоговая сформатированная дата
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 // Компонент для отдельного коммента к таске
-export default function TaskComment (props) {
-    const [user, setUser] = useState([]);
+export default function TaskComment(props: TaskCommentProps) {
+    const [user, setUser] = useState<>({});
     const [isEditing, setIsEditing] = useState(false);
     const [oldText, setOldText] = useState(props.description.replace("<p>", "").replace("</p>", ""));
     const [description, setDescription] = useState(props.description.replace("<p>", "").replace("</p>", ""));
 
     // Получаем объект нашего юзера
     useEffect(() => {
-        User.getById(props.userId).then(setUser); 
+        User.getById(props.userId).then(setUser);
     }, [])
 
     // Права на удаление коммента
     const isAdmin = getCookie('role') === 'admin';
-    const isCommentAuthor = parseInt(getCookie('user_id')) === props.userId;
-   
+    const userId: string | null = getCookie('user_id');
+
+    if (userId === null) {
+        throw new Error('Нет информации об ID текущего юзера!');
+    }
+    
+    const isCommentAuthor = parseInt(userId) === props.userId;
+
     // Метод для обновления содержимого комментария
     const updateCommentDescription = async () => {
         // Останавливаем редактирование
-        setIsEditing(false); 
+        setIsEditing(false);
         // Очищаем стейт от старых значений
         setOldText('');
         // Получение и сохранение старого текста в состояние
         Comments.getCommentDescription(props.commentId)
-        .then((comment) => setOldText(comment.text.replace('<p>', '').replace('</p>', '')))
-        .catch((error) => console.log(`Ошибка при получении старого содержимого комментария: ${error}`));
+            .then((comment) => setOldText(comment.text.replace('<p>', '').replace('</p>', '')))
+            .catch((error) => console.log(`Ошибка при получении старого содержимого комментария: ${error}`));
         // Если поле пустое, то оставляем старое содержимое без запроса к серверу
         if (description === '') {
             setDescription(oldText);
@@ -101,29 +116,29 @@ export default function TaskComment (props) {
                     {user.id && <AvatarImage userId={user.id} />}
                     <span className="comment-author-element comment-author">{user.fullname}</span>
                     <span className="comment-author-element comment-date-posted">{formatPublishDate(props.datePosted)} </span>
-                    <span className="comment-author-element comment-edited-flag" 
-                          style={{display: props.isCommentEdited ? "inline" : "none"}}>(ред.)</span>
+                    <span className="comment-author-element comment-edited-flag"
+                        style={{ display: props.isCommentEdited ? "inline" : "none" }}>(ред.)</span>
                 </div>
                 {/* Если редактирование, то поле, иначе сам текст коммента */}
-                {!isEditing ? 
-                <div className="comment-description">{description}</div>
-                : <input type='text' 
-                         value={description} 
-                         onChange={handleEditing}
-                         onBlur={handleEditingComplete}
-                         onKeyDown={handleKeyDown}></input>}
-                        
+                {!isEditing ?
+                    <div className="comment-description">{description}</div>
+                    : <input type='text'
+                        value={description}
+                        onChange={handleEditing}
+                        onBlur={handleEditingComplete}
+                        onKeyDown={handleKeyDown}></input>}
+
             </div>
             <div className="comment-controls">
                 {/* Кнопка Редактировать отображается, когда пользователь в данный момент не редактирует коммент */}
                 {/* Права доступа аналогичны кнопке Удалить */}
                 {
-                    !isEditing && isCommentAuthor && 
+                    !isEditing && isCommentAuthor &&
                     <button className="comment-action" onClick={(isEditing) => setIsEditing(isEditing)}>Редактировать</button>
                 }
                 {/* Удалять может либо сам пользователь свой коммент, либо админ может удалять любые комменты */}
                 {
-                    (isAdmin || isCommentAuthor) 
+                    (isAdmin || isCommentAuthor)
                     && <button className="comment-action" onClick={handleCommentDelete}>Удалить</button>
                 }
             </div>
