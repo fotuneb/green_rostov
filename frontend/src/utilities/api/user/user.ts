@@ -8,21 +8,21 @@ import type {
     APIResponseError
 } from "../types"
 import type {
-    UserChangePublicInfoAPIRequest,
-    UserCreateAPIRequest,
-    UserLoginAPIRequest,
+    UserPublicInfoObject,
+    UserCreateObject,
+    UserLoginObject,
+    UserPasswordObject,
     UserCreateAPIResponse,
     UserObjectAPIResponse,
     UserTgLinkAPIResponse,
     UserLoginAPIResponse,
-    UserChangePasswordAPIRequest,
 } from "./types"
 import type { AttachmentAPIResponse } from "../attachment/types"
 
 // Базовая работа с юзером
 export const User = {
     create: async (fullname: string, login: string, password: string): Promise<UserCreateAPIResponse> => {
-        const req_body: UserCreateAPIRequest = {
+        const req_body: UserCreateObject = {
             fullname,
             login,
             password1: password
@@ -33,7 +33,7 @@ export const User = {
     },
 
     login: async (username: string, password: string): Promise<UserLoginAPIResponse> => {
-        const req_body: UserLoginAPIRequest = {
+        const req_body: UserLoginObject = {
             username,
             password
         }
@@ -64,13 +64,13 @@ export const User = {
         return await res.json()
     },
 
-    changePublicInfo: async (newInfo: UserChangePublicInfoAPIRequest): Promise<APIResponseSuccess | APIResponseError> => {
+    changePublicInfo: async (newInfo: UserPublicInfoObject): Promise<APIResponseSuccess | APIResponseError> => {
         const res = await sendAPIRequestJSON('/api/users/change-info', 'POST', true, newInfo)
         return await res.json()
     },
 
     changePassword: async (currentPassword: string, newPassword: string): Promise<APIResponseSuccess | APIResponseError> => {
-        const req_body: UserChangePasswordAPIRequest = {
+        const req_body: UserPasswordObject = {
             current_password: currentPassword,
             new_password: newPassword,
         }
@@ -88,7 +88,7 @@ export const User = {
         return await res.json()
     },
 
-    changeAvatar: async (userId: number, file: File): Promise<AttachmentAPIResponse> => {
+    changeAvatar: async (userId: string, file: File): Promise<AttachmentAPIResponse> => {
         const formData = new FormData();
         formData.append('file', file);
 

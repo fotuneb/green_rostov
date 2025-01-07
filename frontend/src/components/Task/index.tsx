@@ -3,10 +3,18 @@ import { Draggable } from "react-beautiful-dnd";
 import { Modal } from "../TaskModal";
 import { useAvatar } from "../../contexts/AvatarContext";
 import AvatarImage from '../AvatarImage'
-
 import "./task.css"
 
-function Task(props) {
+interface TaskProps {
+  key: string
+  task: TaskData
+  columnId: string
+  index: string
+  board: BoardData
+  onTaskDeleted: () => void
+}
+
+function Task(props: TaskProps): React.FC {
   const [isModalOpen, setModalOpen] = useState(false);
 
   // Данные по аватарке

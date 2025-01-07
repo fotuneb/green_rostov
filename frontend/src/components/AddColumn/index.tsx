@@ -1,23 +1,28 @@
 import React, { useState } from "react";
-import { Column } from "../../utilities/api.js";
 import "./add_column.css"
 
-function AddColumn(props) {
+interface AddColumnProps {
+  board: BoardData
+  onColumnAdded: () => void
+}
+
+function AddColumn(props: AddColumnProps) {
   const [showNewColumnButton, setShowNewColumnButton] = useState(true);
   const [value, setValue] = useState("");
 
   // Обработка события завершения ввода
-  function handleInputComplete(event) {
-    if (event.key === "Enter") {
-      addColumn(event.target.value);
-
-      setShowNewColumnButton(true);
-      setValue("");
+  function handleInputComplete(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      if (e.target instanceof HTMLInputElement) {
+        addColumn(e.target.value);
+        setShowNewColumnButton(true);
+        setValue("");
+      }
     }
   }
 
   // Добавление новой колонки
-  async function addColumn(title) {
+  async function addColumn(title: string) {
     await Column.create(title)
     props.onColumnAdded()
   }

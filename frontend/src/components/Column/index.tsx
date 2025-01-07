@@ -8,7 +8,7 @@ import AddTask from "../AddTask/index.js";
 import "./column.css"
 
 // Кастомные палитры цветов для колонок
-function getColumnColors(columnId) {
+function getColumnColors(columnId: number) {
   const colors = [
     {
       bgColor: "#D6CEFF",

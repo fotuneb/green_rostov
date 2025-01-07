@@ -4,9 +4,9 @@ export enum UserRole {
     Admin = "admin",
 }
 
-// Базовый тип объекта запроса к эндпоинтам юзера
-interface _BaseUserRequestType {
-    fullname: string
+// Базовый тип объекта запроса к эндпоинтам категории "User"
+interface BaseUserRequestType {
+    fullname: string 
     username: string
     login: string
     password: string
@@ -17,31 +17,34 @@ interface _BaseUserRequestType {
 }
 
 // Типы объектов запроса к эндпоинтам категории "User"
-export type UserCreateAPIRequest = Pick<_BaseUserRequestType, 
+export type UserCreateObject = Pick<BaseUserRequestType, 
     'fullname' | 'login' | 'password1'>;
-export type UserLoginAPIRequest = Pick<_BaseUserRequestType, 
+export type UserLoginObject = Pick<BaseUserRequestType, 
     'username' | 'password'>;
-export type UserChangePublicInfoAPIRequest = Pick<_BaseUserRequestType, 
+export type UserPublicInfoObject = Pick<BaseUserRequestType, 
     'fullname' | 'about'>;
-export type UserChangePasswordAPIRequest = Pick<_BaseUserRequestType, 
+export type UserPasswordObject = Pick<BaseUserRequestType, 
     'current_password' | 'new_password'>;
 
 
-// User API Response Body Types
-export interface UserCreateAPIResponse {
-    accessToken: string
+// Базовый тип объекта ответа с эндпоинтов категории "User"
+interface BaseUserResponseType {
+    accessToken?: string
+    id?: number
+    role?: UserRole
+    fullname?: string | null
+    avatar_id?: number | null
+    about?: string | null
+    login?: string
+    telegram_link?: string
 }
-export interface UserLoginAPIResponse {
-    accessToken: string
-}
-export interface UserObjectAPIResponse {
-    id: number,
-    fullname: string,
-    role: UserRole,
-    avatar_id: number | null,
-    about: string | null,
-    login: string
-}
-export interface UserTgLinkAPIResponse {
-    telegram_link: string
-}
+
+// Типы объектов ответа с эндпоинтов категории "User"
+export type UserObjectAPIResponse = Omit<BaseUserResponseType, 
+    'accessToken' | 'telegram_link'>
+export type UserCreateAPIResponse = Pick<BaseUserResponseType, 
+    'accessToken'>
+export type UserLoginAPIResponse = Pick<BaseUserResponseType, 
+    'accessToken'>
+export type UserTgLinkAPIResponse = Pick<BaseUserResponseType, 
+    'telegram_link'>

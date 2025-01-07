@@ -10,19 +10,19 @@ import Admin from "../../pages/Admin/index.jsx";
 import Navbar from "../Navbar/index.jsx";
 
 // Получить токен пользователя
-function getToken() {
+function getToken(): string | null {
   return getCookie("token");
 }
 
 // Получить user_id
-function getUserID() {
+function getUserID(): string | null {
   return getCookie("user_id");
 }
 
 // Основной компонент приложения
 const App: React.FC = () => {
-  const [token, setToken] = useState(() => getToken());
-  const [isLogged, setIsLogged] = useState(() => !!getToken() && !!getUserID());
+  const [token, setToken] = useState<string | null>(() => getToken());
+  const [isLogged, setIsLogged] = useState<boolean>(() => !!getToken() && !!getUserID());
 
   // Эффект для обновления isLogged при изменении token
   useEffect(() => {

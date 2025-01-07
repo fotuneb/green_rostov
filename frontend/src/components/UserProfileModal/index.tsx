@@ -1,31 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
 import "./user_profile_modal.css"
 import { getCookie } from '../../utilities/cookies.js';
-import { User } from '../../utilities/api.js';
+import { User } from '../../utilities/api/user/user';
 import { useAvatar } from '../../contexts/AvatarContext';
 import AvatarInput from "../AvatarInput";
 import AvatarImage from "../AvatarImage";
 import "./user_profile_modal.css"
 
+import type {
+     UserPublicInfoObject,
+     UserObjectAPIResponse, 
+     UserTgLinkAPIResponse 
+} from '../../utilities/api/user/types';
+
 // Компонент модального окна для изменения данных о юзере
-const EditProfile = ({closeModal}) => {
+const EditProfile = ({closeModal}: boolean) => {
     // Группа стейтов для аватарки
-    const fileRef = useRef(null);
+    const fileRef = useRef<HTMLInputElement>(null);
     const [avatarImage, setAvatarImage] = useState(null);
     const [isUserModal, setIsUserModal] = useState(true);
 
     // Контекст для обновления аватара
-    const { updateAvatar } = useAvatar() || {};
+    const { updateAvatar } = useAvatar();
 
     // Текущий юзер
-    const [user, setUser] = useState([]);
+    const [user, setUser] = useState<UserObjectAPIResponse>({});
+    const userId = getCookie('user_id');
 
     // Получаем объект нашего юзера
     useEffect(() => {
-        User.getById(getCookie('user_id')).then(setUser); 
+        if (userId) {
+            User.getById(userId).then(setUser); 
+        }
     }, [])
 
-    const [userInfo, setUserInfo] = useState({
+    const [userInfo, setUserInfo] = useState<UserPublicInfoObject>({
         fullname: '',
         about: '',
     });
@@ -42,39 +51,41 @@ const EditProfile = ({closeModal}) => {
 
     // Обработка перехода на тг-бота
     const handleTgBot = async () => {
-        const data = await User.getTelegramLink(getCookie('user_id'))
-        window.open(data.telegram_link)
+        if (userId) {
+            const data: UserTgLinkAPIResponse = await User.getTelegramLink(userId)
+            window.open(data.telegram_link)
+        }
     }
 
     // Установление данных о юзере
     useEffect(() => {
-        if (userInfo.fullname !== '' || userInfo.about !== '')
+        if (userInfo.fullname !== '' || userInfo.about !== '' || !userId)
             return
 
-        User.getById(getCookie('user_id')).then((myData) => {
-            setUserInfo({
+        User.getById(userId).then((myData: UserObjectAPIResponse) => {
+            const userPublicInfo: UserPublicInfoObject = {
                 fullname: myData.fullname,
                 about: myData.about
-            })
+            }
+            setUserInfo(userPublicInfo)
         }).catch(console.error);
     }, [userInfo])
 
     // Обработка смены информации о юзере
-    const handleUserInfoChange = (e) => {
+    const handleUserInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setUserInfo((prev) => ({ ...prev, [name]: value }));
     };
 
     // Обработка смены пароля
-    const handlePasswordChange = (e) => {
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setPasswords((prev) => ({ ...prev, [name]: value }));
     };
 
     // Сохранение нового аватарки
     const saveNewAvatar = async () => {
-        const userID = getCookie("user_id");
-        const file = fileRef.current.files[0];
+        const file: File | null = fileRef.current?.files?.[0] || null;
 
         if (!file) {
             setError("Файл не выбран");
@@ -82,9 +93,11 @@ const EditProfile = ({closeModal}) => {
         }
 
         try {
-            const avatarData = await User.changeAvatar(userID, file);
-            updateAvatar(avatarData.id); // Обновляем контекст аватарки
-            setError(""); // Очищаем ошибку
+            if (userId) {
+                const avatarData = await User.changeAvatar(userId, file);
+                updateAvatar(avatarData.id); // Обновляем контекст аватарки
+                setError(""); // Очищаем ошибку
+            }
         } catch (err) {
             console.error("Ошибка загрузки аватарки:", err);
             setError("Не удалось загрузить аватарку");
@@ -92,7 +105,7 @@ const EditProfile = ({closeModal}) => {
     }
 
     // Обработка сохранения изменений в форме
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         // Сохранение аватарки
@@ -187,8 +200,12 @@ const EditProfile = ({closeModal}) => {
     );
 };
 
+interface UserProfileModalProps {
+    isOpen: boolean
+    onClose: () => void
+}
 
-export const UserProfileModal = ({ isOpen, onClose }) => {
+export const UserProfileModal = ({ isOpen, onClose }: UserProfileModalProps) => {
     if (!isOpen) return null;
     
     return (
@@ -199,3 +216,4 @@ export const UserProfileModal = ({ isOpen, onClose }) => {
         </div>
     );
 };
+ 
