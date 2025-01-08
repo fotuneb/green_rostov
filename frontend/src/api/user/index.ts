@@ -95,4 +95,4 @@ export const User = {
         const res = await sendAPIRequestMedia('/api/avatar?user_id=' + userId, 'POST', formData, true);
         return await res.json();
     },
-}
+} 
