@@ -49,12 +49,12 @@ export const User = {
         return await res.json()
     },
 
-    getAll: async (): Promise<Array<UserObjectAPIResponse>> => {
+    getAll: async (): Promise<UserObjectAPIResponse[]> => {
         const res = await sendAPIRequestJSON('/api/get_users', 'GET')
         return await res.json()
     },
 
-    getById: async (userId: string): Promise<UserObjectAPIResponse> => {
+    getById: async (userId: number): Promise<UserObjectAPIResponse> => {
         const res = await sendAPIRequestJSON('/api/get_user/' + userId, 'GET')
         return await res.json()
     },

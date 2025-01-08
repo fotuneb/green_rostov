@@ -1,17 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FC } from "react";
 import { User, Attachment } from "@api";
+import { UserObjectAPIResponse } from "@api/user/types";
+import { getFallbackAvatarString } from "@utils/helpers";
 import "./index.css"
 
-// Формирование строки-заглушки в случае отсутствия аватарки
-function getFallbackAvatarString(name) {
-    let words = name.split(/\s+/).map(word => word.toUpperCase());
-    words = words.slice(0, 2);
-    return words.map(word => word[0]).join('');
+type AvatarImageProps = {
+    userId: number
+    localImage?: string | null
+    isUserModal?: boolean
+    rerender?: boolean 
+}  
+
+type AvatarDataObject = {
+    attachmentId?: number | null
+    fallbackStr?: string | null
 }
 
 // Компонент для вывода изображения
-function AvatarImage({ userId, localImage, isUserModal, rerender }) {
-    const [avatarData, setAvatarData] = useState({})
+const AvatarImage: FC<AvatarImageProps> = ({ userId, localImage, isUserModal, rerender }) => {
+    const [avatarData, setAvatarData] = useState<AvatarDataObject>({})
 
     // Получаем изначальные данные для аватарки
     // При установлении флага rerender производим ререндер аватарки
@@ -21,7 +28,7 @@ function AvatarImage({ userId, localImage, isUserModal, rerender }) {
 
     // Получение данных об аватарке
     const fetchUserData = async () => {
-        const userData = await User.getById(userId)
+        const userData: UserObjectAPIResponse = await User.getById(userId)
 
         if (userData.avatar_id !== null) {
             setAvatarData({

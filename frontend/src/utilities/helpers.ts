@@ -30,3 +30,10 @@ export const formatDate = (dateString: string): string => {
     // Формируем дату в нужном формате
     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 }
+
+// Формирование строки-заглушки в случае отсутствия аватарки
+export function getFallbackAvatarString(name: string) {
+    let words = name.split(/\s+/).map(word => word.toUpperCase());
+    words = words.slice(0, 2);
+    return words.map(word => word[0]).join('');
+}

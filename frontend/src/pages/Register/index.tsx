@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User } from "@api";
 import './register.css'; // Импортируем стили
@@ -13,8 +13,8 @@ function Register() {
   const [error, setError] = useState('');
 
   // Обработка отправки формы
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
       if (password1 !== password2) {
         return setError('Пароли не совпадают!');
@@ -24,8 +24,12 @@ function Register() {
   
       await User.create(fullname, username, password1);
       navigate("/login");
-    } catch (error) {
-      setError(error)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Произошла неизвестная ошибка"); 
+      }
     }
   };
 
@@ -80,13 +84,13 @@ function Register() {
                     className="register-input"
                     onChange={(event) => setPassword2(event.target.value)}>
               </input>
-              <div class="wrap">
+              <div className="wrap">
                   {error && <p style={{ color: 'red' }}>{error}</p>}
                   <button type="submit" className="register-button">Зарегистрироваться</button>
               </div>
           </form>
           <p>Уже есть аккаунт?
-              <Link to="/login" class="register-href"> Войти</Link>
+              <Link to="/login" className="register-href"> Войти</Link>
           </p>
         </div>
       </div>

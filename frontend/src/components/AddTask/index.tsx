@@ -1,16 +1,24 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import { LuPlus } from "react-icons/lu"
 import { Task } from "@api";
 import "./add_task.css"
 
-function AddTask(props) {
+type AddTaskProps = {
+  board: BoardData
+  columnId: string
+  onTaskAdded: () => void
+  bgColor: string
+  textColor: string
+}
+
+const AddTask: FC<AddTaskProps> = ({ board, columnId, onTaskAdded, bgColor, textColor}) => {
   const [showNewTaskButton, setShowNewTaskButton] = useState(true);
   const [value, setValue] = useState("");
 
   // Обработка события завершения ввода
   function handleInputComplete(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
-      addNewTask(e.target.value, props.columnId);
+      addNewTask(e.target.value, columnId);
 
       setShowNewTaskButton(true);
       setValue("");
@@ -20,7 +28,7 @@ function AddTask(props) {
   // Добавление новой таски
   async function addNewTask(content: string, columnId: string) {
     await Task.create(content, parseInt(columnId))
-    props.onTaskAdded()
+    onTaskAdded()
   }
 
   return (
@@ -29,8 +37,8 @@ function AddTask(props) {
         <button
           className="add-task font-inter font-semibold"
           style={{
-            backgroundColor: props.bgColor,
-            color: props.textColor
+            backgroundColor: bgColor,
+            color: textColor
           }}
           onClick={() => setShowNewTaskButton(false)}
         >

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import ReactQuill from 'react-quill'
 import { Tracker } from './Tracker'
 import TaskComment from '@components/TaskComment'
@@ -8,11 +8,19 @@ import { formatDate } from '@utils/helpers'
 import { User, Task, Comments } from '@api'
 import type { TaskAPIRequestObjectFull } from "@api/task/types"
 import type { UserObjectAPIResponse } from '@api/user/types'
+import type { FC } from 'react'
 import 'react-quill/dist/quill.snow.css' // Импорт стилей для редактора
 import './task_modal.css'
 
+type DeadlineRowProps = {
+    isEditing: boolean
+    setIsEditing: (state: boolean) => void
+    deadlineValue: string
+    onEdited: (newValue: string) => void
+}
+
 // Функционал дедлайнов
-const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
+const DeadlineRow: FC<DeadlineRowProps> = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
     const val = formatDate(deadlineValue)
     const [newValue, setNewValue] = useState(val)
 
@@ -43,8 +51,17 @@ const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
     )
 }
 
+type TaskModalProps = {
+    isOpen: boolean
+    onClose: () => void
+    task: TaskData
+    onRemove: () => void
+    board: BoardData
+    onUpdateNeeded: () => void
+}
+
 // Основной компонент модального окна
-export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }) => {
+export const Modal: FC<TaskModalProps> = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }) => {
     const [taskData, setTaskData] = useState<TaskAPIRequestObjectFull>(task);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isEditingDeadline, setIsEditingDeadline] = useState<boolean>(false);
@@ -52,7 +69,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     const [description, setDescription] = useState<string | null>(taskData.description || '');
     const [users, setUsers] = useState<Array<UserObjectAPIResponse>>([]);
     const [deadline, setDeadline] = useState<string>('');
-    const [comments, setComments] = useState<Array<>>([]);
+    const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [trackedTime, setTrackedTime] = useState(0)
     const [authorID, setAuthorID] = useState(null);
@@ -112,7 +129,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }
 
     // Хэндлер для изменения заголовка таски
-    const handleTitleChange = (e) => {
+    const handleTitleChange = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             Task.rename(taskData.id, title)
@@ -129,7 +146,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }
 
     // Обновление колонки
-    const updateColumn = async (idx) => {
+    const updateColumn = async (idx: number) => {
         await Task.move(taskData.id, idx, 0)
         .catch(console.error);
         onUpdateNeeded()
@@ -138,7 +155,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }
 
     // Обновление назначенного таске юзера
-    const updateAssignee = async (idx) => {
+    const updateAssignee = async (idx: number) => {
         await Task.changeResponsible(taskData.id, idx)
         .catch(console.error)
         onUpdateNeeded()
@@ -149,7 +166,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
     }
 
     // Обновление дедлайна
-    const updateDeadline = async (deadlineDay) => {
+    const updateDeadline = async (deadlineDay: string) => {
         const [yyyy, mm, dd] = deadlineDay.split('-')
         const apiDeadlineString = `${dd}.${mm}.${yyyy} 00:00:00`
 
@@ -172,7 +189,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
         const res = await Comments.getAll(taskData.id)
         .catch(console.error);
         // Очистка предыдущего списка комментариев
-        setComments('');
+        setComments([]);
         // Установление актуального списка комментариев
         setComments(res);
         // Для проверки очищаем поле ввода для комментариев
@@ -281,7 +298,7 @@ export const Modal = ({ isOpen, onClose, task, onRemove, board, onUpdateNeeded }
                             <div className="task-author-data-wrapper">
                                 <div className="task-author-data">
                                     {<AvatarImage userId={authorID} />} 
-                                    <span class="task-author-name">{taskData.authorName}</span>
+                                    <span className="task-author-name">{taskData.authorName}</span>
                                 </div>
                             </div>
                         </li>

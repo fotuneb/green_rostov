@@ -1,3 +1,5 @@
+import { User, Task, Column } from '@api'
+
 // Работа с досками
 export const Board = {
     fetch: async () => {

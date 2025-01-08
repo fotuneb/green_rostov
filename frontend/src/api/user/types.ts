@@ -30,13 +30,13 @@ export type UserPasswordObject = Pick<BaseUserRequestType,
 // Базовый тип объекта ответа с эндпоинтов категории "User"
 interface BaseUserResponseType {
     accessToken?: string
-    id?: number
-    role?: UserRole
-    fullname?: string | null
-    avatar_id?: number | null
-    about?: string | null
-    login?: string
-    telegram_link?: string
+    id: number
+    role: UserRole
+    fullname: string
+    avatar_id: number | null
+    about: string | null
+    login: string
+    telegram_link: string
 }
 
 // Типы объектов ответа с эндпоинтов категории "User"

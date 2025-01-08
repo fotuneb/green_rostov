@@ -21,7 +21,7 @@ interface EditProfileProps {
 const EditProfile: FC<EditProfileProps> = (props) => {
     // Группа стейтов для аватарки
     const fileRef = useRef<HTMLInputElement>(null);
-    const [avatarImage, setAvatarImage] = useState(null);
+    const [avatarImage, setAvatarImage] = useState<string | null>(null);
     const [isUserModal, setIsUserModal] = useState(true);
 
     // Контекст для обновления аватара

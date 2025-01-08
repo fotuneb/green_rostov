@@ -1,19 +1,25 @@
 import { sendAPIRequestJSON } from "../index"
-import { TaskAPIRequestObjectFull, TaskAPIRequestObjectPartial } from "./types"
+import { CreatedTask, TaskChangeDescAPIResponse, 
+         TaskChangeDescRequestObject, 
+         TaskChangeResponsibleAPIResponse, 
+         TaskCreateRequestObject, 
+         TaskFull, 
+         TaskPartialList, 
+         TaskRenameAPIResponse } from "./types"
 
 // Работа с тасками
 export const Task = {
-    getAll: async (): Promise<Array<TaskAPIRequestObjectPartial>> => {
+    getAll: async (): TaskPartialList => {
         const res = await sendAPIRequestJSON('/api/tasks', 'GET')
         return await res.json()
     },
 
-    getById: async (taskId: number): Promise<TaskAPIRequestObjectFull>  => {
+    getById: async (taskId: number): TaskFull  => {
         const res = await sendAPIRequestJSON('/api/task/' + taskId, 'GET')
         return await res.json()
     },
 
-    rename: async (taskId: number, newTitle: string) => {
+    rename: async (taskId: number, newTitle: string): TaskRenameAPIResponse => {
         const res = await sendAPIRequestJSON('/api/task/rename/', 'POST', true, {
             id: taskId,
             new_title: newTitle
@@ -22,16 +28,18 @@ export const Task = {
         return await res.json()
     },
 
-    changeDescription: async (taskId: number, newDesc: string) => {
-        const res = await sendAPIRequestJSON('/api/task/change_contents/', 'POST', true, {
+    changeDescription: async (taskId: number, newDesc: string): TaskChangeDescAPIResponse => {
+        const req_body: TaskChangeDescRequestObject = {
             id: taskId,
             desc: newDesc
-        })
+        }
+        
+        const res = await sendAPIRequestJSON('/api/task/change_contents/', 'POST', true, req_body)
 
         return await res.json()
     },
 
-    changeResponsible: async (taskId: number, responsibleUserId: string) => {
+    changeResponsible: async (taskId: number, responsibleUserId: string): TaskChangeResponsibleAPIResponse => {
         const res = await sendAPIRequestJSON('/api/task/change_responsible/', 'POST', true, {
             id: taskId,
             id_user: responsibleUserId
@@ -60,12 +68,14 @@ export const Task = {
         return await res.json()
     },
 
-    create: async (title: string, columnId: number) => {
-        const res = await sendAPIRequestJSON('/api/task', 'PUT', true, {
+    create: async (title: string, columnId: number): CreatedTask => {
+        const req_body: TaskCreateRequestObject = {
             title,
             id_column: columnId,
             description: ''
-        })
+        }
+
+        const res = await sendAPIRequestJSON('/api/task', 'PUT', true, req_body)
 
         return await res.json()
     },

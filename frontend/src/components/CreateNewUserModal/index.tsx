@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import React, { FC, useState } from 'react';
 import { User } from "@api"; 
 import "./create_new_user_modal.css";
 
 // Основа компонента модального окна для создания нового юзера в админке
-const EditNewUser = ({ closeModal }) => {
-    const [fullname, setFullname] = useState(null);
-    const [login, setLogin] = useState(null);
-    const [curError, setCurError] = useState('');
+const EditNewUser: FC<{closeModal: () => void}> = ({ closeModal }) => {
+    const [fullname, setFullname] = useState<string>('');
+    const [login, setLogin] = useState<string>('');
+    const [curError, setCurError] = useState<boolean>(false);
 
     // Стейт для управления ввода пароля
     const [passwords, setPasswords] = useState({
@@ -15,7 +15,7 @@ const EditNewUser = ({ closeModal }) => {
     })
 
     // Коллбэк для управления ввода паролей
-    const handlePasswordChange = (e) => {
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setPasswords((prev) => ({ ...prev, [name]: value }));
     }
@@ -91,8 +91,13 @@ const EditNewUser = ({ closeModal }) => {
     );
 }
 
+type CreateNewUserModalProps = {
+    isOpen: boolean
+    onClose: () => void
+}
+
 // Обертка для компонента EditNewUser
-export const CreateNewUserModal = ({ isOpen, onClose }) => {
+export const CreateNewUserModal: FC<CreateNewUserModalProps> = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
     
     return (

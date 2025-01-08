@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { getCookie } from "@utils/cookies";
 import { AvatarProvider } from "@contexts/AvatarContext";
@@ -9,6 +9,12 @@ import Login from "@pages/Login";
 import Register from "@pages/Register";
 import BoardPage from "@pages/Board";
 import Admin from "@pages/Admin";
+
+type RouteMiddlewareProps = {
+  isLogged: boolean
+  children: ReactNode
+  redirectTo: string
+}
 
 // Получить токен пользователя
 function getToken(): string | null {
@@ -31,12 +37,12 @@ const App: FC = () => {
   }, [token]);
 
   // Обертка для защищенных маршрутов
-  const ProtectedRoute = ({ isLogged, children, redirectTo }) => {
+  const ProtectedRoute: FC<RouteMiddlewareProps> = ({ isLogged, children, redirectTo }) => {
     return isLogged ? children : <Navigate to={redirectTo} replace />;
   };
 
   // Обертка для маршрутов неавторизованных пользователей
-  const PublicRoute = ({ isLogged, children, redirectTo }) => {
+  const PublicRoute: FC<RouteMiddlewareProps> = ({ isLogged, children, redirectTo }) => {
     return !isLogged ? children : <Navigate to={redirectTo} replace />;
   };
 
