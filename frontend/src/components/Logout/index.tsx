@@ -1,6 +1,5 @@
-import React from "react";
-import { deleteCookie } from "../../utilities/cookies.js";
 import { useNavigate } from "react-router";
+import { deleteCookie } from "@utils/cookies";
 
 function Logout({setIsLogged}) {
   const navigate = useNavigate();

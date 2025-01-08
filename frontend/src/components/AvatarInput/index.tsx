@@ -1,4 +1,4 @@
-import React, { forwardRef, useRef } from "react";
+import { forwardRef, useRef } from "react";
 
 const AvatarInput = forwardRef(({ setImage }, ref) => {
   const sandboxRef = useRef(null); 

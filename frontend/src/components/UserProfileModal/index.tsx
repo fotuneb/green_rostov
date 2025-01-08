@@ -1,20 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
-import "./user_profile_modal.css"
-import { getCookie } from '../../utilities/cookies.js';
-import { User } from '../../utilities/api/user/user';
-import { useAvatar } from '../../contexts/AvatarContext';
-import AvatarInput from "../AvatarInput";
-import AvatarImage from "../AvatarImage";
+import { useState, useEffect, useRef } from 'react';
+import { getCookie } from '@utils/cookies';
+import { User } from '@api/user';
+import { useAvatar } from '@contexts/AvatarContext';
+import AvatarInput from "@components/AvatarInput";
+import AvatarImage from "@components/AvatarImage";
+import type { FC } from 'react'
+import type {
+    UserPublicInfoObject,
+    UserObjectAPIResponse, 
+    UserTgLinkAPIResponse 
+} from '@api/user/types';
 import "./user_profile_modal.css"
 
-import type {
-     UserPublicInfoObject,
-     UserObjectAPIResponse, 
-     UserTgLinkAPIResponse 
-} from '../../utilities/api/user/types';
+// Пропсы компонента
+interface EditProfileProps {
+    closeModal: () => void
+}
 
 // Компонент модального окна для изменения данных о юзере
-const EditProfile = ({closeModal}: boolean) => {
+const EditProfile: FC<EditProfileProps> = (props) => {
     // Группа стейтов для аватарки
     const fileRef = useRef<HTMLInputElement>(null);
     const [avatarImage, setAvatarImage] = useState(null);
@@ -115,7 +119,7 @@ const EditProfile = ({closeModal}: boolean) => {
         await User.changePublicInfo(userInfo).catch(console.error);
         
         if (passwords.newPassword === '')
-            return closeModal();
+            return props.closeModal();
 
         if (passwords.newPassword !== passwords.confirmPassword) {
             setError('Пароли не совпадают!')
@@ -205,15 +209,17 @@ interface UserProfileModalProps {
     onClose: () => void
 }
 
-export const UserProfileModal = ({ isOpen, onClose }: UserProfileModalProps) => {
-    if (!isOpen) return null;
+const UserProfileModal: FC<UserProfileModalProps> = (props) => {
+    if (!props.isOpen) return null;
     
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-overlay" onClick={props.onClose}>
             <div className="modal-content user-profile-modal" onClick={(e) => e.stopPropagation()}>
-                <EditProfile closeModal={onClose} />
+                <EditProfile closeModal={props.onClose} />
             </div>
         </div>
     );
 };
+
+export default UserProfileModal;
  

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User } from "../../utilities/api";
-import { setCookie } from "../../utilities/cookies.js";
+import { User } from "@api";
+import { setCookie } from "@utils/cookies";
 import './login.css'; // Импортируем стили
 
 

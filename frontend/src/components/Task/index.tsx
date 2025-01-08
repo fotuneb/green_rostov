@@ -1,8 +1,8 @@
-import { React, useState } from "react";
+import { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
-import { Modal } from "../TaskModal";
-import { useAvatar } from "../../contexts/AvatarContext";
-import AvatarImage from '../AvatarImage'
+import { Modal } from "@components/TaskModal";
+import { useAvatar } from "@contexts/AvatarContext";
+import AvatarImage from '@components/AvatarImage'
 import "./task.css"
 
 interface TaskProps {

@@ -1,9 +1,9 @@
-import { React, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import Logout from "../Logout";
-import SmallLogo from "../SmallLogo/index.jsx";
-import { UserProfileModal } from "../UserProfileModal"
-import { getCookie, isCookieExists } from "../../utilities/cookies.js"
+import { getCookie, isCookieExists } from "@utils/cookies"
+import Logout from "@components/Logout";
+import SmallLogo from "@components/SmallLogo";
+import UserProfileModal from "@components/UserProfileModal"
 import "./navbar.css";
 
 function Navbar({setIsLogged}) {

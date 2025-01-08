@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { Navigate } from "react-router-dom";
-import { getCookie, isCookieExists } from "../../utilities/cookies.js";
-import { AvatarProvider, useAvatar } from '../../contexts/AvatarContext/index.js';
-import TaskFilter from "../../components/TaskFilter/index.js";
-import ColumnCompotent from "../../components/Column/index.js"
-import AddColumn from "../../components/AddColumn/index.js";
-import { User, Board, Task, Column } from "../../utilities/api.js";
+import { getCookie, isCookieExists } from "@utils/cookies";
+import { useAvatar } from '@contexts/AvatarContext';
+import TaskFilter from "@components/TaskFilter";
+import ColumnCompotent from "@components/Column"
+import AddColumn from "@components/AddColumn";
+import { User, Board, Task, Column } from "@api";
 import "./board.css";
 
 function BoardPage() {

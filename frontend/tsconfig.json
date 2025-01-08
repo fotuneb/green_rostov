@@ -1,14 +1,25 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "lib": ["dom", "es2015"],
     "allowJs": true,
-    "jsx": "react",
-    "strict": true,
+    "jsx": "react-jsx",
+    "strict": false,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "module": "esnext",
+    "baseUrl": "./src",
+    "paths": {
+      "@components/*": ["components/*"],
+      "@pages/*": ["pages/*"],
+      "@utils/*": ["utilities/*"],
+      "@api": ["api/index"],
+      "@api/*": ["api/*"],
+      "@contexts/*": ["contexts/*"]
+    }
   },
   "include": [
     "src"

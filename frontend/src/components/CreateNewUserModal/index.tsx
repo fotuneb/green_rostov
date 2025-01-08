@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { User } from "../../utilities/api.js";
-import { handleError } from "../../utilities/helpers.js"; 
+import { useState } from 'react';
+import { User } from "@api"; 
 import "./create_new_user_modal.css";
 
 // Основа компонента модального окна для создания нового юзера в админке

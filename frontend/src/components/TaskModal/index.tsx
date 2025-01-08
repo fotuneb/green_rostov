@@ -1,37 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { getCookie } from '../../utilities/cookies';
-import ReactQuill from 'react-quill';
-import { Task } from '../../utilities/api/task/task'
-import { User } from '../../utilities/api/user/user'
-import { Comments } from '../../utilities/api/comments/comments'
-import { Tracker } from './Tracker/index.js';
-import TaskComment from '../TaskComment';
-import AvatarImage from "../AvatarImage";
-import 'react-quill/dist/quill.snow.css'; // Импорт стилей для редактора
-import './task_modal.css';
-
-import { TaskAPIRequestObjectFull } from "../../utilities/api/task/types"
-import { UserObjectAPIResponse } from '../../utilities/api/user/types'
-
-// Метод для форматирования даты
-const formatDate = (dateString, reversed, dayOnly) => {
-    const date = new Date(dateString); // Преобразуем строку в объект Date
-
-    // Получаем компоненты даты
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    
-    // Формируем дату в нужном формате
-    return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
-}
+import { useState, useRef, useEffect } from 'react'
+import ReactQuill from 'react-quill'
+import { Tracker } from './Tracker'
+import TaskComment from '@components/TaskComment'
+import AvatarImage from "@components/AvatarImage"
+import { getCookie } from '@utils/cookies'
+import { formatDate } from '@utils/helpers'
+import { User, Task, Comments } from '@api'
+import type { TaskAPIRequestObjectFull } from "@api/task/types"
+import type { UserObjectAPIResponse } from '@api/user/types'
+import 'react-quill/dist/quill.snow.css' // Импорт стилей для редактора
+import './task_modal.css'
 
 // Функционал дедлайнов
 const DeadlineRow = ({isEditing, setIsEditing, deadlineValue, onEdited}) => {
-    const val = formatDate(deadlineValue, undefined, true)
+    const val = formatDate(deadlineValue)
     const [newValue, setNewValue] = useState(val)
 
     if (isEditing) {

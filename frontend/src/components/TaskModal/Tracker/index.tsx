@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LuListVideo, LuPlay, LuPause } from 'react-icons/lu';
-import { Task } from '../../../utilities/api';
+import { Task } from '@api';
 import './index.css';
 
 function formatTrackedTime(seconds) {

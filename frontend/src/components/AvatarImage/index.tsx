@@ -1,5 +1,5 @@
-import { React, useState, useEffect } from "react";
-import { User, Attachment } from "../../utilities/api";
+import { useState, useEffect } from "react";
+import { User, Attachment } from "@api";
 import "./index.css"
 
 // Формирование строки-заглушки в случае отсутствия аватарки

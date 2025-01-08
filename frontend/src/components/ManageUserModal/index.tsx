@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { UserAdmin } from '../../utilities/api.js';
-import { User } from "../../utilities/api.js"
+import { useState } from 'react';
+import { User, UserAdmin } from '@api';
 import "./manage_user_modal.css";
 
 // Компонент модального окна

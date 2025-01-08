@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { ManageUserModal } from "../../components/ManageUserModal";
-import { CreateNewUserModal } from '../../components/CreateNewUserModal';
+import { useEffect, useState } from 'react';
 import { useLocation } from "react-router-dom";
-import { User } from '../../utilities/api';
+import { ManageUserModal } from "@components/ManageUserModal";
+import { CreateNewUserModal } from '@components/CreateNewUserModal';
+import { User } from '@api';
 import './admin.css';
 
 // Страница админки

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Task } from "../../utilities/api";
 import { LuPlus } from "react-icons/lu"
+import { Task } from "@api";
 import "./add_task.css"
 
 function AddTask(props) {
@@ -8,9 +8,9 @@ function AddTask(props) {
   const [value, setValue] = useState("");
 
   // Обработка события завершения ввода
-  function handleInputComplete(event) {
-    if (event.key === "Enter" && event.target.value !== "") {
-      addNewTask(event.target.value, props.columnId);
+  function handleInputComplete(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
+      addNewTask(e.target.value, props.columnId);
 
       setShowNewTaskButton(true);
       setValue("");
@@ -18,7 +18,7 @@ function AddTask(props) {
   }
 
   // Добавление новой таски
-  async function addNewTask(content, columnId) {
+  async function addNewTask(content: string, columnId: string) {
     await Task.create(content, parseInt(columnId))
     props.onTaskAdded()
   }

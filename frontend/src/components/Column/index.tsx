@@ -1,10 +1,9 @@
-import React from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { LuTrash2 } from "react-icons/lu";
-import { getCookie } from "../../utilities/cookies.js";
-import { Column } from "../../utilities/api.js";
-import Task from "../Task";
-import AddTask from "../AddTask/index.js";
+import { getCookie } from "@utils/cookies";
+import Task from "@components/Task";
+import AddTask from "@components/AddTask/";
+import { Column } from "@api";
 import "./column.css"
 
 // Кастомные палитры цветов для колонок

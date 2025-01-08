@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User } from "../../utilities/api";
+import { User } from "@api";
 import './register.css'; // Импортируем стили
 
 // Страница регистрации юзера

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { User } from "../../utilities/api/user/user";
-import AvatarImage from "../AvatarImage/index.jsx"
-import { getCookie } from '../../utilities/cookies.js';
+import AvatarImage from "@components/AvatarImage"
+import { getCookie } from '@utils/cookies';
+import { User } from "@api";
+import type { FC } from 'react';
+import type { UserObjectAPIResponse } from '@api/user/types';
 import "./task_comment.css"
-import { UserObjectAPIResponse } from '../../utilities/api/user/types.js';
 
 interface TaskCommentProps {
     commentId: number
@@ -16,7 +17,7 @@ interface TaskCommentProps {
 }
 
 // Компонент для отдельного коммента к таске
-export default function TaskComment(props: TaskCommentProps) {
+const TaskComment: FC<TaskCommentProps> = (props) => {
     const [user, setUser] = useState<UserObjectAPIResponse>({});
     const [isEditing, setIsEditing] = useState(false);
     const [oldText, setOldText] = useState(props.description.replace("<p>", "").replace("</p>", ""));
@@ -130,3 +131,5 @@ export default function TaskComment(props: TaskCommentProps) {
         </div>
     )
 }
+
+export default TaskComment

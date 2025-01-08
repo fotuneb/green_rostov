@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { LuFilter } from "react-icons/lu"
 import './task_filter.css'; // Импортируем стили
 
