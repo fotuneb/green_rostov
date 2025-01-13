@@ -27,7 +27,7 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
-    command: npm run start
+    command: pnpm run dev
     env_file: .env
     ports:
       - 3000:3000
